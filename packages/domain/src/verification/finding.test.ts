@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { createFinding, evaluateReleaseBlockingFindings, isReleaseBlockingFinding } from "./finding.js";
+import {
+  createFinding,
+  evaluateReleaseBlockingFindings,
+  isReleaseBlockingFinding,
+} from "./finding.js";
 import {
   markFindingFalsePositive,
   resolveFinding,
@@ -11,7 +15,9 @@ import {
 
 const raisedAt = new Date("2026-08-03T12:00:00.000Z");
 
-function buildFinding(overrides: Partial<Parameters<typeof createFinding>[0]> = {}): ReturnType<typeof createFinding> {
+function buildFinding(
+  overrides: Partial<Parameters<typeof createFinding>[0]> = {},
+): ReturnType<typeof createFinding> {
   return createFinding(
     {
       organizationId: "org_123",

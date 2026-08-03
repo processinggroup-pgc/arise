@@ -117,7 +117,9 @@ export async function generateReleaseEvidence(
     ...(command.executionEvidence === undefined
       ? {}
       : {
-          hasImplementationChanges: hasImplementationChanges(command.executionEvidence.changedPaths),
+          hasImplementationChanges: hasImplementationChanges(
+            command.executionEvidence.changedPaths,
+          ),
           hasLinkedTests: hasLinkedTestChanges(command.executionEvidence.changedPaths),
         }),
   });

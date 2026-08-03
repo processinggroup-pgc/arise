@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  createAgentRunInputContract,
-  createToolActionEnvelope,
-} from "./agent-run-contracts.js";
+import { createAgentRunInputContract, createToolActionEnvelope } from "./agent-run-contracts.js";
 
 describe("agent run contracts", () => {
   it("requires role, tools, budget and output schema", () => {

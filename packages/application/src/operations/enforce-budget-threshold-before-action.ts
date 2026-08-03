@@ -97,7 +97,10 @@ export async function enforceBudgetThresholdBeforeAction(
   }
 
   const thresholdUsd = command.thresholdUsd ?? PLATFORM_WORK_ITEM_BUDGET_THRESHOLD_USD;
-  const attributedCostUsd = await resolveAttributedCostUsd(command.workItemId, costAttributionStore);
+  const attributedCostUsd = await resolveAttributedCostUsd(
+    command.workItemId,
+    costAttributionStore,
+  );
   const budgetApprovalGranted = await hasActiveBudgetApproval(
     command.tenantContext.organizationId,
     command.workItemId,

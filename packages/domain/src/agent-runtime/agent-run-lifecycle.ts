@@ -61,7 +61,9 @@ export function assertAgentRunAcceptsToolActions(run: AgentRun): void {
   }
 
   if (run.status === "failed") {
-    throw new AgentRunLifecycleError("Failed agent runs cannot authorize tool actions until resumed");
+    throw new AgentRunLifecycleError(
+      "Failed agent runs cannot authorize tool actions until resumed",
+    );
   }
 }
 

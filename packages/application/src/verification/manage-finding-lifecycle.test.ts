@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  createExecutionSession,
-  createTenantContext,
-  FindingLifecycleError,
-} from "@arise/domain";
+import { createExecutionSession, createTenantContext, FindingLifecycleError } from "@arise/domain";
 
 import { createProjectForOrganization } from "../project/create-project.js";
 import { InMemoryProjectStore } from "../project/in-memory-project-store.js";

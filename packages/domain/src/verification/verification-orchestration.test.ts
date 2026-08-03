@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { buildVerificationOrchestrationPlan, evaluateVerificationOrchestrationResult } from "./verification-orchestration.js";
-import { createTestRun, startTestRun, completeTestRun, buildTestRunArtifactRef } from "./test-run.js";
+import {
+  buildVerificationOrchestrationPlan,
+  evaluateVerificationOrchestrationResult,
+} from "./verification-orchestration.js";
+import {
+  createTestRun,
+  startTestRun,
+  completeTestRun,
+  buildTestRunArtifactRef,
+} from "./test-run.js";
 
 describe("verification orchestration", () => {
   it("builds a plan covering all required test categories", () => {

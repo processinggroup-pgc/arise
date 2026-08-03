@@ -253,7 +253,10 @@ describe("runReviewerAgent", () => {
       operationContext,
     );
 
-    expect(result.inputContract.allowedTools).toEqual(["repository.read_file", "repository.search"]);
+    expect(result.inputContract.allowedTools).toEqual([
+      "repository.read_file",
+      "repository.search",
+    ]);
     expect(result.output.verdict).toBe("changes_requested");
     expect(result.output.requirementCoverage[0]?.status).toBe("partial");
     expect(result.raisedFindingIds.length).toBeGreaterThan(0);

@@ -138,7 +138,10 @@ export function evaluateTechnicalDebtOverdue(
   };
 }
 
-export function resolveTechnicalDebtItem(item: TechnicalDebtItem, updatedAt: Date): TechnicalDebtItem {
+export function resolveTechnicalDebtItem(
+  item: TechnicalDebtItem,
+  updatedAt: Date,
+): TechnicalDebtItem {
   if (item.status === "resolved" || item.status === "waived") {
     throw new Error("Technical debt is already closed");
   }

@@ -116,9 +116,7 @@ export function runPolicyMutationSuite(
   return scenarios.map((scenario) => evaluatePolicyMutationScenario(scenario));
 }
 
-export function assertPolicyMutationSuiteKillsAllMutants(
-  results: PolicyMutationResult[],
-): void {
+export function assertPolicyMutationSuiteKillsAllMutants(results: PolicyMutationResult[]): void {
   const survivors = results.filter((result) => !result.killed);
   if (survivors.length > 0) {
     throw new Error(

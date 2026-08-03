@@ -24,10 +24,7 @@ import { indexRepository } from "../repository-intelligence/index-repository.js"
 import { InMemoryRepositoryIndexStore } from "../repository-intelligence/in-memory-repository-index-store.js";
 import { InMemoryExecutionSessionStore } from "./in-memory-execution-session-store.js";
 import { provisionExecutionSession } from "./provision-execution-session.js";
-import {
-  executeTypedToolAction,
-  TypedToolExecutionError,
-} from "./execute-typed-tool-action.js";
+import { executeTypedToolAction, TypedToolExecutionError } from "./execute-typed-tool-action.js";
 
 const tenantContext = createTenantContext({
   organizationId: "org_123",
@@ -181,7 +178,11 @@ describe("executeTypedToolAction", () => {
       operationContext,
     );
 
-    workspacePort.seedWorkspace(session.sandboxSessionId, { "src/index.ts": "export {};" }, session.branch);
+    workspacePort.seedWorkspace(
+      session.sandboxSessionId,
+      { "src/index.ts": "export {};" },
+      session.branch,
+    );
 
     const envelope = createToolActionEnvelope(
       {

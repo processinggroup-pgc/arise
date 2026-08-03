@@ -1,4 +1,8 @@
-import type { AgentRunBudget, AgentRunContextItem, AgentRunInputContract } from "./agent-run-contracts.js";
+import type {
+  AgentRunBudget,
+  AgentRunContextItem,
+  AgentRunInputContract,
+} from "./agent-run-contracts.js";
 import { createAgentRunInputContract } from "./agent-run-contracts.js";
 import { DISCOVERY_AGENT_WRITE_TOOLS } from "./discovery-agent.js";
 import type { DiscoveryAgentOutput } from "./discovery-agent.js";
@@ -108,7 +112,11 @@ function collectRelevantPaths(discoveryOutput: DiscoveryAgentOutput): string[] {
     const directory = directoryIndex === -1 ? "" : seedPath.slice(0, directoryIndex);
 
     for (const file of discoveryOutput.repositoryMap.files) {
-      if (directory.length === 0 || file.path.startsWith(`${directory}/`) || file.path === seedPath) {
+      if (
+        directory.length === 0 ||
+        file.path.startsWith(`${directory}/`) ||
+        file.path === seedPath
+      ) {
         paths.add(file.path);
       }
     }
@@ -117,7 +125,9 @@ function collectRelevantPaths(discoveryOutput: DiscoveryAgentOutput): string[] {
   return [...paths].sort((left, right) => left.localeCompare(right));
 }
 
-export function buildArchitectureOptions(input: BuildArchitectureOptionsInput): ArchitectureOption[] {
+export function buildArchitectureOptions(
+  input: BuildArchitectureOptionsInput,
+): ArchitectureOption[] {
   const affectedPaths = collectRelevantPaths(input.discoveryOutput);
   const dependencyCount = input.discoveryOutput.repositoryMap.dependencyCount;
   const options: ArchitectureOption[] = [

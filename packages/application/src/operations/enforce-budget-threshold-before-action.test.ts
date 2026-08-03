@@ -1,15 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  createCostAttributionRecord,
-  createTenantContext,
-} from "@arise/domain";
+import { createCostAttributionRecord, createTenantContext } from "@arise/domain";
 
 import { InMemoryApprovalStore } from "../governance/in-memory-approval-store.js";
-import {
-  decideApprovalRequest,
-  requestApproval,
-} from "../governance/manage-approvals.js";
+import { decideApprovalRequest, requestApproval } from "../governance/manage-approvals.js";
 import { InMemoryWorkItemStore } from "../intent/in-memory-work-item-store.js";
 import { InMemoryCostAttributionStore } from "./in-memory-cost-attribution-store.js";
 import { InMemoryBudgetPauseStore } from "./in-memory-budget-pause-store.js";

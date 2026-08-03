@@ -20,7 +20,9 @@ export function quarantineExecutionSessionForIncident(
   endedAt: Date,
 ): ExecutionSession {
   if (!canSuspendExecutionSession(session)) {
-    throw new ExecutionSessionLifecycleError("Execution session cannot be suspended for incident containment");
+    throw new ExecutionSessionLifecycleError(
+      "Execution session cannot be suspended for incident containment",
+    );
   }
 
   return {

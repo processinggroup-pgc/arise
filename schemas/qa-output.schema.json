@@ -46,13 +46,7 @@
     },
     "execution_evidence": {
       "type": "object",
-      "required": [
-        "branch_name",
-        "commit_id",
-        "changed_paths",
-        "tool_call_evidence_refs",
-        "diffs"
-      ],
+      "required": ["branch_name", "commit_id", "changed_paths", "tool_call_evidence_refs", "diffs"],
       "properties": {
         "branch_name": { "type": "string", "minLength": 1 },
         "commit_id": { "type": "string", "minLength": 1 },

@@ -113,7 +113,9 @@ export function createBudgetPause(
     throw new Error("Budget pause identifiers are required");
   }
 
-  const reasons = input.reasons.map((reason) => reason.trim()).filter((reason) => reason.length > 0);
+  const reasons = input.reasons
+    .map((reason) => reason.trim())
+    .filter((reason) => reason.length > 0);
   if (reasons.length === 0) {
     throw new Error("Budget pause reasons are required");
   }

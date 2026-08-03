@@ -55,7 +55,9 @@ export function markFindingFalsePositive(finding: Finding, updatedAt: Date): Fin
   }
 
   if (finding.status !== "open" && finding.status !== "in_remediation") {
-    throw new FindingLifecycleError("Only open or in-remediation findings can be marked false positive");
+    throw new FindingLifecycleError(
+      "Only open or in-remediation findings can be marked false positive",
+    );
   }
 
   return {

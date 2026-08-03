@@ -1,4 +1,8 @@
-import type { AgentRunBudget, AgentRunContextItem, AgentRunInputContract } from "./agent-run-contracts.js";
+import type {
+  AgentRunBudget,
+  AgentRunContextItem,
+  AgentRunInputContract,
+} from "./agent-run-contracts.js";
 import { createAgentRunInputContract } from "./agent-run-contracts.js";
 import { DISCOVERY_AGENT_WRITE_TOOLS } from "./discovery-agent.js";
 import type { ExecutionEvidence } from "../execution/execution-evidence.js";
@@ -176,7 +180,8 @@ export function buildConstitutionReviewFindings(
           severity: "critical",
           title: `Constitution violation: secret material in ${diff.path}`,
           evidence:
-            executionEvidence.toolCallEvidenceRefs[0] ?? `execution-evidence/${executionEvidence.id}`,
+            executionEvidence.toolCallEvidenceRefs[0] ??
+            `execution-evidence/${executionEvidence.id}`,
           remediation: "Remove secrets from source and rotate affected credentials",
           blocking: true,
         });
@@ -204,7 +209,8 @@ export function buildConstitutionReviewFindings(
     for (const diff of executionEvidence.diffs) {
       if (
         /^(apps|src)\/.*/u.test(diff.path) &&
-        (DIRECT_DATABASE_ACCESS_PATTERN.test(diff.after) || DIRECT_DATABASE_ACCESS_PATTERN.test(diff.before))
+        (DIRECT_DATABASE_ACCESS_PATTERN.test(diff.after) ||
+          DIRECT_DATABASE_ACCESS_PATTERN.test(diff.before))
       ) {
         findings.push({
           id: input.createId(),

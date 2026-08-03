@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  createDeployment,
-  createReleaseEvidence,
-  createTenantContext,
-} from "@arise/domain";
+import { createDeployment, createReleaseEvidence, createTenantContext } from "@arise/domain";
 
 import { InMemoryApprovalStore } from "../governance/in-memory-approval-store.js";
 import {

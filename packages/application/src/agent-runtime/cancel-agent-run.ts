@@ -1,8 +1,4 @@
-import {
-  cancelAgentRun,
-  type AgentRun,
-  type TenantContext,
-} from "@arise/domain";
+import { cancelAgentRun, type AgentRun, type TenantContext } from "@arise/domain";
 
 import { AgentRunScopeError } from "./create-agent-run.js";
 import type { AgentRunStore } from "./agent-run-store.js";

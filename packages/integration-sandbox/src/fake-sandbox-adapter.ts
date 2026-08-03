@@ -41,12 +41,18 @@ export class FakeSandboxAdapter implements SandboxPort {
       return Promise.reject(new SandboxProvisionError("Sandbox repository branch is required"));
     }
 
-    if (request.limits.maxDurationMs < 1 || request.limits.maxMemoryMb < 1 || request.limits.maxCpuMillis < 1) {
+    if (
+      request.limits.maxDurationMs < 1 ||
+      request.limits.maxMemoryMb < 1 ||
+      request.limits.maxCpuMillis < 1
+    ) {
       return Promise.reject(new SandboxProvisionError("Sandbox limits are invalid"));
     }
 
     if (request.limits.networkEgressAllowed) {
-      return Promise.reject(new SandboxProvisionError("Routine sandboxes cannot allow network egress"));
+      return Promise.reject(
+        new SandboxProvisionError("Routine sandboxes cannot allow network egress"),
+      );
     }
 
     const sandboxSessionId = buildSandboxSessionId(sessionId);

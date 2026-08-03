@@ -118,7 +118,9 @@ describe("release evidence generation", () => {
 
     expect(evaluation.complete).toBe(false);
     expect(evaluation.status).toBe("blocked");
-    expect(evaluation.blockers.some((blocker) => blocker.includes("release-blocking finding"))).toBe(true);
+    expect(
+      evaluation.blockers.some((blocker) => blocker.includes("release-blocking finding")),
+    ).toBe(true);
   });
 
   it("creates complete release evidence when all gates pass", () => {

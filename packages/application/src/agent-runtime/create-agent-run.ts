@@ -62,11 +62,7 @@ export async function createAgentRunForWorkItem(
   agentRunStore: AgentRunStore,
   operationContext: IdentityOperationContext,
 ): Promise<CreateAgentRunResult> {
-  await assertWorkItemInTenantScope(
-    workItemStore,
-    command.workItemId,
-    command.tenantContext,
-  );
+  await assertWorkItemInTenantScope(workItemStore, command.workItemId, command.tenantContext);
 
   const registeredModel = await modelRegistryStore.findRegisteredModelById(
     command.registeredModelId,

@@ -44,7 +44,11 @@ export async function startFindingRemediationForWorkItem(
   findingStore: FindingStore,
   updatedAt: Date,
 ): Promise<Finding> {
-  const finding = await loadTenantScopedFinding(findingStore, command.findingId, command.tenantContext);
+  const finding = await loadTenantScopedFinding(
+    findingStore,
+    command.findingId,
+    command.tenantContext,
+  );
 
   try {
     const updated = startFindingRemediation(finding, updatedAt);
@@ -64,7 +68,11 @@ export async function resolveFindingForWorkItem(
   findingStore: FindingStore,
   resolvedAt: Date,
 ): Promise<Finding> {
-  const finding = await loadTenantScopedFinding(findingStore, command.findingId, command.tenantContext);
+  const finding = await loadTenantScopedFinding(
+    findingStore,
+    command.findingId,
+    command.tenantContext,
+  );
 
   try {
     const updated = resolveFinding(finding, resolvedAt);
@@ -84,7 +92,11 @@ export async function waiveFindingForWorkItem(
   findingStore: FindingStore,
   updatedAt: Date,
 ): Promise<Finding> {
-  const finding = await loadTenantScopedFinding(findingStore, command.findingId, command.tenantContext);
+  const finding = await loadTenantScopedFinding(
+    findingStore,
+    command.findingId,
+    command.tenantContext,
+  );
 
   try {
     const updated = waiveFinding(finding, updatedAt);
@@ -104,7 +116,11 @@ export async function markFindingFalsePositiveForWorkItem(
   findingStore: FindingStore,
   updatedAt: Date,
 ): Promise<Finding> {
-  const finding = await loadTenantScopedFinding(findingStore, command.findingId, command.tenantContext);
+  const finding = await loadTenantScopedFinding(
+    findingStore,
+    command.findingId,
+    command.tenantContext,
+  );
 
   try {
     const updated = markFindingFalsePositive(finding, updatedAt);

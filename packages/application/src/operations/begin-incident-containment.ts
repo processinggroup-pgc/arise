@@ -85,7 +85,9 @@ export async function beginIncidentContainmentForOrganization(
     throw new IncidentContainmentError("At least one credential reference must be revoked");
   }
 
-  const sessions = await executionSessionStore.listExecutionSessionsForWorkItem(incident.workItemId);
+  const sessions = await executionSessionStore.listExecutionSessionsForWorkItem(
+    incident.workItemId,
+  );
   const suspendedExecutionSessionIds: string[] = [];
 
   for (const session of sessions) {

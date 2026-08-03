@@ -10,10 +10,7 @@ import {
 import { InMemoryAgentRunCheckpointStore } from "./in-memory-agent-run-checkpoint-store.js";
 import { InMemoryAgentRunStore } from "./in-memory-agent-run-store.js";
 import { InMemoryToolCallStore } from "./in-memory-tool-call-store.js";
-import {
-  AgentRunCancellationError,
-  cancelAgentRunForWorkItem,
-} from "./cancel-agent-run.js";
+import { AgentRunCancellationError, cancelAgentRunForWorkItem } from "./cancel-agent-run.js";
 import { checkpointAgentRun } from "./checkpoint-agent-run.js";
 import { inspectAgentRun } from "./inspect-agent-run.js";
 import { AgentRunResumeError, resumeAgentRunForWorkItem } from "./resume-agent-run.js";
@@ -91,7 +88,11 @@ describe("durable agent run orchestration", () => {
         tenantContext,
         agentRunId: seeded.agentRunId,
         phase: "context_retrieval",
-        budgetUsage: createAgentRunBudgetUsage({ actionsUsed: 1, costUsdUsed: 0.02, tokensUsed: 500 }),
+        budgetUsage: createAgentRunBudgetUsage({
+          actionsUsed: 1,
+          costUsdUsed: 0.02,
+          tokensUsed: 500,
+        }),
         completedSteps: ["retrieve_context"],
         markFailed: true,
       },

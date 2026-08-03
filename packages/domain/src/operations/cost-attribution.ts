@@ -6,7 +6,11 @@ import type { ExecutionSession } from "../execution/execution-session.js";
 export const COST_ATTRIBUTION_CATEGORIES = ["model", "build", "sandbox"] as const;
 export type CostAttributionCategory = (typeof COST_ATTRIBUTION_CATEGORIES)[number];
 
-export const COST_ATTRIBUTION_SOURCE_TYPES = ["agent_run", "tool_call", "execution_session"] as const;
+export const COST_ATTRIBUTION_SOURCE_TYPES = [
+  "agent_run",
+  "tool_call",
+  "execution_session",
+] as const;
 export type CostAttributionSourceType = (typeof COST_ATTRIBUTION_SOURCE_TYPES)[number];
 
 export const PLATFORM_SANDBOX_COST_RATE_USD_PER_MINUTE = 0.05;
@@ -190,10 +194,14 @@ export function aggregateCostAttribution(
 
   const lineItems = input.lineItems.map(normalizeLineItem);
   const modelCostUsd = roundCostUsd(
-    lineItems.filter((item) => item.category === "model").reduce((sum, item) => sum + item.costUsd, 0),
+    lineItems
+      .filter((item) => item.category === "model")
+      .reduce((sum, item) => sum + item.costUsd, 0),
   );
   const buildCostUsd = roundCostUsd(
-    lineItems.filter((item) => item.category === "build").reduce((sum, item) => sum + item.costUsd, 0),
+    lineItems
+      .filter((item) => item.category === "build")
+      .reduce((sum, item) => sum + item.costUsd, 0),
   );
   const sandboxCostUsd = roundCostUsd(
     lineItems

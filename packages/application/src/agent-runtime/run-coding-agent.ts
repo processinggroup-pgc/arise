@@ -129,7 +129,9 @@ export async function runCodingAgent(
       tenantContext: command.tenantContext,
       repositoryId: command.repositoryId,
       seedFilePaths: command.seedFilePaths,
-      ...(command.maxContextItems === undefined ? {} : { maxContextItems: command.maxContextItems }),
+      ...(command.maxContextItems === undefined
+        ? {}
+        : { maxContextItems: command.maxContextItems }),
     },
     repositoryStore,
     repositoryIndexStore,

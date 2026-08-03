@@ -219,7 +219,11 @@ export {
 } from "./execution/capture-execution-evidence.js";
 export type { TestRunStore } from "./verification/test-run-store.js";
 export { InMemoryTestRunStore } from "./verification/in-memory-test-run-store.js";
-export type { TestRunnerPort, RunTestCategoryRequest, RunTestCategoryResult } from "./verification/test-runner-port.js";
+export type {
+  TestRunnerPort,
+  RunTestCategoryRequest,
+  RunTestCategoryResult,
+} from "./verification/test-runner-port.js";
 export { FakeTestRunnerAdapter } from "./verification/fake-test-runner-adapter.js";
 export {
   orchestrateVerification,

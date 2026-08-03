@@ -57,9 +57,9 @@ function latestCostAttribution<T extends { attributedAt: Date }>(records: T[]): 
   );
 }
 
-function selectLatestReleaseEvidence<T extends { generatedAt: Date; complete: boolean; status: string }>(
-  records: T[],
-): T | undefined {
+function selectLatestReleaseEvidence<
+  T extends { generatedAt: Date; complete: boolean; status: string },
+>(records: T[]): T | undefined {
   if (records.length === 0) {
     return undefined;
   }
@@ -99,7 +99,9 @@ export async function evaluateWorkItemOutcome(
     throw new AgentRunScopeError("Work item outcome can only be evaluated after release");
   }
 
-  const costAttributions = await costAttributionStore.listCostAttributionsForWorkItem(command.workItemId);
+  const costAttributions = await costAttributionStore.listCostAttributionsForWorkItem(
+    command.workItemId,
+  );
   const latestCost = latestCostAttribution(costAttributions);
   const incidents = await incidentStore.listIncidentsForWorkItem(command.workItemId);
   const technicalDebt = await technicalDebtStore.listTechnicalDebtForWorkItem(command.workItemId);
@@ -118,7 +120,8 @@ export async function evaluateWorkItemOutcome(
     incidentCount: incidents.length,
     openTechnicalDebtCount: openTechnicalDebt.length,
     releaseEvidenceComplete: latestReleaseEvidence?.complete === true,
-    evaluationWindowClosed: command.evaluationWindowClosedAt.getTime() <= operationContext.now().getTime(),
+    evaluationWindowClosed:
+      command.evaluationWindowClosedAt.getTime() <= operationContext.now().getTime(),
   });
 
   if (!readiness.complete) {

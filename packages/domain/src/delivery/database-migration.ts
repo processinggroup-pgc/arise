@@ -252,8 +252,6 @@ export function mapSupabaseBranchStatus(status: string): SupabasePreviewBranchSt
   }
 }
 
-export function mapSupabaseMigrationValidationStatus(
-  passed: boolean,
-): MigrationExecutionStatus {
+export function mapSupabaseMigrationValidationStatus(passed: boolean): MigrationExecutionStatus {
   return passed ? "passed" : "failed";
 }

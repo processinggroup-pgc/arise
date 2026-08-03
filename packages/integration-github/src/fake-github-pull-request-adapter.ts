@@ -37,12 +37,7 @@ export class FakeGitHubPullRequestAdapter implements GitHubPullRequestPort {
   constructor(checkFixtures: FakeGitHubPullRequestChecksFixture[] = []) {
     for (const fixture of checkFixtures) {
       this.checkFixtures.set(
-        checksKey(
-          fixture.installationId,
-          fixture.owner,
-          fixture.name,
-          fixture.pullRequestNumber,
-        ),
+        checksKey(fixture.installationId, fixture.owner, fixture.name, fixture.pullRequestNumber),
         fixture.checks,
       );
 
@@ -55,12 +50,7 @@ export class FakeGitHubPullRequestAdapter implements GitHubPullRequestPort {
         baseBranch: "main",
       };
       this.pullRequestsByNumber.set(
-        checksKey(
-          fixture.installationId,
-          fixture.owner,
-          fixture.name,
-          fixture.pullRequestNumber,
-        ),
+        checksKey(fixture.installationId, fixture.owner, fixture.name, fixture.pullRequestNumber),
         record,
       );
     }
@@ -93,7 +83,11 @@ export class FakeGitHubPullRequestAdapter implements GitHubPullRequestPort {
       record,
     );
 
-    if (!this.checkFixtures.has(checksKey(request.installationId, request.owner, request.name, number))) {
+    if (
+      !this.checkFixtures.has(
+        checksKey(request.installationId, request.owner, request.name, number),
+      )
+    ) {
       this.checkFixtures.set(
         checksKey(request.installationId, request.owner, request.name, number),
         [

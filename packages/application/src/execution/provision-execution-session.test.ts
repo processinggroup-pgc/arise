@@ -148,9 +148,9 @@ describe("provisionExecutionSession", () => {
     expect(session.sandboxProvider).toBe("fake");
     expect(session.workspacePath).toContain("PgC-git/arise");
     expect(session.limits.networkEgressAllowed).toBe(false);
-    expect(await executionSessionStore.listExecutionSessionsForWorkItem(seeded.workItemId)).toHaveLength(
-      1,
-    );
+    expect(
+      await executionSessionStore.listExecutionSessionsForWorkItem(seeded.workItemId),
+    ).toHaveLength(1);
   });
 
   it("blocks provisioning when the repository is outside the work item project", async () => {

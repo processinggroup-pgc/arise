@@ -1,4 +1,8 @@
-import type { AgentRunBudget, AgentRunContextItem, AgentRunInputContract } from "./agent-run-contracts.js";
+import type {
+  AgentRunBudget,
+  AgentRunContextItem,
+  AgentRunInputContract,
+} from "./agent-run-contracts.js";
 import { createAgentRunInputContract } from "./agent-run-contracts.js";
 import { REPOSITORY_GIT_TOOL_NAMES } from "../execution/repository-git-tools.js";
 import type { AcceptanceCriterion, WorkItem } from "../intent/work-item.js";
@@ -110,7 +114,10 @@ export function buildQaAgentInputContract(
 }
 
 function normalizeLineageToken(lineageId: string): string {
-  return lineageId.replace(/[^A-Za-z0-9]/gu, "").slice(0, 8).toLowerCase();
+  return lineageId
+    .replace(/[^A-Za-z0-9]/gu, "")
+    .slice(0, 8)
+    .toLowerCase();
 }
 
 export function buildQaTestPath(workItem: WorkItem, criterionIndex: number): string {

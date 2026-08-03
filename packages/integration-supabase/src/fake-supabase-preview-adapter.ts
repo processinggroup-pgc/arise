@@ -84,9 +84,7 @@ export class FakeSupabasePreviewAdapter implements SupabasePreviewPort {
     return Promise.resolve({
       passed: !hasDestructiveMigration,
       validatedMigrationPaths: request.migrationPaths,
-      findings: hasDestructiveMigration
-        ? ["Destructive migration requires elevated approval"]
-        : [],
+      findings: hasDestructiveMigration ? ["Destructive migration requires elevated approval"] : [],
     });
   }
 

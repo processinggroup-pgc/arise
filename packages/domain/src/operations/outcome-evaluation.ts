@@ -207,7 +207,9 @@ export function createWorkItemOutcome(
     throw new Error("Work item outcome version is invalid");
   }
 
-  const lessons = input.lessons.map((lesson) => lesson.trim()).filter((lesson) => lesson.length > 0);
+  const lessons = input.lessons
+    .map((lesson) => lesson.trim())
+    .filter((lesson) => lesson.length > 0);
   const readiness = evaluateWorkItemOutcomeReadiness({
     hasCostAttribution: input.hasCostAttribution,
     incidentCount: input.incidentCount,

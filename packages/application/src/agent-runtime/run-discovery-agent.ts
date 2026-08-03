@@ -63,7 +63,9 @@ export async function runDiscoveryAgent(
       tenantContext: command.tenantContext,
       repositoryId: command.repositoryId,
       seedFilePaths: command.seedFilePaths,
-      ...(command.maxContextItems === undefined ? {} : { maxContextItems: command.maxContextItems }),
+      ...(command.maxContextItems === undefined
+        ? {}
+        : { maxContextItems: command.maxContextItems }),
     },
     repositoryStore,
     repositoryIndexStore,
@@ -98,7 +100,9 @@ export async function runDiscoveryAgent(
 
   const files = await repositoryIndexStore.listFilesForRepository(command.repositoryId);
   const symbols = await repositoryIndexStore.listSymbolsForRepository(command.repositoryId);
-  const dependencies = await repositoryIndexStore.listDependenciesForRepository(command.repositoryId);
+  const dependencies = await repositoryIndexStore.listDependenciesForRepository(
+    command.repositoryId,
+  );
   const testMaps = await repositoryIndexStore.listTestMapsForRepository(command.repositoryId);
 
   const repositoryMap = buildDiscoveryRepositoryMap({

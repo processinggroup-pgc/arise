@@ -10,7 +10,11 @@ describe("agent run checkpoint", () => {
         organizationId: "org_123",
         agentRunId: "run_1",
         phase: "context_retrieval",
-        budgetUsage: createAgentRunBudgetUsage({ actionsUsed: 2, costUsdUsed: 0.04, tokensUsed: 900 }),
+        budgetUsage: createAgentRunBudgetUsage({
+          actionsUsed: 2,
+          costUsdUsed: 0.04,
+          tokensUsed: 900,
+        }),
         completedSteps: ["retrieve_context", "validate_contract"],
       },
       {

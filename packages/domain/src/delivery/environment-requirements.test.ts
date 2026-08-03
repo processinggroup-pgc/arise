@@ -21,7 +21,9 @@ describe("environment requirements comparison", () => {
   it("rejects manifests that contain raw secret values", () => {
     const result = validateEnvironmentRequirementsManifest({
       environment: "production",
-      requirements: [{ key: "OPENAI_API_KEY", required: true, valueRef: "sk-123456789012345678901" }],
+      requirements: [
+        { key: "OPENAI_API_KEY", required: true, valueRef: "sk-123456789012345678901" },
+      ],
     });
 
     expect(result.valid).toBe(false);

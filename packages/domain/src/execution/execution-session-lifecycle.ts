@@ -9,7 +9,9 @@ export class ExecutionSessionLifecycleError extends Error {
 
 export function startExecutionSessionProvisioning(session: ExecutionSession): ExecutionSession {
   if (session.state !== "requested") {
-    throw new ExecutionSessionLifecycleError("Only requested execution sessions can be provisioned");
+    throw new ExecutionSessionLifecycleError(
+      "Only requested execution sessions can be provisioned",
+    );
   }
 
   return {
@@ -24,7 +26,9 @@ export function markExecutionSessionReady(
   workspacePath: string,
 ): ExecutionSession {
   if (session.state !== "provisioning") {
-    throw new ExecutionSessionLifecycleError("Only provisioning execution sessions can become ready");
+    throw new ExecutionSessionLifecycleError(
+      "Only provisioning execution sessions can become ready",
+    );
   }
 
   const normalizedSandboxSessionId = sandboxSessionId.trim();
@@ -44,7 +48,9 @@ export function markExecutionSessionReady(
 
 export function failExecutionSession(session: ExecutionSession, endedAt: Date): ExecutionSession {
   if (session.state !== "requested" && session.state !== "provisioning") {
-    throw new ExecutionSessionLifecycleError("Execution session cannot fail from the current state");
+    throw new ExecutionSessionLifecycleError(
+      "Execution session cannot fail from the current state",
+    );
   }
 
   return {
@@ -54,8 +60,15 @@ export function failExecutionSession(session: ExecutionSession, endedAt: Date): 
   };
 }
 
-export function terminateExecutionSession(session: ExecutionSession, endedAt: Date): ExecutionSession {
-  if (session.state === "completed" || session.state === "failed" || session.state === "cancelled") {
+export function terminateExecutionSession(
+  session: ExecutionSession,
+  endedAt: Date,
+): ExecutionSession {
+  if (
+    session.state === "completed" ||
+    session.state === "failed" ||
+    session.state === "cancelled"
+  ) {
     throw new ExecutionSessionLifecycleError("Execution session is already terminal");
   }
 

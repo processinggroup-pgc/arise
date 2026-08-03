@@ -145,7 +145,10 @@ function buildPlannedContainmentActions(): IncidentContainmentAction[] {
   }));
 }
 
-export function createIncident(input: CreateIncidentInput, metadata: CreateIncidentMetadata): Incident {
+export function createIncident(
+  input: CreateIncidentInput,
+  metadata: CreateIncidentMetadata,
+): Incident {
   const organizationId = input.organizationId.trim();
   const summary = input.summary.trim();
   const declaredBy = input.declaredBy.trim();

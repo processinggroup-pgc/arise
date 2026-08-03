@@ -44,7 +44,9 @@ export function buildVerificationOrchestrationPlan(
   categories: TestCategory[] = PLATFORM_VERIFICATION_CATEGORY_ORDER,
 ): VerificationOrchestrationPlan {
   const normalizedCategories = categories.filter((category, index, all) => {
-    return (TEST_CATEGORIES as readonly string[]).includes(category) && all.indexOf(category) === index;
+    return (
+      (TEST_CATEGORIES as readonly string[]).includes(category) && all.indexOf(category) === index
+    );
   });
 
   if (normalizedCategories.length === 0) {
@@ -63,7 +65,9 @@ export function buildVerificationOrchestrationPlan(
   };
 }
 
-export function evaluateVerificationOrchestrationResult(runs: TestRun[]): VerificationOrchestrationResult {
+export function evaluateVerificationOrchestrationResult(
+  runs: TestRun[],
+): VerificationOrchestrationResult {
   const completedCategories: TestCategory[] = [];
   const failedCategories: TestCategory[] = [];
 
@@ -79,7 +83,10 @@ export function evaluateVerificationOrchestrationResult(runs: TestRun[]): Verifi
   }
 
   return {
-    passed: failedCategories.length === 0 && completedCategories.length === runs.length && runs.length > 0,
+    passed:
+      failedCategories.length === 0 &&
+      completedCategories.length === runs.length &&
+      runs.length > 0,
     completedCategories,
     failedCategories,
   };

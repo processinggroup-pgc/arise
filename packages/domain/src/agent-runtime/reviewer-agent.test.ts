@@ -100,7 +100,9 @@ describe("reviewer agent contracts", () => {
     const verdict = determineReviewVerdict(coverage, constitutionFindings, []);
 
     expect(coverage[0]?.status).toBe("partial");
-    expect(constitutionFindings.some((finding) => finding.title.includes("linked test"))).toBe(true);
+    expect(constitutionFindings.some((finding) => finding.title.includes("linked test"))).toBe(
+      true,
+    );
     expect(verdict).toBe("changes_requested");
   });
 

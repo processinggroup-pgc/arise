@@ -1,4 +1,8 @@
-import type { AgentRunBudget, AgentRunContextItem, AgentRunInputContract } from "./agent-run-contracts.js";
+import type {
+  AgentRunBudget,
+  AgentRunContextItem,
+  AgentRunInputContract,
+} from "./agent-run-contracts.js";
 import { createAgentRunInputContract } from "./agent-run-contracts.js";
 import type { RepositoryDependency } from "../repository-intelligence/repository-dependency.js";
 import type { RepositoryFile } from "../repository-intelligence/repository-file.js";
@@ -8,10 +12,7 @@ import type { RepositoryTestMapEntry } from "../repository-intelligence/reposito
 export const DISCOVERY_AGENT_ROLE = "Discovery Agent";
 export const DISCOVERY_OUTPUT_SCHEMA_REF = "schemas/discovery-output.schema.json";
 
-export const DISCOVERY_AGENT_ALLOWED_TOOLS = [
-  "repository.read_file",
-  "repository.search",
-] as const;
+export const DISCOVERY_AGENT_ALLOWED_TOOLS = ["repository.read_file", "repository.search"] as const;
 
 export const DISCOVERY_AGENT_WRITE_TOOLS = [
   "repository.write_file",

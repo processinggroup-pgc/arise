@@ -149,7 +149,9 @@ export function mergeReviewerRequirementCoverage(
   });
 }
 
-export function buildReleaseEvidenceTestSummaries(testRuns: TestRun[]): ReleaseEvidenceTestSummary[] {
+export function buildReleaseEvidenceTestSummaries(
+  testRuns: TestRun[],
+): ReleaseEvidenceTestSummary[] {
   return testRuns.map((run) => ({
     category: run.category,
     status: run.status,
@@ -196,7 +198,9 @@ export function buildReleaseEvidencePolicySummaries(input: {
   return policies;
 }
 
-export function buildReleaseEvidenceFindingSummaries(findings: Finding[]): ReleaseEvidenceFindingSummary[] {
+export function buildReleaseEvidenceFindingSummaries(
+  findings: Finding[],
+): ReleaseEvidenceFindingSummary[] {
   return findings.map((finding) => ({
     id: finding.id,
     category: finding.category,

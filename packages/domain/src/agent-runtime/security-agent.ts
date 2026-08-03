@@ -1,4 +1,8 @@
-import type { AgentRunBudget, AgentRunContextItem, AgentRunInputContract } from "./agent-run-contracts.js";
+import type {
+  AgentRunBudget,
+  AgentRunContextItem,
+  AgentRunInputContract,
+} from "./agent-run-contracts.js";
 import { createAgentRunInputContract } from "./agent-run-contracts.js";
 import { DISCOVERY_AGENT_WRITE_TOOLS } from "./discovery-agent.js";
 import type { DiscoveryAgentOutput } from "./discovery-agent.js";
@@ -125,7 +129,9 @@ function mapWorkItemRiskToThreatSeverity(workItem: WorkItem): FindingSeverity {
   return "medium";
 }
 
-export function buildSecurityThreatModel(input: BuildSecurityThreatModelInput): SecurityThreatModel {
+export function buildSecurityThreatModel(
+  input: BuildSecurityThreatModelInput,
+): SecurityThreatModel {
   const affectedAssets =
     input.executionEvidence.changedPaths.length > 0
       ? input.executionEvidence.changedPaths
@@ -145,7 +151,8 @@ export function buildSecurityThreatModel(input: BuildSecurityThreatModelInput): 
     threats.push({
       id: input.createId(),
       title: "Untrusted repository instruction injection",
-      scenario: "Malicious repository context may attempt to alter agent behavior or policy enforcement.",
+      scenario:
+        "Malicious repository context may attempt to alter agent behavior or policy enforcement.",
       affectedAssets: input.discoveryOutput.assessmentEvidence.seedFilePaths,
       severity: "critical",
     });
@@ -180,7 +187,8 @@ export function buildSecurityReviewFindings(
         title: `Potential secret material in ${diff.path}`,
         severity: "high",
         evidence:
-          input.executionEvidence.toolCallEvidenceRefs[0] ?? `execution-evidence/${input.executionEvidence.id}`,
+          input.executionEvidence.toolCallEvidenceRefs[0] ??
+          `execution-evidence/${input.executionEvidence.id}`,
         remediation: "Remove secrets from source and rotate affected credentials",
         waivable: false,
       });
@@ -188,14 +196,17 @@ export function buildSecurityReviewFindings(
   }
 
   if (
-    (SENSITIVE_DATA_CLASSIFICATIONS as readonly string[]).includes(input.workItem.dataClassification)
+    (SENSITIVE_DATA_CLASSIFICATIONS as readonly string[]).includes(
+      input.workItem.dataClassification,
+    )
   ) {
     proposals.push({
       id: input.createId(),
       title: "Sensitive data classification requires tenant isolation review",
       severity: input.workItem.riskLevel === "critical" ? "critical" : "high",
       evidence: `Work item classification: ${input.workItem.dataClassification}`,
-      remediation: "Verify tenant scoping, authorization checks, and audit coverage for changed paths",
+      remediation:
+        "Verify tenant scoping, authorization checks, and audit coverage for changed paths",
       waivable: false,
     });
   }
@@ -203,9 +214,7 @@ export function buildSecurityReviewFindings(
   return proposals;
 }
 
-export function assertSecurityReviewFindingIsNotWaivable(proposal: {
-  waivable: boolean;
-}): void {
+export function assertSecurityReviewFindingIsNotWaivable(proposal: { waivable: boolean }): void {
   if (proposal.waivable) {
     throw new Error("Security Agent findings cannot be waivable");
   }

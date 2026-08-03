@@ -105,7 +105,11 @@ export async function authorizeToolAction(
     assertAgentRunAcceptsToolActions(agentRun);
   } catch (error) {
     if (error instanceof Error) {
-      throw new ToolActionBlockedError(error.message, [error.message], ["platform.tool.run_status"]);
+      throw new ToolActionBlockedError(
+        error.message,
+        [error.message],
+        ["platform.tool.run_status"],
+      );
     }
 
     throw error;
@@ -164,7 +168,11 @@ export async function authorizeToolAction(
   await toolCallStore.saveToolCall(toolCall);
 
   if (evaluation.decision === "blocked") {
-    throw new ToolActionBlockedError("Tool action is blocked by the allowlist", evaluation.reasons, evaluation.ruleIds);
+    throw new ToolActionBlockedError(
+      "Tool action is blocked by the allowlist",
+      evaluation.reasons,
+      evaluation.ruleIds,
+    );
   }
 
   if (evaluation.decision === "budget_exhausted") {

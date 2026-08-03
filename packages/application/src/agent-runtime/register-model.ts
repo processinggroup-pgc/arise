@@ -1,8 +1,4 @@
-import {
-  createRegisteredModel,
-  type RegisteredModel,
-  type TenantContext,
-} from "@arise/domain";
+import { createRegisteredModel, type RegisteredModel, type TenantContext } from "@arise/domain";
 
 import type { IdentityOperationContext } from "../identity/identity-store.js";
 import type { ModelRegistryStore } from "./model-registry-store.js";

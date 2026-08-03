@@ -121,7 +121,9 @@ export async function runReviewerAgent(
       tenantContext: command.tenantContext,
       repositoryId: command.repositoryId,
       seedFilePaths: command.seedFilePaths,
-      ...(command.maxContextItems === undefined ? {} : { maxContextItems: command.maxContextItems }),
+      ...(command.maxContextItems === undefined
+        ? {}
+        : { maxContextItems: command.maxContextItems }),
     },
     repositoryStore,
     repositoryIndexStore,
@@ -168,7 +170,11 @@ export async function runReviewerAgent(
     createId: () => operationContext.createId(),
   });
   const reviewFindings = [...constitutionFindings, ...qualityFindings];
-  const verdict = determineReviewVerdict(requirementCoverage, constitutionFindings, qualityFindings);
+  const verdict = determineReviewVerdict(
+    requirementCoverage,
+    constitutionFindings,
+    qualityFindings,
+  );
 
   const raisedFindingIds: string[] = [];
   for (const finding of reviewFindings.filter((item) => item.blocking)) {

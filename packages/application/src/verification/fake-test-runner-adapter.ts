@@ -1,6 +1,10 @@
 import type { TestCategory } from "@arise/domain";
 
-import type { RunTestCategoryRequest, RunTestCategoryResult, TestRunnerPort } from "./test-runner-port.js";
+import type {
+  RunTestCategoryRequest,
+  RunTestCategoryResult,
+  TestRunnerPort,
+} from "./test-runner-port.js";
 
 interface FakeTestCategoryOutcome {
   passed: number;

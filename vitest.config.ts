@@ -11,7 +11,10 @@ export default defineConfig({
       "@arise/domain": join(repositoryRoot, "packages/domain/src/index.ts"),
       "@arise/application": join(repositoryRoot, "packages/application/src/index.ts"),
       "@arise/integration-github": join(repositoryRoot, "packages/integration-github/src/index.ts"),
-      "@arise/integration-sandbox": join(repositoryRoot, "packages/integration-sandbox/src/index.ts"),
+      "@arise/integration-sandbox": join(
+        repositoryRoot,
+        "packages/integration-sandbox/src/index.ts",
+      ),
       "@arise/test-support": join(repositoryRoot, "packages/test-support/src/index.ts"),
       "@": join(repositoryRoot, "apps/web/src"),
     },

@@ -59,7 +59,9 @@ export function listFailedTestRuns(runs: TestRun[]): TestRun[] {
   return runs.filter((run) => run.status === "failed");
 }
 
-export function shouldRaiseFindingsFromVerification(evaluation: VerificationOrchestrationResult): boolean {
+export function shouldRaiseFindingsFromVerification(
+  evaluation: VerificationOrchestrationResult,
+): boolean {
   return !evaluation.passed && evaluation.failedCategories.length > 0;
 }
 

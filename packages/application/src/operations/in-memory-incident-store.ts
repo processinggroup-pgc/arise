@@ -16,9 +16,7 @@ export class InMemoryIncidentStore implements IncidentStore {
 
   listIncidentsForOrganization(organizationId: string): Promise<Incident[]> {
     return Promise.resolve(
-      [...this.incidents.values()].filter(
-        (incident) => incident.organizationId === organizationId,
-      ),
+      [...this.incidents.values()].filter((incident) => incident.organizationId === organizationId),
     );
   }
 

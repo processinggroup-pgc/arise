@@ -70,10 +70,7 @@ function assertTestRunCounts(counts: TestRunCounts): TestRunCounts {
   return counts;
 }
 
-export function createTestRun(
-  input: CreateTestRunInput,
-  metadata: CreateTestRunMetadata,
-): TestRun {
+export function createTestRun(input: CreateTestRunInput, metadata: CreateTestRunMetadata): TestRun {
   const organizationId = input.organizationId.trim();
   const executionSessionId = input.executionSessionId.trim();
   const workItemId = input.workItemId.trim();

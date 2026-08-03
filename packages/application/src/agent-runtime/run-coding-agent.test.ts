@@ -246,7 +246,9 @@ describe("runCodingAgent", () => {
     expect(result.output.executionEvidence.commitId).toMatch(/^fake_commit_/);
     expect(result.output.executionEvidence.changedPaths).toHaveLength(2);
     expect(result.output.executionEvidence.toolCallEvidenceRefs.length).toBeGreaterThan(0);
-    expect(result.capturedExecutionEvidence.commitId).toBe(result.output.executionEvidence.commitId);
+    expect(result.capturedExecutionEvidence.commitId).toBe(
+      result.output.executionEvidence.commitId,
+    );
     expect(result.capturedExecutionEvidence.diffs.length).toBeGreaterThan(0);
     expect(result.output.architectureRunId).toBe(architecture.output.agentRunId);
 

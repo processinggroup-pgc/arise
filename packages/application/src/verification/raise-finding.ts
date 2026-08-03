@@ -1,8 +1,4 @@
-import {
-  createFinding,
-  type Finding,
-  type TenantContext,
-} from "@arise/domain";
+import { createFinding, type Finding, type TenantContext } from "@arise/domain";
 
 import type { IdentityOperationContext } from "../identity/identity-store.js";
 import { AgentRunScopeError } from "../agent-runtime/create-agent-run.js";

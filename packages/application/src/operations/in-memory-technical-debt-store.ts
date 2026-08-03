@@ -15,9 +15,7 @@ export class InMemoryTechnicalDebtStore implements TechnicalDebtStore {
   }
 
   listTechnicalDebtForProject(projectId: string): Promise<TechnicalDebtItem[]> {
-    return Promise.resolve(
-      [...this.items.values()].filter((item) => item.projectId === projectId),
-    );
+    return Promise.resolve([...this.items.values()].filter((item) => item.projectId === projectId));
   }
 
   listTechnicalDebtForWorkItem(sourceWorkItemId: string): Promise<TechnicalDebtItem[]> {

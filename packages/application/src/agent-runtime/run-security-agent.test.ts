@@ -243,7 +243,10 @@ describe("runSecurityAgent", () => {
       operationContext,
     );
 
-    expect(result.inputContract.allowedTools).toEqual(["repository.read_file", "repository.search"]);
+    expect(result.inputContract.allowedTools).toEqual([
+      "repository.read_file",
+      "repository.search",
+    ]);
     expect(result.output.threatModel.threats.length).toBeGreaterThan(0);
     expect(result.output.reviewFindings.length).toBeGreaterThan(0);
     expect(result.raisedFindingIds.length).toBe(result.output.reviewFindings.length);
