@@ -3,6 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "noEmit": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "paths": {
       "@/*": ["apps/web/src/*"],
       "@arise/application": ["packages/application/src/index.ts"],
