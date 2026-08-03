@@ -31,6 +31,15 @@ export default tseslint.config(
     },
   },
   {
+    files: ["apps/web/**/*.{ts,tsx}"],
+    languageOptions: {
+      parserOptions: {
+        project: "./apps/web/tsconfig.json",
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+  {
     rules: {
       "@typescript-eslint/no-unused-vars": [
         "error",

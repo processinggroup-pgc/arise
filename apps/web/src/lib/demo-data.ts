@@ -5,8 +5,8 @@ import {
   createWorkItem,
 } from "@arise/domain";
 
-import { getIdentityStore } from "./identity-store.js";
-import { getProjectStore, getWorkItemStore } from "./stores.js";
+import { getIdentityStore } from "./identity-store";
+import { getProjectStore, getWorkItemStore } from "./stores";
 
 export const DEMO_ORG_ID = "org_demo";
 export const DEMO_USER_ID = "user_demo";

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { EnvironmentStatus } from "./environment-status.js";
+import { EnvironmentStatus } from "./environment-status";
 
 interface AppShellProps {
   children: React.ReactNode;

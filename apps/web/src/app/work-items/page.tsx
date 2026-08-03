@@ -1,6 +1,6 @@
-import { AppShell } from "../../components/app-shell.js";
-import { WorkItemTable } from "../../components/work-item-table.js";
-import { getDashboardData } from "../../lib/queries.js";
+import { AppShell } from "@/components/app-shell";
+import { WorkItemTable } from "@/components/work-item-table";
+import { getDashboardData } from "@/lib/queries";
 
 export default async function WorkItemsPage(): Promise<React.JSX.Element> {
   const { organization, project, workItems } = await getDashboardData();

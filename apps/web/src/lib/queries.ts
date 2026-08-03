@@ -1,9 +1,9 @@
 import type { Organization, Project, WorkItem, WorkItemState } from "@arise/domain";
 import { isTerminalWorkItemState } from "@arise/domain";
 
-import { ensureDemoData, DEMO_ORG_ID, DEMO_PROJECT_ID } from "./demo-data.js";
-import { getIdentityStore } from "./identity-store.js";
-import { getProjectStore, getWorkItemStore } from "./stores.js";
+import { ensureDemoData, DEMO_ORG_ID, DEMO_PROJECT_ID } from "./demo-data";
+import { getIdentityStore } from "./identity-store";
+import { getProjectStore, getWorkItemStore } from "./stores";
 
 export interface DashboardStats {
   total: number;

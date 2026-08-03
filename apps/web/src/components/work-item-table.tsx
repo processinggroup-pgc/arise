@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import type { WorkItem } from "@arise/domain";
 
-import { StatusBadge } from "./status-badge.js";
+import { StatusBadge } from "./status-badge";
 
 interface WorkItemTableProps {
   workItems: WorkItem[];

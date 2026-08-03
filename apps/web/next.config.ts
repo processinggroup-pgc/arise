@@ -3,6 +3,9 @@ import type { Configuration as WebpackConfiguration } from "webpack";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   transpilePackages: ["@arise/domain", "@arise/application"],
   webpack: (config: WebpackConfiguration): WebpackConfiguration => {
     config.resolve ??= {};

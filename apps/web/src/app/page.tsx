@@ -1,9 +1,9 @@
 import Link from "next/link";
 
-import { AppShell } from "../components/app-shell.js";
-import { StatCard } from "../components/stat-card.js";
-import { WorkItemTable } from "../components/work-item-table.js";
-import { getDashboardData } from "../lib/queries.js";
+import { AppShell } from "@/components/app-shell";
+import { StatCard } from "@/components/stat-card";
+import { WorkItemTable } from "@/components/work-item-table";
+import { getDashboardData } from "@/lib/queries";
 
 export default async function HomePage(): Promise<React.JSX.Element> {
   const { organization, project, workItems, stats } = await getDashboardData();
