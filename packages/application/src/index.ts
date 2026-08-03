@@ -362,3 +362,29 @@ export {
   type EvaluateWorkItemOutcomeCommand,
   type EvaluateWorkItemOutcomeResult,
 } from "./operations/evaluate-work-item-outcome.js";
+export type {
+  InitiativeStore,
+  MarketResearchStore,
+  ProblemAlignmentStore,
+  ProblemBriefStore,
+} from "./product-discovery/product-discovery-store.js";
+export {
+  InMemoryInitiativeStore,
+  InMemoryMarketResearchStore,
+  InMemoryProblemAlignmentStore,
+  InMemoryProblemBriefStore,
+} from "./product-discovery/in-memory-product-discovery-store.js";
+export {
+  createInitiativeWithProblem,
+  InitiativeScopeError,
+  type CreateInitiativeWithProblemCommand,
+} from "./product-discovery/create-initiative-with-problem.js";
+export {
+  runMarketResearchForInitiative,
+  InitiativeWorkflowError,
+  type RunMarketResearchCommand,
+} from "./product-discovery/run-market-research-for-initiative.js";
+export {
+  alignProblemFramingForInitiative,
+  type AlignProblemFramingCommand,
+} from "./product-discovery/align-problem-framing-for-initiative.js";

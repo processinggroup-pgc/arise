@@ -26,6 +26,7 @@ export default async function HomePage(): Promise<React.JSX.Element> {
 
         <section className="panel detail-section empty-state">
           <p>No organization is active in this browser session yet.</p>
+          <p>After creating an organization, start at <strong>New Initiative</strong> to describe your problem.</p>
         </section>
       </AppShell>
     );
@@ -43,8 +44,8 @@ export default async function HomePage(): Promise<React.JSX.Element> {
             verification, and release evidence from one workspace.
           </p>
         </div>
-        <Link className="button-link" href="/work-items">
-          View all work items
+        <Link className="button-link" href="/initiatives/new">
+          Start new initiative
         </Link>
       </header>
 

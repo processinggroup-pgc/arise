@@ -788,3 +788,32 @@ export {
   type WorkItemOutcomeCostSummary,
   type WorkItemOutcomeReadinessEvaluation,
 } from "./operations/outcome-evaluation.js";
+export {
+  INITIATIVE_STATES,
+  advanceInitiativeState,
+  createInitiative,
+  type CreateInitiativeInput,
+  type CreateInitiativeMetadata,
+  type Initiative,
+  type InitiativeState,
+} from "./product-discovery/initiative.js";
+export {
+  createProblemBrief,
+  type CreateProblemBriefInput,
+  type CreateProblemBriefMetadata,
+  type ProblemBrief,
+} from "./product-discovery/problem-brief.js";
+export {
+  createProblemAlignment,
+  findFramingOption,
+  generateMarketResearchDossier,
+  type ComparableApproach,
+  type CreateProblemAlignmentInput,
+  type CreateProblemAlignmentMetadata,
+  type GenerateMarketResearchInput,
+  type GenerateMarketResearchMetadata,
+  type MarketResearchDossier,
+  type ProblemAlignment,
+  type ProblemFramingOption,
+  type ResearchCitation,
+} from "./product-discovery/market-research.js";

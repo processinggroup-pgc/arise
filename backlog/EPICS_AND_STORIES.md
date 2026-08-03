@@ -70,3 +70,15 @@
 - E8-S3 Declare and contain incidents.
 - E8-S4 Track technical debt and support ownership.
 - E8-S5 Evaluate outcomes and propose governed improvements.
+
+## E9 Product discovery
+
+- E9-S1 Capture initiative problem briefs.
+- E9-S2 Generate market research dossiers and framing options.
+- E9-S3 Align on the preferred problem framing.
+
+## E10 BRD and solutions
+
+- E10-S1 Generate BRD drafts from aligned research.
+- E10-S2 Propose three product solution options.
+- E10-S3 Finalize BRD and MVP backlog.
