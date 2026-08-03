@@ -5,12 +5,37 @@ import { ensureDemoData, DEMO_ORG_ID, DEMO_PROJECT_ID } from "./demo-data";
 import { getIdentityStore, usesPersistentIdentityStore } from "./identity-store";
 import { createWorkspaceTenantContext, runWithTenantScopedStores } from "./postgres-tenant";
 import { isValidUuid, runSafely } from "./postgres-support";
-import { getWorkspaceSession } from "./session";
+import { getWorkspaceSession, setWorkspaceSession } from "./session";
 import { getProjectStore } from "./stores";
 
 export interface WorkspaceContext {
   organizationId: string;
   projectId: string;
+}
+
+export interface ActiveWorkspace {
+  userId: string;
+  organizationId: string;
+}
+
+export async function getActiveWorkspaceForAction(): Promise<ActiveWorkspace | null> {
+  const session = await getWorkspaceSession();
+  const organizationId = await resolveOrganizationId(session.userId, session.organizationId);
+
+  if (organizationId === null) {
+    if (!usesPersistentIdentityStore()) {
+      await ensureDemoData();
+      return { userId: session.userId, organizationId: DEMO_ORG_ID };
+    }
+
+    return null;
+  }
+
+  if (session.organizationId !== organizationId) {
+    await setWorkspaceSession({ userId: session.userId, organizationId });
+  }
+
+  return { userId: session.userId, organizationId };
 }
 
 export async function listWorkspaceOrganizations() {

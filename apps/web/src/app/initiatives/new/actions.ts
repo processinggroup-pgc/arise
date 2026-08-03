@@ -5,11 +5,10 @@ import { createTenantContext } from "@arise/domain";
 import { redirect } from "next/navigation";
 
 import { COHORT_AFFORDABILITY_DEFAULTS } from "@/lib/initiative-defaults";
-import {
-  getInitiativeStore,
-  getProblemBriefStore,
-} from "@/lib/product-discovery-stores";
-import { getWorkspaceSession } from "@/lib/session";
+import { hasDatabaseUrl } from "@/lib/database";
+import { getInitiativeStore, getProblemBriefStore } from "@/lib/product-discovery-stores";
+import { createWorkspaceTenantContext, runWithTenantScopedStores } from "@/lib/postgres-tenant";
+import { getActiveWorkspaceForAction } from "@/lib/workspace";
 
 export interface CreateInitiativeFormState {
   error?: string;
@@ -26,9 +25,9 @@ export async function createInitiativeAction(
   _previousState: CreateInitiativeFormState,
   formData: FormData,
 ): Promise<CreateInitiativeFormState> {
-  const session = await getWorkspaceSession();
-  if (session.organizationId === undefined) {
-    return { error: "Create an organization before starting an initiative." };
+  const workspace = await getActiveWorkspaceForAction();
+  if (workspace === null) {
+    return { error: "Choose an organization before starting an initiative." };
   }
 
   const title = String(formData.get("title") ?? COHORT_AFFORDABILITY_DEFAULTS.title).trim();
@@ -51,28 +50,39 @@ export async function createInitiativeAction(
   let initiativeId: string;
   try {
     const tenantContext = createTenantContext({
-      organizationId: session.organizationId,
-      userId: session.userId,
+      organizationId: workspace.organizationId,
+      userId: workspace.userId,
       correlationId: crypto.randomUUID(),
     });
+    const command = {
+      tenantContext,
+      title,
+      rawProblemDescription,
+      targetAudience,
+      painPoints,
+      businessContext,
+      desiredOutcome,
+    };
+    const operationContext = {
+      createId: () => crypto.randomUUID(),
+      now: () => new Date(),
+    };
 
-    const result = await createInitiativeWithProblem(
-      {
-        tenantContext,
-        title,
-        rawProblemDescription,
-        targetAudience,
-        painPoints,
-        businessContext,
-        desiredOutcome,
-      },
-      getInitiativeStore(),
-      getProblemBriefStore(),
-      {
-        createId: () => crypto.randomUUID(),
-        now: () => new Date(),
-      },
-    );
+    const result = hasDatabaseUrl()
+      ? await runWithTenantScopedStores(tenantContext, async (stores) =>
+          createInitiativeWithProblem(
+            command,
+            stores.initiativeStore,
+            stores.problemBriefStore,
+            operationContext,
+          ),
+        )
+      : await createInitiativeWithProblem(
+          command,
+          getInitiativeStore(),
+          getProblemBriefStore(),
+          operationContext,
+        );
 
     initiativeId = result.initiative.id;
   } catch (error) {

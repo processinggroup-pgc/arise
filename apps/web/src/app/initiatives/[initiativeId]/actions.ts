@@ -7,37 +7,52 @@ import {
 import { createTenantContext } from "@arise/domain";
 import { revalidatePath } from "next/cache";
 
+import { hasDatabaseUrl } from "@/lib/database";
 import {
   getInitiativeStore,
   getMarketResearchStore,
   getProblemAlignmentStore,
   getProblemBriefStore,
 } from "@/lib/product-discovery-stores";
-import { getWorkspaceSession } from "@/lib/session";
+import { runWithTenantScopedStores } from "@/lib/postgres-tenant";
+import { getActiveWorkspaceForAction } from "@/lib/workspace";
 
 export async function runMarketResearchAction(initiativeId: string): Promise<{ error?: string }> {
-  const session = await getWorkspaceSession();
-  if (session.organizationId === undefined) {
-    return { error: "Organization session is required" };
+  const workspace = await getActiveWorkspaceForAction();
+  if (workspace === null) {
+    return { error: "Choose an organization before continuing." };
   }
 
   try {
     const tenantContext = createTenantContext({
-      organizationId: session.organizationId,
-      userId: session.userId,
+      organizationId: workspace.organizationId,
+      userId: workspace.userId,
       correlationId: crypto.randomUUID(),
     });
+    const operationContext = {
+      createId: () => crypto.randomUUID(),
+      now: () => new Date(),
+    };
 
-    await runMarketResearchForInitiative(
-      { tenantContext, initiativeId },
-      getInitiativeStore(),
-      getProblemBriefStore(),
-      getMarketResearchStore(),
-      {
-        createId: () => crypto.randomUUID(),
-        now: () => new Date(),
-      },
-    );
+    if (hasDatabaseUrl()) {
+      await runWithTenantScopedStores(tenantContext, async (stores) =>
+        runMarketResearchForInitiative(
+          { tenantContext, initiativeId },
+          stores.initiativeStore,
+          stores.problemBriefStore,
+          stores.marketResearchStore,
+          operationContext,
+        ),
+      );
+    } else {
+      await runMarketResearchForInitiative(
+        { tenantContext, initiativeId },
+        getInitiativeStore(),
+        getProblemBriefStore(),
+        getMarketResearchStore(),
+        operationContext,
+      );
+    }
 
     revalidatePath(`/initiatives/${initiativeId}`);
     return {};
@@ -52,9 +67,9 @@ export async function alignProblemFramingAction(
   initiativeId: string,
   formData: FormData,
 ): Promise<{ error?: string }> {
-  const session = await getWorkspaceSession();
-  if (session.organizationId === undefined) {
-    return { error: "Organization session is required" };
+  const workspace = await getActiveWorkspaceForAction();
+  if (workspace === null) {
+    return { error: "Choose an organization before continuing." };
   }
 
   const selectedFramingId = String(formData.get("selectedFramingId") ?? "").trim();
@@ -66,26 +81,40 @@ export async function alignProblemFramingAction(
 
   try {
     const tenantContext = createTenantContext({
-      organizationId: session.organizationId,
-      userId: session.userId,
+      organizationId: workspace.organizationId,
+      userId: workspace.userId,
       correlationId: crypto.randomUUID(),
     });
+    const command = {
+      tenantContext,
+      initiativeId,
+      selectedFramingId,
+      ...(userElaboration.length > 0 ? { userElaboration } : {}),
+    };
+    const operationContext = {
+      createId: () => crypto.randomUUID(),
+      now: () => new Date(),
+    };
 
-    await alignProblemFramingForInitiative(
-      {
-        tenantContext,
-        initiativeId,
-        selectedFramingId,
-        ...(userElaboration.length > 0 ? { userElaboration } : {}),
-      },
-      getInitiativeStore(),
-      getMarketResearchStore(),
-      getProblemAlignmentStore(),
-      {
-        createId: () => crypto.randomUUID(),
-        now: () => new Date(),
-      },
-    );
+    if (hasDatabaseUrl()) {
+      await runWithTenantScopedStores(tenantContext, async (stores) =>
+        alignProblemFramingForInitiative(
+          command,
+          stores.initiativeStore,
+          stores.marketResearchStore,
+          stores.problemAlignmentStore,
+          operationContext,
+        ),
+      );
+    } else {
+      await alignProblemFramingForInitiative(
+        command,
+        getInitiativeStore(),
+        getMarketResearchStore(),
+        getProblemAlignmentStore(),
+        operationContext,
+      );
+    }
 
     revalidatePath(`/initiatives/${initiativeId}`);
     return {};
