@@ -159,9 +159,7 @@ export class PostgresIdentityStore implements IdentityStore {
     );
   }
 
-  async listMembershipsForOrganization(
-    organizationId: string,
-  ): Promise<OrganizationMembership[]> {
+  async listMembershipsForOrganization(organizationId: string): Promise<OrganizationMembership[]> {
     const result = (await this.client.query(
       `
       select id, organization_id, user_id, role, status, created_at
@@ -170,6 +168,20 @@ export class PostgresIdentityStore implements IdentityStore {
       order by created_at asc
       `,
       [organizationId],
+    )) as { rows: MembershipRow[] };
+
+    return result.rows.map(mapMembership);
+  }
+
+  async listMembershipsForUser(userId: string): Promise<OrganizationMembership[]> {
+    const result = (await this.client.query(
+      `
+      select id, organization_id, user_id, role, status, created_at
+      from public.organization_memberships
+      where user_id = $1
+      order by created_at asc
+      `,
+      [userId],
     )) as { rows: MembershipRow[] };
 
     return result.rows.map(mapMembership);

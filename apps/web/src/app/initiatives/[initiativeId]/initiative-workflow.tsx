@@ -4,16 +4,13 @@ import { useState, useTransition } from "react";
 
 import type { MarketResearchDossier } from "@arise/domain";
 
-import {
-  alignProblemFramingAction,
-  runMarketResearchAction,
-} from "./actions";
+import { alignProblemFramingAction, runMarketResearchAction } from "./actions";
 
 interface InitiativeWorkflowProps {
   initiativeId: string;
   state: string;
-  dossier?: MarketResearchDossier;
-  selectedFramingTitle?: string;
+  dossier?: MarketResearchDossier | undefined;
+  selectedFramingTitle?: string | undefined;
 }
 
 export function InitiativeWorkflow({
@@ -97,7 +94,10 @@ export function InitiativeWorkflow({
             {dossier.framingOptions.map((option) => (
               <label key={option.id} className="framing-option">
                 <input
-                  defaultChecked={option.alignmentScore === Math.max(...dossier.framingOptions.map((item) => item.alignmentScore))}
+                  defaultChecked={
+                    option.alignmentScore ===
+                    Math.max(...dossier.framingOptions.map((item) => item.alignmentScore))
+                  }
                   name="selectedFramingId"
                   required
                   type="radio"

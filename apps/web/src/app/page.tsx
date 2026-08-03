@@ -1,32 +1,57 @@
 import Link from "next/link";
 
 import { AppShell } from "@/components/app-shell";
+import { OrganizationSwitcher } from "@/components/organization-switcher";
 import { StatCard } from "@/components/stat-card";
 import { WorkItemTable } from "@/components/work-item-table";
 import { getDashboardData } from "@/lib/queries";
+import { listWorkspaceOrganizations } from "@/lib/workspace";
 
 export default async function HomePage(): Promise<React.JSX.Element> {
   const dashboard = await getDashboardData();
+  const organizations = await listWorkspaceOrganizations();
 
   if (dashboard === null) {
+    const hasOrganizations = organizations.length > 0;
+
     return (
       <AppShell activePath="/">
         <header className="page-header">
           <div>
             <h1 className="page-title">ARISE Studio</h1>
             <p className="page-description">
-              Create an organization to start governed delivery with ARISE work items, approvals,
-              and release evidence.
+              {hasOrganizations
+                ? "Choose an organization to activate this workspace and continue product discovery."
+                : "Create an organization to start governed delivery with ARISE work items, approvals, and release evidence."}
             </p>
           </div>
-          <Link className="button-link" href="/organizations/new">
-            Create organization
+          <Link
+            className="button-link"
+            href={hasOrganizations ? "/organizations" : "/organizations/new"}
+          >
+            {hasOrganizations ? "Choose organization" : "Create organization"}
           </Link>
         </header>
 
         <section className="panel detail-section empty-state">
-          <p>No organization is active in this browser session yet.</p>
-          <p>After creating an organization, start at <strong>New Initiative</strong> to describe your problem.</p>
+          {hasOrganizations ? (
+            <>
+              <p>
+                You have {organizations.length} organization{organizations.length === 1 ? "" : "s"}{" "}
+                in this browser session.
+              </p>
+              <p>Select one below or open the full list on the Organizations page.</p>
+              <OrganizationSwitcher />
+            </>
+          ) : (
+            <>
+              <p>No organization is active in this browser session yet.</p>
+              <p>
+                After creating an organization, start at <strong>New Initiative</strong> to describe
+                your problem.
+              </p>
+            </>
+          )}
         </section>
       </AppShell>
     );

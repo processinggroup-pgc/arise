@@ -247,6 +247,113 @@ textarea {
   color: var(--text);
 }
 
+.sidebar-setup-note {
+  margin: 0;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-muted);
+  color: var(--text-muted);
+  font-size: 0.84rem;
+}
+
+.org-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.org-switcher-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+}
+
+.org-switcher-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem;
+}
+
+.org-switcher-select {
+  min-width: 0;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-muted);
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+.org-switcher-button,
+.button-secondary {
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-muted);
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.org-switcher-button:hover,
+.button-secondary:hover:not(:disabled) {
+  border-color: rgba(61, 214, 198, 0.35);
+  color: var(--accent);
+}
+
+.button-secondary:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.organization-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.organization-list-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.15rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.organization-list-item:first-child {
+  border-top: none;
+}
+
+.organization-list-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.organization-list-slug {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.organization-list-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.empty-state .org-switcher {
+  margin-top: 1rem;
+  max-width: 28rem;
+  margin-inline: auto;
+  text-align: left;
+}
+
 .main-content {
   padding: 2rem 2.25rem 3rem;
 }

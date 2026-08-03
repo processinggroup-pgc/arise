@@ -1,10 +1,9 @@
 import type { Organization, Project, WorkItem, WorkItemState } from "@arise/domain";
 import { isTerminalWorkItemState } from "@arise/domain";
 
-import { ensureDemoData, DEMO_ORG_ID, DEMO_PROJECT_ID } from "./demo-data";
-import { getIdentityStore, usesPersistentIdentityStore } from "./identity-store";
-import { getWorkspaceSession } from "./session";
+import { getIdentityStore } from "./identity-store";
 import { getProjectStore, getWorkItemStore } from "./stores";
+import { resolveWorkspaceContext } from "./workspace";
 
 export interface DashboardStats {
   total: number;
@@ -20,16 +19,8 @@ export interface DashboardData {
   stats: DashboardStats;
 }
 
-interface WorkspaceContext {
-  organizationId: string;
-  projectId: string;
-}
-
 function computeStats(workItems: WorkItem[]): DashboardStats {
-  const awaitingApprovalStates: WorkItemState[] = [
-    "recommendation_pending",
-    "release_review",
-  ];
+  const awaitingApprovalStates: WorkItemState[] = ["recommendation_pending", "release_review"];
 
   return {
     total: workItems.length,
@@ -43,33 +34,6 @@ function computeStats(workItems: WorkItem[]): DashboardStats {
     ).length,
     released: workItems.filter((workItem) => workItem.state === "released").length,
   };
-}
-
-async function resolveWorkspaceContext(): Promise<WorkspaceContext | null> {
-  const session = await getWorkspaceSession();
-
-  if (session.organizationId !== undefined) {
-    const projects = await getProjectStore().listProjectsForOrganization(session.organizationId);
-    const project = projects[0];
-    if (project === undefined) {
-      return null;
-    }
-
-    return {
-      organizationId: session.organizationId,
-      projectId: project.id,
-    };
-  }
-
-  if (!usesPersistentIdentityStore()) {
-    await ensureDemoData();
-    return {
-      organizationId: DEMO_ORG_ID,
-      projectId: DEMO_PROJECT_ID,
-    };
-  }
-
-  return null;
 }
 
 export async function getDashboardData(): Promise<DashboardData | null> {

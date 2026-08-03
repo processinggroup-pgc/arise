@@ -45,4 +45,10 @@ export class InMemoryIdentityStore implements IdentityStore {
       ),
     );
   }
+
+  listMembershipsForUser(userId: string): Promise<OrganizationMembership[]> {
+    return Promise.resolve(
+      [...this.memberships.values()].filter((membership) => membership.userId === userId),
+    );
+  }
 }

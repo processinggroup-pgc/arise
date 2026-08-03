@@ -10,6 +10,7 @@ export interface IdentityStore {
   ): Promise<OrganizationMembership | undefined>;
   saveMembership(membership: OrganizationMembership): Promise<void>;
   listMembershipsForOrganization(organizationId: string): Promise<OrganizationMembership[]>;
+  listMembershipsForUser(userId: string): Promise<OrganizationMembership[]>;
 }
 
 export interface IdentityOperationContext {

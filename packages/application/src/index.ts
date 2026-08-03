@@ -7,6 +7,7 @@ export type {
   RegisterOrganizationResult,
 } from "./identity/register-organization.js";
 export { registerOrganization } from "./identity/register-organization.js";
+export { listOrganizationsForUser } from "./identity/list-organizations-for-user.js";
 export type { RegisterOrganizationHandlerDependencies } from "./tenancy/register-organization-handler.js";
 export { createRegisterOrganizationHandler } from "./tenancy/register-organization-handler.js";
 export type {
