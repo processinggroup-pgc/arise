@@ -9,6 +9,8 @@ import { createTenantContext } from "@arise/domain";
 import { redirect } from "next/navigation";
 
 import { getIdentityStore } from "@/lib/identity-store";
+import { hasDatabaseUrl } from "@/lib/database";
+import { createWorkspaceTenantContext, runWithTenantScopedStores } from "@/lib/postgres-tenant";
 import { getProjectStore } from "@/lib/stores";
 import { getWorkspaceSession, setWorkspaceSession } from "@/lib/session";
 
@@ -58,18 +60,35 @@ export async function createOrganizationAction(
       correlationId: crypto.randomUUID(),
     });
 
-    await createProjectForOrganization(
-      {
-        tenantContext,
-        name: "Default Project",
-        description: "Primary delivery workspace for governed agent runs.",
-      },
-      getProjectStore(),
-      {
-        createId: () => crypto.randomUUID(),
-        now: () => new Date(),
-      },
-    );
+    if (hasDatabaseUrl()) {
+      await runWithTenantScopedStores(tenantContext, async (stores) =>
+        createProjectForOrganization(
+          {
+            tenantContext,
+            name: "Default Project",
+            description: "Primary delivery workspace for governed agent runs.",
+          },
+          stores.projectStore,
+          {
+            createId: () => crypto.randomUUID(),
+            now: () => new Date(),
+          },
+        ),
+      );
+    } else {
+      await createProjectForOrganization(
+        {
+          tenantContext,
+          name: "Default Project",
+          description: "Primary delivery workspace for governed agent runs.",
+        },
+        getProjectStore(),
+        {
+          createId: () => crypto.randomUUID(),
+          now: () => new Date(),
+        },
+      );
+    }
 
     await setWorkspaceSession({
       userId: session.userId,

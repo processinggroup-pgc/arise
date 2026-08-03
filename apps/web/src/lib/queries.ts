@@ -1,7 +1,11 @@
 import type { Organization, Project, WorkItem, WorkItemState } from "@arise/domain";
 import { isTerminalWorkItemState } from "@arise/domain";
 
+import { hasDatabaseUrl } from "./database";
 import { getIdentityStore } from "./identity-store";
+import { createWorkspaceTenantContext, runWithTenantScopedStores } from "./postgres-tenant";
+import { runSafely } from "./postgres-support";
+import { getWorkspaceSession } from "./session";
 import { getProjectStore, getWorkItemStore } from "./stores";
 import { resolveWorkspaceContext } from "./workspace";
 
@@ -36,26 +40,61 @@ function computeStats(workItems: WorkItem[]): DashboardStats {
   };
 }
 
+async function listWorkItemsForWorkspaceProject(
+  organizationId: string,
+  userId: string,
+  projectId: string,
+): Promise<WorkItem[]> {
+  if (hasDatabaseUrl()) {
+    const tenantContext = createWorkspaceTenantContext({ organizationId, userId });
+    return runWithTenantScopedStores(tenantContext, async (stores) =>
+      stores.workItemStore.listWorkItemsForProject(projectId),
+    );
+  }
+
+  return getWorkItemStore().listWorkItemsForProject(projectId);
+}
+
 export async function getDashboardData(): Promise<DashboardData | null> {
-  const workspace = await resolveWorkspaceContext();
-  if (workspace === null) {
-    return null;
-  }
+  return runSafely(
+    async () => {
+      const workspace = await resolveWorkspaceContext();
+      if (workspace === null) {
+        return null;
+      }
 
-  const organization = await getIdentityStore().findOrganizationById(workspace.organizationId);
-  const project = await getProjectStore().findProjectById(workspace.projectId);
-  const workItems = await getWorkItemStore().listWorkItemsForProject(workspace.projectId);
+      const { userId } = await getWorkspaceSession();
+      const tenantContext = createWorkspaceTenantContext({
+        organizationId: workspace.organizationId,
+        userId,
+      });
 
-  if (organization === undefined || project === undefined) {
-    return null;
-  }
+      const organization = await getIdentityStore().findOrganizationById(workspace.organizationId);
+      const project = hasDatabaseUrl()
+        ? await runWithTenantScopedStores(tenantContext, async (stores) =>
+            stores.projectStore.findProjectById(workspace.projectId),
+          )
+        : await getProjectStore().findProjectById(workspace.projectId);
+      const workItems = await listWorkItemsForWorkspaceProject(
+        workspace.organizationId,
+        userId,
+        workspace.projectId,
+      );
 
-  return {
-    organization,
-    project,
-    workItems,
-    stats: computeStats(workItems),
-  };
+      if (organization === undefined || project === undefined) {
+        return null;
+      }
+
+      return {
+        organization,
+        project,
+        workItems,
+        stats: computeStats(workItems),
+      };
+    },
+    null,
+    "getDashboardData",
+  );
 }
 
 export async function getWorkItemById(workItemId: string): Promise<{
@@ -63,26 +102,47 @@ export async function getWorkItemById(workItemId: string): Promise<{
   project: Project;
   workItem: WorkItem;
 } | null> {
-  const workspace = await resolveWorkspaceContext();
-  if (workspace === null) {
-    return null;
-  }
+  return runSafely(
+    async () => {
+      const workspace = await resolveWorkspaceContext();
+      if (workspace === null) {
+        return null;
+      }
 
-  const workItem = await getWorkItemStore().findWorkItemVersionById(workItemId);
-  if (workItem === undefined || workItem.organizationId !== workspace.organizationId) {
-    return null;
-  }
+      const { userId } = await getWorkspaceSession();
+      const tenantContext = createWorkspaceTenantContext({
+        organizationId: workspace.organizationId,
+        userId,
+      });
 
-  const organization = await getIdentityStore().findOrganizationById(workItem.organizationId);
-  const project = await getProjectStore().findProjectById(workItem.projectId);
+      const workItem = hasDatabaseUrl()
+        ? await runWithTenantScopedStores(tenantContext, async (stores) =>
+            stores.workItemStore.findWorkItemVersionById(workItemId),
+          )
+        : await getWorkItemStore().findWorkItemVersionById(workItemId);
 
-  if (organization === undefined || project === undefined) {
-    return null;
-  }
+      if (workItem === undefined || workItem.organizationId !== workspace.organizationId) {
+        return null;
+      }
 
-  return {
-    organization,
-    project,
-    workItem,
-  };
+      const organization = await getIdentityStore().findOrganizationById(workItem.organizationId);
+      const project = hasDatabaseUrl()
+        ? await runWithTenantScopedStores(tenantContext, async (stores) =>
+            stores.projectStore.findProjectById(workItem.projectId),
+          )
+        : await getProjectStore().findProjectById(workItem.projectId);
+
+      if (organization === undefined || project === undefined) {
+        return null;
+      }
+
+      return {
+        organization,
+        project,
+        workItem,
+      };
+    },
+    null,
+    "getWorkItemById",
+  );
 }

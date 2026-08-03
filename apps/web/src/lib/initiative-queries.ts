@@ -6,12 +6,16 @@ import {
   type ProblemBrief,
 } from "@arise/domain";
 
+import { hasDatabaseUrl } from "./database";
 import {
   getInitiativeStore,
   getMarketResearchStore,
   getProblemAlignmentStore,
   getProblemBriefStore,
 } from "./product-discovery-stores";
+import { createWorkspaceTenantContext, runWithTenantScopedStores } from "./postgres-tenant";
+import { runSafely } from "./postgres-support";
+import { getWorkspaceSession } from "./session";
 import { resolveWorkspaceContext } from "./workspace";
 
 export interface InitiativeDetail {
@@ -23,43 +27,90 @@ export interface InitiativeDetail {
 }
 
 export async function getInitiativeDetail(initiativeId: string): Promise<InitiativeDetail | null> {
-  const workspace = await resolveWorkspaceContext();
-  if (workspace === null) {
-    return null;
-  }
+  return runSafely(
+    async () => {
+      const workspace = await resolveWorkspaceContext();
+      if (workspace === null) {
+        return null;
+      }
 
-  const initiative = await getInitiativeStore().findInitiativeById(initiativeId);
-  if (initiative === undefined || initiative.organizationId !== workspace.organizationId) {
-    return null;
-  }
+      const { userId } = await getWorkspaceSession();
+      const tenantContext = createWorkspaceTenantContext({
+        organizationId: workspace.organizationId,
+        userId,
+      });
 
-  const problemBrief = await getProblemBriefStore().findProblemBriefByInitiativeId(initiativeId);
-  if (problemBrief === undefined) {
-    return null;
-  }
+      const initiative = hasDatabaseUrl()
+        ? await runWithTenantScopedStores(tenantContext, async (stores) =>
+            stores.initiativeStore.findInitiativeById(initiativeId),
+          )
+        : await getInitiativeStore().findInitiativeById(initiativeId);
 
-  const dossier = await getMarketResearchStore().findMarketResearchByInitiativeId(initiativeId);
-  const alignment =
-    await getProblemAlignmentStore().findProblemAlignmentByInitiativeId(initiativeId);
-  const selectedFramingTitle =
-    dossier !== undefined && alignment !== undefined
-      ? findFramingOption(dossier, alignment.selectedFramingId)?.title
-      : undefined;
+      if (initiative === undefined || initiative.organizationId !== workspace.organizationId) {
+        return null;
+      }
 
-  return {
-    initiative,
-    problemBrief,
-    ...(dossier !== undefined ? { dossier } : {}),
-    ...(alignment !== undefined ? { alignment } : {}),
-    ...(selectedFramingTitle !== undefined ? { selectedFramingTitle } : {}),
-  };
+      const problemBrief = hasDatabaseUrl()
+        ? await runWithTenantScopedStores(tenantContext, async (stores) =>
+            stores.problemBriefStore.findProblemBriefByInitiativeId(initiativeId),
+          )
+        : await getProblemBriefStore().findProblemBriefByInitiativeId(initiativeId);
+
+      if (problemBrief === undefined) {
+        return null;
+      }
+
+      const dossier = hasDatabaseUrl()
+        ? await runWithTenantScopedStores(tenantContext, async (stores) =>
+            stores.marketResearchStore.findMarketResearchByInitiativeId(initiativeId),
+          )
+        : await getMarketResearchStore().findMarketResearchByInitiativeId(initiativeId);
+      const alignment = hasDatabaseUrl()
+        ? await runWithTenantScopedStores(tenantContext, async (stores) =>
+            stores.problemAlignmentStore.findProblemAlignmentByInitiativeId(initiativeId),
+          )
+        : await getProblemAlignmentStore().findProblemAlignmentByInitiativeId(initiativeId);
+      const selectedFramingTitle =
+        dossier !== undefined && alignment !== undefined
+          ? findFramingOption(dossier, alignment.selectedFramingId)?.title
+          : undefined;
+
+      return {
+        initiative,
+        problemBrief,
+        ...(dossier !== undefined ? { dossier } : {}),
+        ...(alignment !== undefined ? { alignment } : {}),
+        ...(selectedFramingTitle !== undefined ? { selectedFramingTitle } : {}),
+      };
+    },
+    null,
+    "getInitiativeDetail",
+  );
 }
 
 export async function listInitiativesForWorkspace(): Promise<Initiative[]> {
-  const workspace = await resolveWorkspaceContext();
-  if (workspace === null) {
-    return [];
-  }
+  return runSafely(
+    async () => {
+      const workspace = await resolveWorkspaceContext();
+      if (workspace === null) {
+        return [];
+      }
 
-  return getInitiativeStore().listInitiativesForOrganization(workspace.organizationId);
+      const { userId } = await getWorkspaceSession();
+      const tenantContext = createWorkspaceTenantContext({
+        organizationId: workspace.organizationId,
+        userId,
+      });
+
+      if (hasDatabaseUrl()) {
+        return runWithTenantScopedStores(tenantContext, async (stores) =>
+          stores.initiativeStore.listInitiativesForOrganization(workspace.organizationId),
+        );
+      }
+
+      return getInitiativeStore().listInitiativesForOrganization(workspace.organizationId);
+    },
+    [],
+    "listInitiativesForWorkspace",
+  );
 }

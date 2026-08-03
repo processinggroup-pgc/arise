@@ -16,6 +16,7 @@ export function getDatabasePool(): pg.Pool {
   pool ??= new pg.Pool({
     connectionString: databaseUrl,
     ssl: databaseUrl.includes("localhost") ? undefined : { rejectUnauthorized: false },
+    max: 1,
   });
 
   return pool;

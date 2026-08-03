@@ -1,8 +1,10 @@
 import { createProjectForOrganization, listOrganizationsForUser } from "@arise/application";
-import { createTenantContext } from "@arise/domain";
 
+import { hasDatabaseUrl } from "./database";
 import { ensureDemoData, DEMO_ORG_ID, DEMO_PROJECT_ID } from "./demo-data";
 import { getIdentityStore, usesPersistentIdentityStore } from "./identity-store";
+import { createWorkspaceTenantContext, runWithTenantScopedStores } from "./postgres-tenant";
+import { isValidUuid, runSafely } from "./postgres-support";
 import { getWorkspaceSession } from "./session";
 import { getProjectStore } from "./stores";
 
@@ -13,22 +15,52 @@ export interface WorkspaceContext {
 
 export async function listWorkspaceOrganizations() {
   const session = await getWorkspaceSession();
-  return listOrganizationsForUser(session.userId, getIdentityStore());
+  if (!isValidUuid(session.userId)) {
+    return [];
+  }
+
+  return runSafely(
+    () => listOrganizationsForUser(session.userId, getIdentityStore()),
+    [],
+    "listWorkspaceOrganizations",
+  );
 }
 
 async function ensureDefaultProject(organizationId: string, userId: string): Promise<string> {
+  if (hasDatabaseUrl()) {
+    const tenantContext = createWorkspaceTenantContext({ organizationId, userId });
+
+    return runWithTenantScopedStores(tenantContext, async (stores) => {
+      const projects = await stores.projectStore.listProjectsForOrganization(organizationId);
+      const existingProject = projects[0];
+      if (existingProject !== undefined) {
+        return existingProject.id;
+      }
+
+      const project = await createProjectForOrganization(
+        {
+          tenantContext,
+          name: "Default Project",
+          description: "Primary delivery workspace for governed agent runs.",
+        },
+        stores.projectStore,
+        {
+          createId: () => crypto.randomUUID(),
+          now: () => new Date(),
+        },
+      );
+
+      return project.id;
+    });
+  }
+
   const projects = await getProjectStore().listProjectsForOrganization(organizationId);
   const existingProject = projects[0];
   if (existingProject !== undefined) {
     return existingProject.id;
   }
 
-  const tenantContext = createTenantContext({
-    organizationId,
-    userId,
-    correlationId: crypto.randomUUID(),
-  });
-
+  const tenantContext = createWorkspaceTenantContext({ organizationId, userId });
   const project = await createProjectForOrganization(
     {
       tenantContext,
@@ -49,6 +81,10 @@ async function resolveOrganizationId(
   userId: string,
   organizationId: string | undefined,
 ): Promise<string | null> {
+  if (!isValidUuid(userId)) {
+    return null;
+  }
+
   const identityStore = getIdentityStore();
 
   if (organizationId !== undefined) {
@@ -72,25 +108,31 @@ async function resolveOrganizationId(
 }
 
 export async function resolveWorkspaceContext(): Promise<WorkspaceContext | null> {
-  const session = await getWorkspaceSession();
-  const organizationId = await resolveOrganizationId(session.userId, session.organizationId);
+  return runSafely(
+    async () => {
+      const session = await getWorkspaceSession();
+      const organizationId = await resolveOrganizationId(session.userId, session.organizationId);
 
-  if (organizationId === null) {
-    if (!usesPersistentIdentityStore()) {
-      await ensureDemoData();
+      if (organizationId === null) {
+        if (!usesPersistentIdentityStore()) {
+          await ensureDemoData();
+          return {
+            organizationId: DEMO_ORG_ID,
+            projectId: DEMO_PROJECT_ID,
+          };
+        }
+
+        return null;
+      }
+
+      const projectId = await ensureDefaultProject(organizationId, session.userId);
+
       return {
-        organizationId: DEMO_ORG_ID,
-        projectId: DEMO_PROJECT_ID,
+        organizationId,
+        projectId,
       };
-    }
-
-    return null;
-  }
-
-  const projectId = await ensureDefaultProject(organizationId, session.userId);
-
-  return {
-    organizationId,
-    projectId,
-  };
+    },
+    null,
+    "resolveWorkspaceContext",
+  );
 }
