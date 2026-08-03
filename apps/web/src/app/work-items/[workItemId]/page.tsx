@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { AppShell } from "../../components/app-shell.js";
-import { LifecycleTrack } from "../../components/lifecycle-track.js";
-import { StatusBadge } from "../../components/status-badge.js";
-import { getWorkItemById } from "../../lib/queries.js";
+import { AppShell } from "../../../components/app-shell.js";
+import { LifecycleTrack } from "../../../components/lifecycle-track.js";
+import { StatusBadge } from "../../../components/status-badge.js";
+import { getWorkItemById } from "../../../lib/queries.js";
 
 interface WorkItemDetailPageProps {
   params: Promise<{ workItemId: string }>;
