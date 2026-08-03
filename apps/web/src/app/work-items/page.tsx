@@ -1,9 +1,31 @@
+import Link from "next/link";
+
 import { AppShell } from "@/components/app-shell";
 import { WorkItemTable } from "@/components/work-item-table";
 import { getDashboardData } from "@/lib/queries";
 
 export default async function WorkItemsPage(): Promise<React.JSX.Element> {
-  const { organization, project, workItems } = await getDashboardData();
+  const dashboard = await getDashboardData();
+
+  if (dashboard === null) {
+    return (
+      <AppShell activePath="/work-items" organizationName="No organization selected">
+        <header className="page-header">
+          <div>
+            <h1 className="page-title">Work Items</h1>
+            <p className="page-description">
+              Create an organization before tracking ARISE work items.
+            </p>
+          </div>
+          <Link className="button-link" href="/organizations/new">
+            Create organization
+          </Link>
+        </header>
+      </AppShell>
+    );
+  }
+
+  const { organization, project, workItems } = dashboard;
 
   return (
     <AppShell activePath="/work-items" organizationName={organization.name}>

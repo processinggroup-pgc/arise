@@ -450,6 +450,69 @@ textarea {
   background: rgba(61, 214, 198, 0.2);
 }
 
+.form-panel {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-field-wide {
+  grid-column: 1 / -1;
+}
+
+.form-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+
+.form-input {
+  padding: 0.72rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-muted);
+  color: var(--text);
+}
+
+.form-input:focus {
+  outline: 2px solid rgba(61, 214, 198, 0.35);
+  outline-offset: 1px;
+}
+
+.form-error {
+  margin: 0;
+  color: var(--danger);
+}
+
+.button-primary {
+  justify-self: start;
+  padding: 0.72rem 1rem;
+  border: 1px solid rgba(61, 214, 198, 0.45);
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button-primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .environment-pill {
   display: inline-flex;
   align-items: center;

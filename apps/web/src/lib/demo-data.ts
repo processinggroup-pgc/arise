@@ -65,6 +65,10 @@ async function seedWorkItem(input: {
 }
 
 export async function ensureDemoData(): Promise<void> {
+  if (process.env["DATABASE_URL"] !== undefined && process.env["DATABASE_URL"].length > 0) {
+    return;
+  }
+
   if (seeded) {
     return;
   }

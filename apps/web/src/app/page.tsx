@@ -6,7 +6,32 @@ import { WorkItemTable } from "@/components/work-item-table";
 import { getDashboardData } from "@/lib/queries";
 
 export default async function HomePage(): Promise<React.JSX.Element> {
-  const { organization, project, workItems, stats } = await getDashboardData();
+  const dashboard = await getDashboardData();
+
+  if (dashboard === null) {
+    return (
+      <AppShell activePath="/" organizationName="No organization selected">
+        <header className="page-header">
+          <div>
+            <h1 className="page-title">ARISE Studio</h1>
+            <p className="page-description">
+              Create an organization to start governed delivery with ARISE work items, approvals,
+              and release evidence.
+            </p>
+          </div>
+          <Link className="button-link" href="/organizations/new">
+            Create organization
+          </Link>
+        </header>
+
+        <section className="panel detail-section empty-state">
+          <p>No organization is active in this browser session yet.</p>
+        </section>
+      </AppShell>
+    );
+  }
+
+  const { organization, project, workItems, stats } = dashboard;
 
   return (
     <AppShell activePath="/" organizationName={organization.name}>

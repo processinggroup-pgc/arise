@@ -7,6 +7,17 @@ export type {
   RegisterOrganizationResult,
 } from "./identity/register-organization.js";
 export { registerOrganization } from "./identity/register-organization.js";
+export type { RegisterOrganizationHandlerDependencies } from "./tenancy/register-organization-handler.js";
+export { createRegisterOrganizationHandler } from "./tenancy/register-organization-handler.js";
+export type {
+  RegisterOrganizationApiInput,
+  RegisterOrganizationForApiResult,
+} from "./tenancy/register-organization-for-api.js";
+export {
+  OrganizationRegistrationError,
+  registerOrganizationForApi,
+} from "./tenancy/register-organization-for-api.js";
+export { PostgresIdentityStore } from "./identity/postgres-identity-store.js";
 export type { OrganizationMembershipsHandlerDependencies } from "./tenancy/organization-memberships-handler.js";
 export { createOrganizationMembershipsHandler } from "./tenancy/organization-memberships-handler.js";
 export { listOrganizationMembershipsForApi } from "./tenancy/list-organization-memberships.js";
