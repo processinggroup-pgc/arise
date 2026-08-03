@@ -15,6 +15,7 @@ import {
   getProblemBriefStore,
 } from "@/lib/product-discovery-stores";
 import { runWithTenantScopedStores } from "@/lib/postgres-tenant";
+import { getMarketResearchGenerator } from "@/lib/market-research-generator";
 import { getActiveWorkspaceForAction } from "@/lib/workspace";
 
 export async function runMarketResearchAction(initiativeId: string): Promise<{ error?: string }> {
@@ -33,6 +34,7 @@ export async function runMarketResearchAction(initiativeId: string): Promise<{ e
       createId: () => crypto.randomUUID(),
       now: () => new Date(),
     };
+    const generator = getMarketResearchGenerator();
 
     if (hasDatabaseUrl()) {
       await runWithTenantScopedStores(tenantContext, async (stores) =>
@@ -42,6 +44,7 @@ export async function runMarketResearchAction(initiativeId: string): Promise<{ e
           stores.problemBriefStore,
           stores.marketResearchStore,
           operationContext,
+          { generator },
         ),
       );
     } else {
@@ -51,6 +54,7 @@ export async function runMarketResearchAction(initiativeId: string): Promise<{ e
         getProblemBriefStore(),
         getMarketResearchStore(),
         operationContext,
+        { generator },
       );
     }
 

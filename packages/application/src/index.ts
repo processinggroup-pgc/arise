@@ -392,7 +392,14 @@ export {
   runMarketResearchForInitiative,
   InitiativeWorkflowError,
   type RunMarketResearchCommand,
+  type RunMarketResearchDependencies,
 } from "./product-discovery/run-market-research-for-initiative.js";
+export type { MarketResearchGenerator } from "./product-discovery/market-research-generator.js";
+export { RuleBasedMarketResearchGenerator } from "./product-discovery/rule-based-market-research-generator.js";
+export {
+  ClaudeMarketResearchGenerator,
+  createClaudeMarketResearchGenerator,
+} from "./product-discovery/claude-market-research-generator.js";
 export {
   alignProblemFramingForInitiative,
   type AlignProblemFramingCommand,

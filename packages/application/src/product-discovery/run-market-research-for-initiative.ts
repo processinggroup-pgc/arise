@@ -1,11 +1,9 @@
-import {
-  advanceInitiativeState,
-  generateMarketResearchDossier,
-  type TenantContext,
-} from "@arise/domain";
+import { advanceInitiativeState, type TenantContext } from "@arise/domain";
 
 import type { IdentityOperationContext } from "../identity/identity-store.js";
 import { InitiativeScopeError } from "./create-initiative-with-problem.js";
+import type { MarketResearchGenerator } from "./market-research-generator.js";
+import { RuleBasedMarketResearchGenerator } from "./rule-based-market-research-generator.js";
 import type {
   InitiativeStore,
   MarketResearchStore,
@@ -15,6 +13,10 @@ import type {
 export interface RunMarketResearchCommand {
   tenantContext: TenantContext;
   initiativeId: string;
+}
+
+export interface RunMarketResearchDependencies {
+  generator?: MarketResearchGenerator;
 }
 
 export class InitiativeWorkflowError extends Error {
@@ -30,9 +32,10 @@ export async function runMarketResearchForInitiative(
   problemBriefStore: ProblemBriefStore,
   marketResearchStore: MarketResearchStore,
   operationContext: IdentityOperationContext,
+  dependencies: RunMarketResearchDependencies = {},
 ): Promise<{
   initiative: NonNullable<Awaited<ReturnType<InitiativeStore["findInitiativeById"]>>>;
-  dossier: ReturnType<typeof generateMarketResearchDossier>;
+  dossier: Awaited<ReturnType<MarketResearchGenerator["generate"]>>;
 }> {
   const initiative = await initiativeStore.findInitiativeById(command.initiativeId);
   if (initiative === undefined) {
@@ -52,7 +55,7 @@ export async function runMarketResearchForInitiative(
     throw new InitiativeWorkflowError("Problem brief was not found");
   }
 
-  const dossier = generateMarketResearchDossier(
+  const dossier = await (dependencies.generator ?? new RuleBasedMarketResearchGenerator()).generate(
     {
       initiativeId: initiative.id,
       organizationId: initiative.organizationId,

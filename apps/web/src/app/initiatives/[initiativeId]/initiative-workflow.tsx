@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import type { MarketResearchDossier } from "@arise/domain";
@@ -19,6 +20,7 @@ export function InitiativeWorkflow({
   dossier,
   selectedFramingTitle,
 }: InitiativeWorkflowProps): React.JSX.Element {
+  const router = useRouter();
   const [error, setError] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
 
@@ -37,10 +39,14 @@ export function InitiativeWorkflow({
           type="button"
           onClick={() => {
             startTransition(async () => {
+              setError(undefined);
               const result = await runMarketResearchAction(initiativeId);
               if (result.error !== undefined) {
                 setError(result.error);
+                return;
               }
+
+              router.refresh();
             });
           }}
         >
@@ -82,10 +88,14 @@ export function InitiativeWorkflow({
           className="form-panel"
           action={async (formData) => {
             startTransition(async () => {
+              setError(undefined);
               const result = await alignProblemFramingAction(initiativeId, formData);
               if (result.error !== undefined) {
                 setError(result.error);
+                return;
               }
+
+              router.refresh();
             });
           }}
         >
