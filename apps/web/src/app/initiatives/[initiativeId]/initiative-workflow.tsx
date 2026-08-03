@@ -1,11 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
-import type { CohortDiscoveryBundle, MarketResearchDossier } from "@arise/domain";
+import type { CohortDiscoveryBundle, MarketResearchDossier, TechnicalDesignBundle } from "@arise/domain";
 
+import {
+  approveTechnicalDesignAction,
+  generateArchitectureAction,
+  generateDataModelAction,
+  generateGapAnalysisAction,
+  generateTechStackAction,
+} from "./technical-design-actions";
 import {
   approveDesignAction,
   assembleBrdAction,
@@ -26,6 +32,7 @@ interface InitiativeWorkflowProps {
   state: string;
   dossier?: MarketResearchDossier | undefined;
   bundle?: CohortDiscoveryBundle | undefined;
+  technicalBundle?: TechnicalDesignBundle | undefined;
   selectedFramingTitle?: string | undefined;
 }
 
@@ -65,6 +72,7 @@ export function InitiativeWorkflow({
   state,
   dossier,
   bundle,
+  technicalBundle,
   selectedFramingTitle,
 }: InitiativeWorkflowProps): React.JSX.Element {
   const router = useRouter();
@@ -86,7 +94,7 @@ export function InitiativeWorkflow({
   if (state === "problem_captured") {
     return (
       <section className="panel detail-section">
-        <h2>Week 1 — Run market research</h2>
+        <h2>Step 1 — Run market research</h2>
         <p className="page-description">
           ARISE generates a research dossier using Claude (or rule-based fallback). After research,
           you will compare dual-AI outputs, stress-test the idea, and finalize your concept.
@@ -105,7 +113,7 @@ export function InitiativeWorkflow({
   if (state === "research_complete" && dossier !== undefined) {
     return (
       <section className="panel detail-section">
-        <h2>Week 1 — AI refinement &amp; finalize concept</h2>
+        <h2>Step 1 — AI refinement &amp; finalize concept</h2>
         <p>{dossier.summary}</p>
 
         <div className="detail-grid">
@@ -237,7 +245,7 @@ export function InitiativeWorkflow({
   if (state === "problem_aligned") {
     return (
       <section className="panel detail-section">
-        <h2>Week 2 — Business case</h2>
+        <h2>Step 2 — Business case</h2>
         <p>
           Concept finalized: <strong>{selectedFramingTitle ?? "Confirmed"}</strong>
         </p>
@@ -262,7 +270,7 @@ export function InitiativeWorkflow({
   if (state === "business_case_complete") {
     return (
       <section className="panel detail-section">
-        <h2>Week 2 — MVP scoping</h2>
+        <h2>Step 2 — MVP scoping</h2>
         {bundle?.businessCase !== undefined ? (
           <ul className="detail-list">
             <li>Value: {bundle.businessCase.valueProposition}</li>
@@ -300,7 +308,7 @@ export function InitiativeWorkflow({
   if (state === "solution_selected") {
     return (
       <section className="panel detail-section">
-        <h2>Week 2 — MVP finalize</h2>
+        <h2>Step 2 — MVP finalize</h2>
         {bundle?.mvpScope !== undefined ? (
           <div className="detail-grid">
             <ArtifactList title="Core features" items={bundle.mvpScope.coreFeatures} />
@@ -339,7 +347,7 @@ export function InitiativeWorkflow({
   if (state === "mvp_finalized") {
     return (
       <section className="panel detail-section">
-        <h2>Week 3 — Persona</h2>
+        <h2>Step 3 — Persona</h2>
         {bundle?.simplicityCheck !== undefined ? (
           <p className="page-description">30% cut: {bundle.simplicityCheck}</p>
         ) : null}
@@ -357,7 +365,7 @@ export function InitiativeWorkflow({
   if (state === "persona_complete" && bundle?.persona !== undefined) {
     return (
       <section className="panel detail-section">
-        <h2>Week 3 — User flow</h2>
+        <h2>Step 3 — User flow</h2>
         <p>
           <strong>{bundle.persona.name}</strong> — {bundle.persona.role} ({bundle.persona.incomeLevel})
         </p>
@@ -376,7 +384,7 @@ export function InitiativeWorkflow({
   if (state === "userflow_complete" && bundle?.userFlow !== undefined) {
     return (
       <section className="panel detail-section">
-        <h2>Week 3 — Story map</h2>
+        <h2>Step 3 — Story map</h2>
         <ol className="detail-list">
           {bundle.userFlow.steps.map((step) => (
             <li key={step.stepNumber}>
@@ -399,7 +407,7 @@ export function InitiativeWorkflow({
   if (state === "storymap_complete" && bundle?.storyMap !== undefined) {
     return (
       <section className="panel detail-section">
-        <h2>Week 3 — BRD build</h2>
+        <h2>Step 3 — BRD build</h2>
         {bundle.storyMap.steps.map((step) => (
           <article key={step.stepTitle} className="criteria-card">
             <strong>{step.stepTitle}</strong>
@@ -426,7 +434,7 @@ export function InitiativeWorkflow({
   if (state === "brd_draft" && bundle?.brd !== undefined) {
     return (
       <section className="panel detail-section">
-        <h2>Week 3 — Review &amp; approve BRD</h2>
+        <h2>Step 3 — Review &amp; approve BRD</h2>
         <pre className="form-textarea" style={{ whiteSpace: "pre-wrap" }}>
           {bundle.brd.fullDocument}
         </pre>
@@ -444,7 +452,7 @@ export function InitiativeWorkflow({
           </label>
           {error ? <p className="form-error">{error}</p> : null}
           <button className="button-primary" disabled={isPending} type="submit">
-            {isPending ? "Approving..." : "Approve design — cohort weeks 1–3 complete"}
+            {isPending ? "Approving..." : "Approve design — Steps 1–3 complete"}
           </button>
         </form>
       </section>
@@ -454,22 +462,136 @@ export function InitiativeWorkflow({
   if (state === "design_approved") {
     return (
       <section className="panel detail-section">
-        <h2>Cohort weeks 1–3 complete</h2>
+        <h2>Step 4 — System architecture</h2>
         <p className="page-description">
-          Persona, user flow, story map, and BRD are approved. Export homework bundles below or
-          continue to build phase when wired.
+          Steps 1–3 are complete. Design a simple architecture you can explain in 60 seconds —
+          frontend, backend, database, and APIs.
         </p>
+        {error ? <p className="form-error">{error}</p> : null}
+        <ActionButton
+          disabled={isPending}
+          label="Generate system architecture"
+          pendingLabel="Generating..."
+          onClick={() => run(() => generateArchitectureAction(initiativeId))}
+        />
+      </section>
+    );
+  }
+
+  if (state === "architecture_complete" && technicalBundle?.architecture !== undefined) {
+    return (
+      <section className="panel detail-section">
+        <h2>Step 4 — Tech stack</h2>
+        <p>{technicalBundle.architecture.summary}</p>
+        <ul className="detail-list">
+          <li>Frontend: {technicalBundle.architecture.frontend}</li>
+          <li>Backend: {technicalBundle.architecture.backend}</li>
+          <li>Database: {technicalBundle.architecture.database}</li>
+          <li>APIs: {technicalBundle.architecture.apis}</li>
+        </ul>
+        {error ? <p className="form-error">{error}</p> : null}
+        <ActionButton
+          disabled={isPending}
+          label="Recommend tech stack"
+          pendingLabel="Generating..."
+          onClick={() => run(() => generateTechStackAction(initiativeId))}
+        />
+      </section>
+    );
+  }
+
+  if (state === "stack_selected" && technicalBundle?.techStack !== undefined) {
+    return (
+      <section className="panel detail-section">
+        <h2>Step 4 — Data model</h2>
+        <ul className="detail-list">
+          <li>Frontend: {technicalBundle.techStack.frontend}</li>
+          <li>Backend: {technicalBundle.techStack.backend}</li>
+          <li>Database: {technicalBundle.techStack.database}</li>
+          <li>Hosting: {technicalBundle.techStack.hosting}</li>
+        </ul>
+        <p className="page-description">{technicalBundle.techStack.rationale}</p>
+        {error ? <p className="form-error">{error}</p> : null}
+        <ActionButton
+          disabled={isPending}
+          label="Generate data model (2–4 entities)"
+          pendingLabel="Generating..."
+          onClick={() => run(() => generateDataModelAction(initiativeId))}
+        />
+      </section>
+    );
+  }
+
+  if (state === "data_model_complete" && technicalBundle?.dataModel !== undefined) {
+    return (
+      <section className="panel detail-section">
+        <h2>Step 4 — Gap analysis</h2>
+        {technicalBundle.dataModel.entities.map((entity) => (
+          <article key={entity.name} className="criteria-card">
+            <strong>{entity.name}</strong>
+            <p>Fields: {entity.fields.join(", ")}</p>
+            <p>Relationships: {entity.relationships.join("; ")}</p>
+          </article>
+        ))}
+        {error ? <p className="form-error">{error}</p> : null}
+        <ActionButton
+          disabled={isPending}
+          label="Run gap analysis against BRD"
+          pendingLabel="Analyzing..."
+          onClick={() => run(() => generateGapAnalysisAction(initiativeId))}
+        />
+      </section>
+    );
+  }
+
+  if (state === "gap_analysis_complete" && technicalBundle?.gapAnalysis !== undefined) {
+    return (
+      <section className="panel detail-section">
+        <h2>Step 4 — System validation</h2>
         <div className="detail-grid">
-          <Link className="button-link" href={`/initiatives/${initiativeId}/export/1`}>
-            Week 1 homework
-          </Link>
-          <Link className="button-link" href={`/initiatives/${initiativeId}/export/2`}>
-            Week 2 homework
-          </Link>
-          <Link className="button-link" href={`/initiatives/${initiativeId}/export/3`}>
-            Week 3 homework
-          </Link>
+          <ArtifactList title="Missing features" items={technicalBundle.gapAnalysis.missingFeatures} />
+          <ArtifactList title="Edge cases" items={technicalBundle.gapAnalysis.edgeCases} />
+          <ArtifactList title="Technical risks" items={technicalBundle.gapAnalysis.technicalRisks} />
+          <ArtifactList title="Silent failures" items={technicalBundle.gapAnalysis.silentFailures} />
         </div>
+        {technicalBundle.deeperGapCheck !== undefined ? (
+          <div className="detail-grid">
+            <ArtifactList title="Failure modes" items={technicalBundle.deeperGapCheck.failureModes} />
+            <ArtifactList title="Weak assumptions" items={technicalBundle.deeperGapCheck.weakAssumptions} />
+          </div>
+        ) : null}
+        <form
+          className="form-panel"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            run(() => approveTechnicalDesignAction(initiativeId, formData));
+          }}
+        >
+          <label className="form-field form-field-wide">
+            <span className="form-label">Session notes</span>
+            <textarea className="form-input form-textarea" name="sessionNotesStep4" rows={3} />
+          </label>
+          {error ? <p className="form-error">{error}</p> : null}
+          <button className="button-primary" disabled={isPending} type="submit">
+            {isPending ? "Validating..." : "Validate design — Step 4 complete"}
+          </button>
+        </form>
+      </section>
+    );
+  }
+
+  if (state === "technical_design_approved") {
+    return (
+      <section className="panel detail-section">
+        <h2>Step 4 complete — ready to build</h2>
+        <p className="page-description">
+          Architecture, stack, data model, and gap analysis are approved. Export your Step 4 homework
+          bundle below, then proceed to Step 5 when wired.
+        </p>
+        {technicalBundle?.systemValidation !== undefined ? (
+          <p>{technicalBundle.systemValidation.userFlowAlignment}</p>
+        ) : null}
       </section>
     );
   }

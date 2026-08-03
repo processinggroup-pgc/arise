@@ -22,6 +22,11 @@ export const INITIATIVE_WIZARD_STEPS = [
   { id: "userflow", label: "User flow" },
   { id: "storymap", label: "Story map" },
   { id: "brd", label: "BRD build" },
+  { id: "architecture", label: "Architecture" },
+  { id: "tech-stack", label: "Tech stack" },
+  { id: "data-model", label: "Data model" },
+  { id: "gap-analysis", label: "Gap analysis" },
+  { id: "system-validation", label: "System validation" },
 ] as const;
 
 export type InitiativeWizardStepId = (typeof INITIATIVE_WIZARD_STEPS)[number]["id"];

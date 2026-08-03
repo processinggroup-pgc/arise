@@ -1,0 +1,102 @@
+import type { SessionNotes } from "./cohort-artifacts.js";
+
+export interface SystemArchitecture {
+  frontend: string;
+  backend: string;
+  database: string;
+  apis: string;
+  summary: string;
+}
+
+export interface TechStack {
+  frontend: string;
+  backend: string;
+  database: string;
+  hosting: string;
+  rationale: string;
+}
+
+export interface DataModelEntity {
+  name: string;
+  fields: string[];
+  relationships: string[];
+}
+
+export interface DataModel {
+  entities: DataModelEntity[];
+}
+
+export interface GapAnalysisReport {
+  missingFeatures: string[];
+  edgeCases: string[];
+  userFlowGaps: string[];
+  technicalRisks: string[];
+  silentFailures: string[];
+}
+
+export interface DeeperGapCheck {
+  failureModes: string[];
+  risks: string[];
+  weakAssumptions: string[];
+}
+
+export interface SystemValidation {
+  correctnessNotes: string[];
+  completenessNotes: string[];
+  userFlowAlignment: string;
+}
+
+export interface TechnicalDesignBundle {
+  id: string;
+  initiativeId: string;
+  organizationId: string;
+  architecture?: SystemArchitecture;
+  techStack?: TechStack;
+  dataModel?: DataModel;
+  gapAnalysis?: GapAnalysisReport;
+  deeperGapCheck?: DeeperGapCheck;
+  systemValidation?: SystemValidation;
+  sessionNotesStep4?: SessionNotes;
+  updatedAt: Date;
+}
+
+export interface CreateTechnicalDesignBundleInput {
+  initiativeId: string;
+  organizationId: string;
+}
+
+export interface CreateTechnicalDesignBundleMetadata {
+  id: string;
+  updatedAt: Date;
+}
+
+export function createTechnicalDesignBundle(
+  input: CreateTechnicalDesignBundleInput,
+  metadata: CreateTechnicalDesignBundleMetadata,
+): TechnicalDesignBundle {
+  const initiativeId = input.initiativeId.trim();
+  const organizationId = input.organizationId.trim();
+
+  if (initiativeId.length === 0 || organizationId.length === 0) {
+    throw new Error("Technical design bundle identifiers are required");
+  }
+
+  return {
+    id: metadata.id,
+    initiativeId,
+    organizationId,
+    updatedAt: metadata.updatedAt,
+  };
+}
+
+export function mergeTechnicalDesignBundle(
+  bundle: TechnicalDesignBundle,
+  patch: Partial<Omit<TechnicalDesignBundle, "id" | "initiativeId" | "organizationId">>,
+  updatedAt: Date,
+): TechnicalDesignBundle {
+  return {
+    ...bundle,
+    ...patch,
+    updatedAt,
+  };
+}

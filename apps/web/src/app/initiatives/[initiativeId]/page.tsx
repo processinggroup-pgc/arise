@@ -35,11 +35,21 @@ function resolveWizardStep(state: string): InitiativeWizardStepId {
     case "brd_draft":
       return "brd";
     case "design_approved":
+      return "architecture";
+    case "architecture_complete":
+      return "tech-stack";
+    case "stack_selected":
+      return "data-model";
+    case "data_model_complete":
+      return "gap-analysis";
+    case "gap_analysis_complete":
+      return "system-validation";
+    case "technical_design_approved":
     case "building":
     case "uat":
     case "production":
     case "ops_handoff":
-      return "brd";
+      return "system-validation";
     default:
       return "problem";
   }
@@ -93,6 +103,7 @@ export default async function InitiativePage({
         state={detail.initiative.state}
         dossier={detail.dossier}
         bundle={detail.bundle}
+        technicalBundle={detail.technicalBundle}
         selectedFramingTitle={detail.selectedFramingTitle}
       />
 
@@ -101,13 +112,16 @@ export default async function InitiativePage({
         <p className="page-description">Download Markdown bundles for Skool homework posts.</p>
         <div className="detail-grid">
           <a className="button-link" href={`/initiatives/${initiativeId}/export/1`}>
-            Week 1 export
+            Step 1 export
           </a>
           <a className="button-link" href={`/initiatives/${initiativeId}/export/2`}>
-            Week 2 export
+            Step 2 export
           </a>
           <a className="button-link" href={`/initiatives/${initiativeId}/export/3`}>
-            Week 3 export
+            Step 3 export
+          </a>
+          <a className="button-link" href={`/initiatives/${initiativeId}/export/4`}>
+            Step 4 export
           </a>
         </div>
       </section>

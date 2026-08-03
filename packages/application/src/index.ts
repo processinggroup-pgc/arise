@@ -441,3 +441,23 @@ export {
   type FinalizeMvpCommand,
   type SaveMvpScopeCommand,
 } from "./product-discovery/cohort-discovery-workflow.js";
+export type { TechnicalDesignStore } from "./product-discovery/technical-design-store.js";
+export {
+  InMemoryTechnicalDesignStore,
+  getOrCreateTechnicalDesignBundle,
+} from "./product-discovery/in-memory-technical-design-store.js";
+export { PostgresTechnicalDesignStore } from "./product-discovery/postgres-technical-design-store.js";
+export {
+  ClaudeTechnicalDesignGenerator,
+  ResilientTechnicalDesignGenerator,
+  RuleBasedTechnicalDesignGenerator,
+  type TechnicalDesignGenerator,
+} from "./product-discovery/rule-based-technical-design-generator.js";
+export {
+  approveTechnicalDesignForInitiative,
+  generateArchitectureForInitiative,
+  generateDataModelForInitiative,
+  generateGapAnalysisForInitiative,
+  generateTechStackForInitiative,
+  type TechnicalDesignCommand,
+} from "./product-discovery/technical-design-workflow.js";

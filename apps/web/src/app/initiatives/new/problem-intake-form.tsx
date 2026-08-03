@@ -77,7 +77,7 @@ export function ProblemIntakeForm(): React.JSX.Element {
           />
         </label>
 
-        <h3 className="form-label">Rich ICP (Week 1)</h3>
+        <h3 className="form-label">Rich ICP (Step 1)</h3>
 
         <label className="form-field form-field-wide">
           <span className="form-label">ICP role</span>

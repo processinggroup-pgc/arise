@@ -189,3 +189,48 @@ Maps ARISE Studio initiative flow to cohort weeks 1–3. User posts each week's 
 | 1 | Problem clarity + ICP | Problem & ICP → AI refinement → Finalize concept | `problem_captured` → `research_complete` → `problem_aligned` |
 | 2 | Business case + MVP | Business case → MVP scoping → MVP finalize | `business_case_complete` → `solution_selected` → `mvp_finalized` |
 | 3 | Experience design + BRD | Persona → User flow → Story map → BRD build | `persona_complete` → `userflow_complete` → `storymap_complete` → `brd_draft` → `design_approved` |
+
+### Week 4 — Technical design and gap analysis
+
+**Cohort outcomes:** simple explainable architecture, tech stack chosen, 2–4 entity data model, gaps and risks identified before code.
+
+**Pre-work:** re-read Week 3 BRD; list main product "things" that will become data entities.
+
+| Cohort deliverable | ARISE coverage | Status |
+| --- | --- | --- |
+| System architecture — frontend, backend, database, APIs (Prompt 1) | Architecture generator | Built |
+| Tech stack recommendation (Prompt 2) | Tech stack generator | Built |
+| Data model — 2–4 entities, fields, relationships (Prompt 3) | Data model generator | Built |
+| Gap analysis vs BRD (Prompt 4) | Gap analysis generator | Built |
+| Deeper gap check — failure modes, risks, assumptions (Prompt 5) | Included in gap analysis step | Built |
+| System validation loop (Part 6) | System validation on approve | Built |
+| Session notes (components, stack, entities, top 3 risks, gaps) | Session notes Step 4 | Built |
+| Homework: final architecture + stack + data model + gap report | Export `/export/4` | Built |
+
+**Note:** ARISE **Architecture Agent** (E4-S3) exists for work-item-level design runs but is not wired to the initiative cohort flow. Week 4 should consume the Week 3 BRD artifact and produce a **technical design bundle** separate from product discovery artifacts.
+
+**Partial overlap:** ARISE itself demonstrates a reference stack (Next.js frontend, Postgres/Supabase database, domain/application layers) — useful as examples, not as auto-generated output for learner initiatives.
+
+**Maps to initiative wizard:** Architecture → Tech stack → Data model → Gap analysis → System validation (states: post-`design_approved` through `technical_design_approved`).
+
+**Depends on:** Week 3 `design_approved` with completed BRD.
+
+**Stories**
+
+- E11-W4-S1 System architecture artifact (frontend, backend, database, APIs; 60-second explainable) — Prompt 1.
+- E11-W4-S2 Tech stack artifact (frontend, backend, database, hosting; speed over perfection) — Prompt 2.
+- E11-W4-S3 Data model artifact (2–4 entities, key fields, relationships) — Prompt 3.
+- E11-W4-S4 Gap analysis vs BRD (missing features, edge cases, flow gaps, technical risks, silent failures) — Prompt 4.
+- E11-W4-S5 Deeper gap check (failure modes, risks, weak assumptions) — Prompt 5.
+- E11-W4-S6 System validation loop (correctness, completeness, alignment with user flow) — Part 6.
+- E11-W4-S7 Session notes form (components, stack rationale, entities, top 3 risks, pre-build gaps).
+- E11-W4-S8 Export Week 4 homework bundle (architecture + stack + data model + gap report).
+
+### Cohort weeks 1–4 → build sequence
+
+| Week | Theme | Wizard steps | Target initiative states |
+| --- | --- | --- | --- |
+| 1 | Problem clarity + ICP | Problem & ICP → AI refinement → Finalize concept | `problem_captured` → `research_complete` → `problem_aligned` |
+| 2 | Business case + MVP | Business case → MVP scoping → MVP finalize | `business_case_complete` → `solution_selected` → `mvp_finalized` |
+| 3 | Experience design + BRD | Persona → User flow → Story map → BRD build | `persona_complete` → … → `design_approved` |
+| 4 | Technical design + gaps | Architecture → Tech stack → Data model → Gap analysis → System validation | `architecture_complete` → `stack_selected` → `data_model_complete` → `gap_analysis_complete` → `technical_design_approved` |

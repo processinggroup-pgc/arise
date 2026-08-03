@@ -5,6 +5,7 @@ import {
   buildWeek2HomeworkMarkdown,
   buildWeek3HomeworkMarkdown,
 } from "@/lib/cohort-export";
+import { buildStep4HomeworkMarkdown } from "@/lib/technical-design-export";
 import { getInitiativeDetail } from "@/lib/initiative-queries";
 
 interface ExportPageProps {
@@ -25,21 +26,28 @@ export async function GET(_request: Request, { params }: ExportPageProps): Promi
   switch (week) {
     case "1":
       markdown = buildWeek1HomeworkMarkdown(detail);
-      filename = "week-1-homework.md";
+      filename = "step-1-homework.md";
       break;
     case "2":
       markdown = buildWeek2HomeworkMarkdown({
         initiative: detail.initiative,
         ...(detail.bundle !== undefined ? { bundle: detail.bundle } : {}),
       });
-      filename = "week-2-homework.md";
+      filename = "step-2-homework.md";
       break;
     case "3":
       markdown = buildWeek3HomeworkMarkdown({
         initiative: detail.initiative,
         ...(detail.bundle !== undefined ? { bundle: detail.bundle } : {}),
       });
-      filename = "week-3-homework.md";
+      filename = "step-3-homework.md";
+      break;
+    case "4":
+      markdown = buildStep4HomeworkMarkdown({
+        initiative: detail.initiative,
+        ...(detail.technicalBundle !== undefined ? { technicalBundle: detail.technicalBundle } : {}),
+      });
+      filename = "step-4-homework.md";
       break;
     default:
       notFound();

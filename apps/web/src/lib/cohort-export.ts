@@ -15,7 +15,7 @@ export function buildWeek1HomeworkMarkdown(input: {
 }): string {
   const { initiative, problemBrief, dossier, alignment, bundle } = input;
   return [
-    `# Week 1 Homework — ${initiative.title}`,
+    `# Step 1 Homework — ${initiative.title}`,
     "",
     "## Problem",
     problemBrief.rawProblemDescription,
@@ -76,11 +76,11 @@ export function buildWeek2HomeworkMarkdown(input: {
 }): string {
   const { initiative, bundle } = input;
   if (bundle?.businessCase === undefined || bundle.mvpScope === undefined) {
-    return `# Week 2 Homework — ${initiative.title}\n\nIncomplete — finish business case and MVP scope in ARISE.`;
+    return `# Step 2 Homework — ${initiative.title}\n\nIncomplete — finish business case and MVP scope in ARISE.`;
   }
 
   return [
-    `# Week 2 Homework — ${initiative.title}`,
+    `# Step 2 Homework — ${initiative.title}`,
     "",
     "## Business case",
     `- ICP: ${bundle.businessCase.icp}`,
@@ -123,11 +123,11 @@ export function buildWeek3HomeworkMarkdown(input: {
 }): string {
   const { initiative, bundle } = input;
   if (bundle?.persona === undefined || bundle.userFlow === undefined || bundle.brd === undefined) {
-    return `# Week 3 Homework — ${initiative.title}\n\nIncomplete — finish persona, flow, story map, and BRD in ARISE.`;
+    return `# Step 3 Homework — ${initiative.title}\n\nIncomplete — finish persona, flow, story map, and BRD in ARISE.`;
   }
 
   return [
-    `# Week 3 Homework — ${initiative.title}`,
+    `# Step 3 Homework — ${initiative.title}`,
     "",
     "## Persona",
     `- Name: ${bundle.persona.name}`,

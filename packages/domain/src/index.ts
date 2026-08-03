@@ -824,6 +824,17 @@ export {
   type UserFlow,
 } from "./product-discovery/cohort-artifacts.js";
 export {
+  createTechnicalDesignBundle,
+  mergeTechnicalDesignBundle,
+  type DataModel,
+  type DeeperGapCheck,
+  type GapAnalysisReport,
+  type SystemArchitecture,
+  type SystemValidation,
+  type TechStack,
+  type TechnicalDesignBundle,
+} from "./product-discovery/technical-design-artifacts.js";
+export {
   createProblemAlignment,
   findFramingOption,
   generateMarketResearchDossier,

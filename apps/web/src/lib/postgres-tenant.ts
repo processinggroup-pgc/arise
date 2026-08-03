@@ -4,6 +4,7 @@ import {
   PostgresMarketResearchStore,
   PostgresProblemAlignmentStore,
   PostgresProblemBriefStore,
+  PostgresTechnicalDesignStore,
   PostgresProjectStore,
   PostgresWorkItemStore,
   withPostgresTenantSession,
@@ -12,6 +13,7 @@ import {
   type MarketResearchStore,
   type ProblemAlignmentStore,
   type ProblemBriefStore,
+  type TechnicalDesignStore,
   type ProjectStore,
   type WorkItemStore,
 } from "@arise/application";
@@ -27,6 +29,7 @@ export interface TenantScopedStores {
   marketResearchStore: MarketResearchStore;
   problemAlignmentStore: ProblemAlignmentStore;
   cohortDiscoveryStore: CohortDiscoveryStore;
+  technicalDesignStore: TechnicalDesignStore;
 }
 
 export async function runWithTenantScopedStores<T>(
@@ -49,6 +52,7 @@ export async function runWithTenantScopedStores<T>(
       marketResearchStore: new PostgresMarketResearchStore(client),
       problemAlignmentStore: new PostgresProblemAlignmentStore(client),
       cohortDiscoveryStore: new PostgresCohortDiscoveryStore(client),
+      technicalDesignStore: new PostgresTechnicalDesignStore(client),
     };
 
     return await withPostgresTenantSession(client, tenantContext, async () => operation(stores));
