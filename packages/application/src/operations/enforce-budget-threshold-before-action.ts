@@ -48,12 +48,16 @@ async function resolveAttributedCostUsd(
     return 0;
   }
 
-  let latest = attributions[0];
-  for (const attribution of attributions) {
-    if (attribution.attributedAt.getTime() > latest.attributedAt.getTime()) {
-      latest = attribution;
-    }
+  const [first, ...rest] = attributions;
+  if (first === undefined) {
+    return 0;
   }
+
+  const latest = rest.reduce(
+    (current, attribution) =>
+      attribution.attributedAt.getTime() > current.attributedAt.getTime() ? attribution : current,
+    first,
+  );
 
   return latest.totalCostUsd;
 }

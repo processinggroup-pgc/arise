@@ -45,14 +45,16 @@ function latestCostAttribution<T extends { attributedAt: Date }>(records: T[]): 
     return undefined;
   }
 
-  let latest = records[0];
-  for (const record of records) {
-    if (record.attributedAt.getTime() > latest.attributedAt.getTime()) {
-      latest = record;
-    }
+  const [first, ...rest] = records;
+  if (first === undefined) {
+    return undefined;
   }
 
-  return latest;
+  return rest.reduce(
+    (latest, record) =>
+      record.attributedAt.getTime() > latest.attributedAt.getTime() ? record : latest,
+    first,
+  );
 }
 
 function selectLatestReleaseEvidence<T extends { generatedAt: Date; complete: boolean; status: string }>(
@@ -62,14 +64,16 @@ function selectLatestReleaseEvidence<T extends { generatedAt: Date; complete: bo
     return undefined;
   }
 
-  let latest = records[0];
-  for (const record of records) {
-    if (record.generatedAt.getTime() > latest.generatedAt.getTime()) {
-      latest = record;
-    }
+  const [first, ...rest] = records;
+  if (first === undefined) {
+    return undefined;
   }
 
-  return latest;
+  return rest.reduce(
+    (latest, record) =>
+      record.generatedAt.getTime() > latest.generatedAt.getTime() ? record : latest,
+    first,
+  );
 }
 
 export async function evaluateWorkItemOutcome(
