@@ -56,8 +56,7 @@ export class PostgresIdentityStore implements IdentityStore {
     const result = (await this.client.query(
       `
       select id, name, slug, plan, data_region, created_at
-      from public.organizations
-      where slug = $1
+      from public.arise_find_organization_by_slug($1)
       `,
       [slug],
     )) as { rows: OrganizationRow[] };

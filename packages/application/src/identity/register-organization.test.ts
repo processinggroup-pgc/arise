@@ -35,6 +35,43 @@ describe("registerOrganization", () => {
     expect(memberships).toHaveLength(1);
   });
 
+  it("returns the existing organization when the same owner recreates the slug", async () => {
+    const store = new InMemoryIdentityStore();
+
+    await registerOrganization(
+      {
+        name: "Processing Group",
+        slug: "processing-group",
+        plan: "starter",
+        dataRegion: "us-east-1",
+        ownerUserId: "user_123",
+      },
+      store,
+      {
+        createId: () => "org_123",
+        now: () => new Date("2026-08-03T00:00:00.000Z"),
+      },
+    );
+
+    const result = await registerOrganization(
+      {
+        name: "Processing Group Retry",
+        slug: "processing-group",
+        plan: "starter",
+        dataRegion: "us-east-1",
+        ownerUserId: "user_123",
+      },
+      store,
+      {
+        createId: () => "org_retry",
+        now: () => new Date("2026-08-03T01:00:00.000Z"),
+      },
+    );
+
+    expect(result.organization.id).toBe("org_123");
+    expect(result.membership.userId).toBe("user_123");
+  });
+
   it("rejects duplicate organization slugs", async () => {
     const store = new InMemoryIdentityStore();
 

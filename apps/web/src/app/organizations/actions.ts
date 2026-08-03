@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { getIdentityStore } from "@/lib/identity-store";
+import { runWithIdentityStore } from "@/lib/identity-bootstrap";
 import { getWorkspaceSession, setWorkspaceSession } from "@/lib/session";
 
 export async function switchOrganizationAction(formData: FormData): Promise<void> {
@@ -13,7 +13,9 @@ export async function switchOrganizationAction(formData: FormData): Promise<void
   }
 
   const session = await getWorkspaceSession();
-  const membership = await getIdentityStore().findMembership(organizationId, session.userId);
+  const membership = await runWithIdentityStore(session.userId, (store) =>
+    store.findMembership(organizationId, session.userId),
+  );
 
   if (membership === undefined || membership.status !== "active") {
     return;

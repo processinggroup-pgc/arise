@@ -33,6 +33,10 @@ export {
   withPostgresTenantSession,
   type PostgresQueryable,
 } from "./persistence/postgres-tenant-session.js";
+export {
+  applyPostgresIdentityBootstrapSession,
+  withPostgresIdentityBootstrapSession,
+} from "./persistence/postgres-identity-bootstrap-session.js";
 export type { AuditStore } from "./audit/audit-store.js";
 export { InMemoryAuditStore } from "./audit/in-memory-audit-store.js";
 export {

@@ -40,6 +40,18 @@ export async function registerOrganization(
 
   const existingOrganization = await store.findOrganizationBySlug(organization.slug);
   if (existingOrganization !== undefined) {
+    const existingMembership = await store.findMembership(
+      existingOrganization.id,
+      command.ownerUserId,
+    );
+
+    if (existingMembership !== undefined && existingMembership.status === "active") {
+      return {
+        organization: existingOrganization,
+        membership: existingMembership,
+      };
+    }
+
     throw new Error("Organization slug is already in use");
   }
 

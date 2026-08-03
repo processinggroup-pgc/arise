@@ -2,7 +2,8 @@ import { createProjectForOrganization, listOrganizationsForUser } from "@arise/a
 
 import { hasDatabaseUrl } from "./database";
 import { ensureDemoData, DEMO_ORG_ID, DEMO_PROJECT_ID } from "./demo-data";
-import { getIdentityStore, usesPersistentIdentityStore } from "./identity-store";
+import { runWithIdentityStore } from "./identity-bootstrap";
+import { usesPersistentIdentityStore } from "./identity-store";
 import { createWorkspaceTenantContext, runWithTenantScopedStores } from "./postgres-tenant";
 import { isValidUuid, runSafely } from "./postgres-support";
 import { getWorkspaceSession, setWorkspaceSession } from "./session";
@@ -45,7 +46,10 @@ export async function listWorkspaceOrganizations() {
   }
 
   return runSafely(
-    () => listOrganizationsForUser(session.userId, getIdentityStore()),
+    () =>
+      runWithIdentityStore(session.userId, (identityStore) =>
+        listOrganizationsForUser(session.userId, identityStore),
+      ),
     [],
     "listWorkspaceOrganizations",
   );
@@ -110,18 +114,26 @@ async function resolveOrganizationId(
     return null;
   }
 
-  const identityStore = getIdentityStore();
-
   if (organizationId !== undefined) {
-    const organization = await identityStore.findOrganizationById(organizationId);
-    const membership = await identityStore.findMembership(organizationId, userId);
+    const resolvedOrganizationId = await runWithIdentityStore(userId, async (store) => {
+      const organization = await store.findOrganizationById(organizationId);
+      const membership = await store.findMembership(organizationId, userId);
 
-    if (organization !== undefined && membership !== undefined && membership.status === "active") {
-      return organizationId;
+      if (organization !== undefined && membership !== undefined && membership.status === "active") {
+        return organizationId;
+      }
+
+      return null;
+    });
+
+    if (resolvedOrganizationId !== null) {
+      return resolvedOrganizationId;
     }
   }
 
-  const organizations = await listOrganizationsForUser(userId, identityStore);
+  const organizations = await runWithIdentityStore(userId, (store) =>
+    listOrganizationsForUser(userId, store),
+  );
   if (organizations.length === 1) {
     const onlyOrganization = organizations[0];
     if (onlyOrganization !== undefined) {

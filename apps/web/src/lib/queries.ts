@@ -2,7 +2,7 @@ import type { Organization, Project, WorkItem, WorkItemState } from "@arise/doma
 import { isTerminalWorkItemState } from "@arise/domain";
 
 import { hasDatabaseUrl } from "./database";
-import { getIdentityStore } from "./identity-store";
+import { runWithIdentityStore } from "./identity-bootstrap";
 import { createWorkspaceTenantContext, runWithTenantScopedStores } from "./postgres-tenant";
 import { runSafely } from "./postgres-support";
 import { getWorkspaceSession } from "./session";
@@ -69,7 +69,9 @@ export async function getDashboardData(): Promise<DashboardData | null> {
         userId,
       });
 
-      const organization = await getIdentityStore().findOrganizationById(workspace.organizationId);
+      const organization = await runWithIdentityStore(userId, (store) =>
+        store.findOrganizationById(workspace.organizationId),
+      );
       const project = hasDatabaseUrl()
         ? await runWithTenantScopedStores(tenantContext, async (stores) =>
             stores.projectStore.findProjectById(workspace.projectId),
@@ -125,7 +127,9 @@ export async function getWorkItemById(workItemId: string): Promise<{
         return null;
       }
 
-      const organization = await getIdentityStore().findOrganizationById(workItem.organizationId);
+      const organization = await runWithIdentityStore(userId, (store) =>
+        store.findOrganizationById(workItem.organizationId),
+      );
       const project = hasDatabaseUrl()
         ? await runWithTenantScopedStores(tenantContext, async (stores) =>
             stores.projectStore.findProjectById(workItem.projectId),

@@ -6,10 +6,11 @@ import {
   registerOrganizationForApi,
 } from "@arise/application";
 import { createTenantContext } from "@arise/domain";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { getIdentityStore } from "@/lib/identity-store";
 import { hasDatabaseUrl } from "@/lib/database";
+import { runWithIdentityStore } from "@/lib/identity-bootstrap";
 import { createWorkspaceTenantContext, runWithTenantScopedStores } from "@/lib/postgres-tenant";
 import { getProjectStore } from "@/lib/stores";
 import { getWorkspaceSession, setWorkspaceSession } from "@/lib/session";
@@ -36,22 +37,24 @@ export async function createOrganizationAction(
   const session = await getWorkspaceSession();
 
   try {
-    const result = await registerOrganizationForApi(
-      new Headers({
-        "x-user-id": session.userId,
-      }),
-      {
-        name,
-        slug,
-        plan,
-        dataRegion,
-        ...(ownerEmail.length > 0 ? { ownerEmail } : {}),
-      },
-      {
-        identityStore: getIdentityStore(),
-        createId: () => crypto.randomUUID(),
-        now: () => new Date(),
-      },
+    const result = await runWithIdentityStore(session.userId, (identityStore) =>
+      registerOrganizationForApi(
+        new Headers({
+          "x-user-id": session.userId,
+        }),
+        {
+          name,
+          slug,
+          plan,
+          dataRegion,
+          ...(ownerEmail.length > 0 ? { ownerEmail } : {}),
+        },
+        {
+          identityStore,
+          createId: () => crypto.randomUUID(),
+          now: () => new Date(),
+        },
+      ),
     );
 
     const tenantContext = createTenantContext({
@@ -104,5 +107,7 @@ export async function createOrganizationAction(
     };
   }
 
+  revalidatePath("/", "layout");
+  revalidatePath("/organizations");
   redirect("/");
 }
