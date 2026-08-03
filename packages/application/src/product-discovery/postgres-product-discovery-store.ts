@@ -33,6 +33,12 @@ interface ProblemBriefRow {
   pain_points: string[];
   business_context: string;
   desired_outcome: string;
+  icp_role: string;
+  icp_income_level: string;
+  icp_daily_workflow: string;
+  icp_tools_used: string[];
+  icp_online_hangouts: string[];
+  icp_budget_range: string;
   created_at: Date;
 }
 
@@ -79,6 +85,12 @@ function mapProblemBrief(row: ProblemBriefRow): ProblemBrief {
     painPoints: row.pain_points,
     businessContext: row.business_context,
     desiredOutcome: row.desired_outcome,
+    icpRole: row.icp_role ?? "",
+    icpIncomeLevel: row.icp_income_level ?? "",
+    icpDailyWorkflow: row.icp_daily_workflow ?? "",
+    icpToolsUsed: row.icp_tools_used ?? [],
+    icpOnlineHangouts: row.icp_online_hangouts ?? [],
+    icpBudgetRange: row.icp_budget_range ?? "",
     createdAt: row.created_at,
   };
 }
@@ -182,9 +194,15 @@ export class PostgresProblemBriefStore implements ProblemBriefStore {
         pain_points,
         business_context,
         desired_outcome,
+        icp_role,
+        icp_income_level,
+        icp_daily_workflow,
+        icp_tools_used,
+        icp_online_hangouts,
+        icp_budget_range,
         created_at
       )
-      values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       on conflict (initiative_id) do update
       set
         organization_id = excluded.organization_id,
@@ -192,7 +210,13 @@ export class PostgresProblemBriefStore implements ProblemBriefStore {
         target_audience = excluded.target_audience,
         pain_points = excluded.pain_points,
         business_context = excluded.business_context,
-        desired_outcome = excluded.desired_outcome
+        desired_outcome = excluded.desired_outcome,
+        icp_role = excluded.icp_role,
+        icp_income_level = excluded.icp_income_level,
+        icp_daily_workflow = excluded.icp_daily_workflow,
+        icp_tools_used = excluded.icp_tools_used,
+        icp_online_hangouts = excluded.icp_online_hangouts,
+        icp_budget_range = excluded.icp_budget_range
       `,
       [
         problemBrief.id,
@@ -203,6 +227,12 @@ export class PostgresProblemBriefStore implements ProblemBriefStore {
         problemBrief.painPoints,
         problemBrief.businessContext,
         problemBrief.desiredOutcome,
+        problemBrief.icpRole,
+        problemBrief.icpIncomeLevel,
+        problemBrief.icpDailyWorkflow,
+        problemBrief.icpToolsUsed,
+        problemBrief.icpOnlineHangouts,
+        problemBrief.icpBudgetRange,
         problemBrief.createdAt,
       ],
     );
@@ -220,6 +250,12 @@ export class PostgresProblemBriefStore implements ProblemBriefStore {
         pain_points,
         business_context,
         desired_outcome,
+        coalesce(icp_role, '') as icp_role,
+        coalesce(icp_income_level, '') as icp_income_level,
+        coalesce(icp_daily_workflow, '') as icp_daily_workflow,
+        coalesce(icp_tools_used, '{}') as icp_tools_used,
+        coalesce(icp_online_hangouts, '{}') as icp_online_hangouts,
+        coalesce(icp_budget_range, '') as icp_budget_range,
         created_at
       from public.problem_briefs
       where initiative_id = $1

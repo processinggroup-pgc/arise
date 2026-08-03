@@ -804,6 +804,26 @@ export {
   type ProblemBrief,
 } from "./product-discovery/problem-brief.js";
 export {
+  createCohortDiscoveryBundle,
+  mergeCohortDiscoveryBundle,
+  type BrdDocument,
+  type BusinessCase,
+  type BusinessConcept,
+  type CohortDiscoveryBundle,
+  type CreateCohortDiscoveryBundleInput,
+  type CreateCohortDiscoveryBundleMetadata,
+  type DualAiComparison,
+  type MvpScope,
+  type MvpStressTest,
+  type Persona,
+  type RevenueHypothesis,
+  type RichIcp,
+  type SessionNotes,
+  type StoryMap,
+  type StressTestResult,
+  type UserFlow,
+} from "./product-discovery/cohort-artifacts.js";
+export {
   createProblemAlignment,
   findFramingOption,
   generateMarketResearchDossier,

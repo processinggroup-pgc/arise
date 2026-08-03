@@ -1,7 +1,7 @@
-import { INITIATIVE_WIZARD_STEPS } from "@/lib/initiative-defaults";
+import { INITIATIVE_WIZARD_STEPS, type InitiativeWizardStepId } from "@/lib/initiative-defaults";
 
 interface InitiativeWizardTrackProps {
-  activeStep: "problem" | "research" | "alignment" | "brd" | "solutions" | "mvp";
+  activeStep: InitiativeWizardStepId;
 }
 
 export function InitiativeWizardTrack({

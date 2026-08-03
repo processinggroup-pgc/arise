@@ -1,5 +1,6 @@
 import {
   findFramingOption,
+  type CohortDiscoveryBundle,
   type Initiative,
   type MarketResearchDossier,
   type ProblemAlignment,
@@ -8,6 +9,7 @@ import {
 
 import { hasDatabaseUrl } from "./database";
 import {
+  getCohortDiscoveryStore,
   getInitiativeStore,
   getMarketResearchStore,
   getProblemAlignmentStore,
@@ -24,6 +26,7 @@ export interface InitiativeDetail {
   dossier?: MarketResearchDossier;
   alignment?: ProblemAlignment;
   selectedFramingTitle?: string;
+  bundle?: CohortDiscoveryBundle;
 }
 
 export async function getInitiativeDetail(initiativeId: string): Promise<InitiativeDetail | null> {
@@ -40,48 +43,52 @@ export async function getInitiativeDetail(initiativeId: string): Promise<Initiat
         userId,
       });
 
-      const initiative = hasDatabaseUrl()
-        ? await runWithTenantScopedStores(tenantContext, async (stores) =>
-            stores.initiativeStore.findInitiativeById(initiativeId),
-          )
-        : await getInitiativeStore().findInitiativeById(initiativeId);
+      const load = async (stores: {
+        initiativeStore: ReturnType<typeof getInitiativeStore>;
+        problemBriefStore: ReturnType<typeof getProblemBriefStore>;
+        marketResearchStore: ReturnType<typeof getMarketResearchStore>;
+        problemAlignmentStore: ReturnType<typeof getProblemAlignmentStore>;
+        cohortDiscoveryStore: ReturnType<typeof getCohortDiscoveryStore>;
+      }) => {
+        const initiative = await stores.initiativeStore.findInitiativeById(initiativeId);
+        if (initiative === undefined || initiative.organizationId !== workspace.organizationId) {
+          return null;
+        }
 
-      if (initiative === undefined || initiative.organizationId !== workspace.organizationId) {
-        return null;
-      }
+        const problemBrief = await stores.problemBriefStore.findProblemBriefByInitiativeId(initiativeId);
+        if (problemBrief === undefined) {
+          return null;
+        }
 
-      const problemBrief = hasDatabaseUrl()
-        ? await runWithTenantScopedStores(tenantContext, async (stores) =>
-            stores.problemBriefStore.findProblemBriefByInitiativeId(initiativeId),
-          )
-        : await getProblemBriefStore().findProblemBriefByInitiativeId(initiativeId);
+        const dossier = await stores.marketResearchStore.findMarketResearchByInitiativeId(initiativeId);
+        const alignment = await stores.problemAlignmentStore.findProblemAlignmentByInitiativeId(initiativeId);
+        const bundle = await stores.cohortDiscoveryStore.findCohortDiscoveryByInitiativeId(initiativeId);
+        const selectedFramingTitle =
+          dossier !== undefined && alignment !== undefined
+            ? findFramingOption(dossier, alignment.selectedFramingId)?.title
+            : undefined;
 
-      if (problemBrief === undefined) {
-        return null;
-      }
-
-      const dossier = hasDatabaseUrl()
-        ? await runWithTenantScopedStores(tenantContext, async (stores) =>
-            stores.marketResearchStore.findMarketResearchByInitiativeId(initiativeId),
-          )
-        : await getMarketResearchStore().findMarketResearchByInitiativeId(initiativeId);
-      const alignment = hasDatabaseUrl()
-        ? await runWithTenantScopedStores(tenantContext, async (stores) =>
-            stores.problemAlignmentStore.findProblemAlignmentByInitiativeId(initiativeId),
-          )
-        : await getProblemAlignmentStore().findProblemAlignmentByInitiativeId(initiativeId);
-      const selectedFramingTitle =
-        dossier !== undefined && alignment !== undefined
-          ? findFramingOption(dossier, alignment.selectedFramingId)?.title
-          : undefined;
-
-      return {
-        initiative,
-        problemBrief,
-        ...(dossier !== undefined ? { dossier } : {}),
-        ...(alignment !== undefined ? { alignment } : {}),
-        ...(selectedFramingTitle !== undefined ? { selectedFramingTitle } : {}),
+        return {
+          initiative,
+          problemBrief,
+          ...(dossier !== undefined ? { dossier } : {}),
+          ...(alignment !== undefined ? { alignment } : {}),
+          ...(selectedFramingTitle !== undefined ? { selectedFramingTitle } : {}),
+          ...(bundle !== undefined ? { bundle } : {}),
+        };
       };
+
+      if (hasDatabaseUrl()) {
+        return runWithTenantScopedStores(tenantContext, load);
+      }
+
+      return load({
+        initiativeStore: getInitiativeStore(),
+        problemBriefStore: getProblemBriefStore(),
+        marketResearchStore: getMarketResearchStore(),
+        problemAlignmentStore: getProblemAlignmentStore(),
+        cohortDiscoveryStore: getCohortDiscoveryStore(),
+      });
     },
     null,
     "getInitiativeDetail",

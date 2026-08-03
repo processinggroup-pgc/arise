@@ -46,6 +46,12 @@ export async function createInitiativeAction(
   const desiredOutcome = String(
     formData.get("desiredOutcome") ?? COHORT_AFFORDABILITY_DEFAULTS.desiredOutcome,
   ).trim();
+  const icpRole = String(formData.get("icpRole") ?? "").trim();
+  const icpIncomeLevel = String(formData.get("icpIncomeLevel") ?? "").trim();
+  const icpDailyWorkflow = String(formData.get("icpDailyWorkflow") ?? "").trim();
+  const icpToolsUsed = parsePainPoints(String(formData.get("icpToolsUsed") ?? ""));
+  const icpOnlineHangouts = parsePainPoints(String(formData.get("icpOnlineHangouts") ?? ""));
+  const icpBudgetRange = String(formData.get("icpBudgetRange") ?? "").trim();
 
   let initiativeId: string;
   try {
@@ -62,6 +68,12 @@ export async function createInitiativeAction(
       painPoints,
       businessContext,
       desiredOutcome,
+      ...(icpRole.length > 0 ? { icpRole } : {}),
+      ...(icpIncomeLevel.length > 0 ? { icpIncomeLevel } : {}),
+      ...(icpDailyWorkflow.length > 0 ? { icpDailyWorkflow } : {}),
+      ...(icpToolsUsed.length > 0 ? { icpToolsUsed } : {}),
+      ...(icpOnlineHangouts.length > 0 ? { icpOnlineHangouts } : {}),
+      ...(icpBudgetRange.length > 0 ? { icpBudgetRange } : {}),
     };
     const operationContext = {
       createId: () => crypto.randomUUID(),

@@ -12,10 +12,16 @@ export const COHORT_AFFORDABILITY_DEFAULTS = {
 } as const;
 
 export const INITIATIVE_WIZARD_STEPS = [
-  { id: "problem", label: "Problem intake" },
-  { id: "research", label: "Market research" },
-  { id: "alignment", label: "Problem alignment" },
-  { id: "brd", label: "BRD draft" },
-  { id: "solutions", label: "Solution options" },
-  { id: "mvp", label: "MVP backlog" },
+  { id: "problem", label: "Problem & ICP" },
+  { id: "research", label: "AI idea refinement" },
+  { id: "alignment", label: "Finalize concept" },
+  { id: "business-case", label: "Business case" },
+  { id: "mvp-scope", label: "MVP scoping" },
+  { id: "mvp-finalize", label: "MVP finalize" },
+  { id: "persona", label: "Persona" },
+  { id: "userflow", label: "User flow" },
+  { id: "storymap", label: "Story map" },
+  { id: "brd", label: "BRD build" },
 ] as const;
+
+export type InitiativeWizardStepId = (typeof INITIATIVE_WIZARD_STEPS)[number]["id"];

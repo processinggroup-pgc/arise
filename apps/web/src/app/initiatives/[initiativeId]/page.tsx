@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";
 import { InitiativeWizardTrack } from "@/components/initiative-wizard-track";
+import { type InitiativeWizardStepId } from "@/lib/initiative-defaults";
 import { getInitiativeDetail } from "@/lib/initiative-queries";
 import { getDashboardData } from "@/lib/queries";
 
@@ -12,17 +13,36 @@ interface InitiativePageProps {
   params: Promise<{ initiativeId: string }>;
 }
 
-function resolveWizardStep(state: string): "problem" | "research" | "alignment" | "brd" | "solutions" | "mvp" {
-  if (state === "problem_captured") {
-    return "research";
+function resolveWizardStep(state: string): InitiativeWizardStepId {
+  switch (state) {
+    case "problem_captured":
+      return "research";
+    case "research_complete":
+      return "alignment";
+    case "problem_aligned":
+      return "business-case";
+    case "business_case_complete":
+      return "mvp-scope";
+    case "solution_selected":
+      return "mvp-finalize";
+    case "mvp_finalized":
+      return "persona";
+    case "persona_complete":
+      return "userflow";
+    case "userflow_complete":
+      return "storymap";
+    case "storymap_complete":
+    case "brd_draft":
+      return "brd";
+    case "design_approved":
+    case "building":
+    case "uat":
+    case "production":
+    case "ops_handoff":
+      return "brd";
+    default:
+      return "problem";
   }
-  if (state === "research_complete") {
-    return "alignment";
-  }
-  if (state === "problem_aligned") {
-    return "brd";
-  }
-  return "problem";
 }
 
 export default async function InitiativePage({
@@ -72,8 +92,25 @@ export default async function InitiativePage({
         initiativeId={detail.initiative.id}
         state={detail.initiative.state}
         dossier={detail.dossier}
+        bundle={detail.bundle}
         selectedFramingTitle={detail.selectedFramingTitle}
       />
+
+      <section className="panel detail-section">
+        <h2>Homework export</h2>
+        <p className="page-description">Download Markdown bundles for Skool homework posts.</p>
+        <div className="detail-grid">
+          <a className="button-link" href={`/initiatives/${initiativeId}/export/1`}>
+            Week 1 export
+          </a>
+          <a className="button-link" href={`/initiatives/${initiativeId}/export/2`}>
+            Week 2 export
+          </a>
+          <a className="button-link" href={`/initiatives/${initiativeId}/export/3`}>
+            Week 3 export
+          </a>
+        </div>
+      </section>
     </AppShell>
   );
 }

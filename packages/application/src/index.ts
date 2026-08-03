@@ -404,3 +404,36 @@ export {
   alignProblemFramingForInitiative,
   type AlignProblemFramingCommand,
 } from "./product-discovery/align-problem-framing-for-initiative.js";
+export type { CohortDiscoveryStore } from "./product-discovery/cohort-discovery-store.js";
+export {
+  InMemoryCohortDiscoveryStore,
+  getOrCreateCohortDiscoveryBundle,
+} from "./product-discovery/in-memory-cohort-discovery-store.js";
+export { PostgresCohortDiscoveryStore } from "./product-discovery/postgres-cohort-discovery-store.js";
+export {
+  ClaudeJsonGenerator,
+  createClaudeJsonGenerator,
+} from "./product-discovery/claude-json-generator.js";
+export {
+  ClaudeCohortGenerator,
+  ResilientCohortGenerator,
+  RuleBasedCohortGenerator,
+  type CohortGenerator,
+} from "./product-discovery/rule-based-cohort-generator.js";
+export {
+  approveDesignForInitiative,
+  assembleBrdForInitiative,
+  finalizeConceptForInitiative,
+  finalizeMvpForInitiative,
+  generateBusinessCaseForInitiative,
+  generateMvpScopeForInitiative,
+  generatePersonaForInitiative,
+  generateStoryMapForInitiative,
+  generateUserFlowForInitiative,
+  runStressTestForInitiative,
+  saveDualAiComparisonForInitiative,
+  saveSessionNotesForInitiative,
+  type FinalizeConceptCommand,
+  type FinalizeMvpCommand,
+  type SaveMvpScopeCommand,
+} from "./product-discovery/cohort-discovery-workflow.js";

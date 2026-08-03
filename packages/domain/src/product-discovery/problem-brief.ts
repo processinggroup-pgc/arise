@@ -7,6 +7,12 @@ export interface ProblemBrief {
   painPoints: string[];
   businessContext: string;
   desiredOutcome: string;
+  icpRole: string;
+  icpIncomeLevel: string;
+  icpDailyWorkflow: string;
+  icpToolsUsed: string[];
+  icpOnlineHangouts: string[];
+  icpBudgetRange: string;
   createdAt: Date;
 }
 
@@ -18,6 +24,12 @@ export interface CreateProblemBriefInput {
   painPoints?: string[];
   businessContext?: string;
   desiredOutcome: string;
+  icpRole?: string;
+  icpIncomeLevel?: string;
+  icpDailyWorkflow?: string;
+  icpToolsUsed?: string[];
+  icpOnlineHangouts?: string[];
+  icpBudgetRange?: string;
 }
 
 export interface CreateProblemBriefMetadata {
@@ -64,6 +76,12 @@ export function createProblemBrief(
     painPoints,
     businessContext,
     desiredOutcome,
+    icpRole: input.icpRole?.trim() ?? "",
+    icpIncomeLevel: input.icpIncomeLevel?.trim() ?? "",
+    icpDailyWorkflow: input.icpDailyWorkflow?.trim() ?? "",
+    icpToolsUsed: normalizeStringList(input.icpToolsUsed),
+    icpOnlineHangouts: normalizeStringList(input.icpOnlineHangouts),
+    icpBudgetRange: input.icpBudgetRange?.trim() ?? "",
     createdAt: metadata.createdAt,
   };
 }

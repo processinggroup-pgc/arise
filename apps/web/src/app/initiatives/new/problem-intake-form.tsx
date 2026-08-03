@@ -76,6 +76,57 @@ export function ProblemIntakeForm(): React.JSX.Element {
             rows={3}
           />
         </label>
+
+        <h3 className="form-label">Rich ICP (Week 1)</h3>
+
+        <label className="form-field form-field-wide">
+          <span className="form-label">ICP role</span>
+          <input
+            className="form-input"
+            defaultValue="Underemployed career changer"
+            name="icpRole"
+          />
+        </label>
+
+        <label className="form-field form-field-wide">
+          <span className="form-label">Income level</span>
+          <input className="form-input" defaultValue="$35k–$55k" name="icpIncomeLevel" />
+        </label>
+
+        <label className="form-field form-field-wide">
+          <span className="form-label">Daily workflow</span>
+          <textarea
+            className="form-input form-textarea"
+            defaultValue="Job search mornings, gig work afternoons, cohort research evenings"
+            name="icpDailyWorkflow"
+            rows={2}
+          />
+        </label>
+
+        <label className="form-field form-field-wide">
+          <span className="form-label">Tools they use (one per line)</span>
+          <textarea
+            className="form-input form-textarea"
+            defaultValue={"LinkedIn\nNotion\nChatGPT\nSkool"}
+            name="icpToolsUsed"
+            rows={3}
+          />
+        </label>
+
+        <label className="form-field form-field-wide">
+          <span className="form-label">Where they hang out online (one per line)</span>
+          <textarea
+            className="form-input form-textarea"
+            defaultValue={"LinkedIn\nReddit r/careerguidance\nSkool communities"}
+            name="icpOnlineHangouts"
+            rows={3}
+          />
+        </label>
+
+        <label className="form-field form-field-wide">
+          <span className="form-label">Budget range for solutions like yours</span>
+          <input className="form-input" defaultValue="$500–$2,000 upfront" name="icpBudgetRange" />
+        </label>
       </div>
 
       {state.error ? <p className="form-error">{state.error}</p> : null}

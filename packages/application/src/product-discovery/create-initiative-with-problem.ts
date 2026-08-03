@@ -16,6 +16,12 @@ export interface CreateInitiativeWithProblemCommand {
   painPoints: string[];
   businessContext?: string;
   desiredOutcome: string;
+  icpRole?: string;
+  icpIncomeLevel?: string;
+  icpDailyWorkflow?: string;
+  icpToolsUsed?: string[];
+  icpOnlineHangouts?: string[];
+  icpBudgetRange?: string;
 }
 
 export class InitiativeScopeError extends Error {
@@ -65,6 +71,12 @@ export async function createInitiativeWithProblem(
       painPoints: command.painPoints,
       ...(command.businessContext !== undefined ? { businessContext: command.businessContext } : {}),
       desiredOutcome: command.desiredOutcome,
+      ...(command.icpRole !== undefined ? { icpRole: command.icpRole } : {}),
+      ...(command.icpIncomeLevel !== undefined ? { icpIncomeLevel: command.icpIncomeLevel } : {}),
+      ...(command.icpDailyWorkflow !== undefined ? { icpDailyWorkflow: command.icpDailyWorkflow } : {}),
+      ...(command.icpToolsUsed !== undefined ? { icpToolsUsed: command.icpToolsUsed } : {}),
+      ...(command.icpOnlineHangouts !== undefined ? { icpOnlineHangouts: command.icpOnlineHangouts } : {}),
+      ...(command.icpBudgetRange !== undefined ? { icpBudgetRange: command.icpBudgetRange } : {}),
     },
     {
       id: operationContext.createId(),
