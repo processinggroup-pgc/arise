@@ -248,3 +248,56 @@ export {
   type GenerateReleaseEvidenceCommand,
   type GenerateReleaseEvidenceResult,
 } from "./verification/generate-release-evidence.js";
+export type { PullRequestStore } from "./delivery/pull-request-store.js";
+export { InMemoryPullRequestStore } from "./delivery/in-memory-pull-request-store.js";
+export {
+  openPullRequestForWorkItem,
+  type OpenPullRequestForWorkItemCommand,
+  type OpenPullRequestForWorkItemResult,
+} from "./delivery/open-pull-request-for-work-item.js";
+export {
+  readPullRequestChecks,
+  type ReadPullRequestChecksCommand,
+  type ReadPullRequestChecksResult,
+} from "./delivery/read-pull-request-checks.js";
+export type { DeploymentStore } from "./delivery/deployment-store.js";
+export { InMemoryDeploymentStore } from "./delivery/in-memory-deployment-store.js";
+export {
+  createVercelPreviewForWorkItem,
+  type CreateVercelPreviewForWorkItemCommand,
+  type CreateVercelPreviewForWorkItemResult,
+} from "./delivery/create-vercel-preview-for-work-item.js";
+export {
+  readVercelDeployment,
+  type ReadVercelDeploymentCommand,
+  type ReadVercelDeploymentResult,
+} from "./delivery/read-vercel-deployment.js";
+export type {
+  DatabaseMigrationStore,
+  SupabasePreviewBranchStore,
+} from "./delivery/database-migration-store.js";
+export {
+  InMemoryDatabaseMigrationStore,
+  InMemorySupabasePreviewBranchStore,
+} from "./delivery/in-memory-database-migration-store.js";
+export {
+  provisionSupabasePreviewBranch,
+  type ProvisionSupabasePreviewBranchCommand,
+  type ProvisionSupabasePreviewBranchResult,
+} from "./delivery/provision-supabase-preview-branch.js";
+export {
+  validateDatabaseMigration,
+  type ValidateDatabaseMigrationCommand,
+  type ValidateDatabaseMigrationResult,
+} from "./delivery/validate-database-migration.js";
+export {
+  compareEnvironmentRequirementsForDelivery,
+  type CompareEnvironmentRequirementsCommand,
+  type CompareEnvironmentRequirementsResult,
+} from "./delivery/compare-environment-requirements.js";
+export {
+  enforceProductionPromotionBoundary,
+  ProductionPromotionBlockedError,
+  type EnforceProductionPromotionBoundaryCommand,
+  type EnforceProductionPromotionBoundaryResult,
+} from "./delivery/enforce-production-promotion-boundary.js";

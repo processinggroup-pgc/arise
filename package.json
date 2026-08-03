@@ -18,7 +18,7 @@
     "test:db": "node scripts/test-db-connections.mjs",
     "db:migrate": "node scripts/apply-migrations.mjs",
     "build": "pnpm -r build",
-    "quality": "pnpm format:check && pnpm --filter @arise/domain build && pnpm --filter @arise/integration-github build && pnpm --filter @arise/integration-sandbox build && pnpm --filter @arise/application build && pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:architecture && pnpm build"
+    "quality": "pnpm format:check && pnpm --filter @arise/domain build && pnpm --filter @arise/integration-github build && pnpm --filter @arise/integration-vercel build && pnpm --filter @arise/integration-supabase build && pnpm --filter @arise/integration-sandbox build && pnpm --filter @arise/application build && pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:architecture && pnpm build"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

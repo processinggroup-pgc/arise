@@ -94,6 +94,12 @@ importers:
       '@arise/integration-sandbox':
         specifier: workspace:*
         version: link:../integration-sandbox
+      '@arise/integration-supabase':
+        specifier: workspace:*
+        version: link:../integration-supabase
+      '@arise/integration-vercel':
+        specifier: workspace:*
+        version: link:../integration-vercel
     devDependencies:
       typescript:
         specifier: ^5.7.3
@@ -112,6 +118,18 @@ importers:
         version: 5.9.3
 
   packages/integration-sandbox:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
+  packages/integration-supabase:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
+  packages/integration-vercel:
     devDependencies:
       typescript:
         specifier: ^5.7.3

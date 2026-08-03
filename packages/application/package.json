@@ -17,7 +17,9 @@
   "dependencies": {
     "@arise/domain": "workspace:*",
     "@arise/integration-github": "workspace:*",
-    "@arise/integration-sandbox": "workspace:*"
+    "@arise/integration-sandbox": "workspace:*",
+    "@arise/integration-supabase": "workspace:*",
+    "@arise/integration-vercel": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.7.3"

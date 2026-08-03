@@ -57,6 +57,17 @@ describe("evaluatePolicyAction", () => {
 
     expect(decision.decision).toBe("blocked");
   });
+
+  it("requires release and production approvals for promotion", () => {
+    const decision = evaluatePolicyAction({
+      actionType: "request_production_promotion",
+      riskClass: "yellow",
+      productionTarget: true,
+    });
+
+    expect(decision.decision).toBe("approval_required");
+    expect(decision.requiredApprovalTypes).toEqual(["release_approval", "production_promotion"]);
+  });
 });
 
 describe("mapWorkItemRiskLevelToPolicyClass", () => {

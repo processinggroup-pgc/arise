@@ -6,6 +6,7 @@ export const POLICY_ACTION_TYPES = [
   "destructive_migration",
   "approve_implementation_plan",
   "start_implementation",
+  "request_production_promotion",
 ] as const;
 
 export type PolicyActionType = (typeof POLICY_ACTION_TYPES)[number];
@@ -99,6 +100,17 @@ export const PLATFORM_POLICY_RULES: PolicyRule[] = [
       decision: "allowed",
       reasons: ["Plan approval is permitted for standard-risk work items"],
       ruleIds: ["platform.approve_plan.default"],
+    }),
+  },
+  {
+    id: "platform.production_promotion.default",
+    actionType: "request_production_promotion",
+    productionTarget: true,
+    decision: createPolicyDecision({
+      decision: "approval_required",
+      reasons: ["Production promotion requires human approval"],
+      ruleIds: ["platform.production_promotion.default"],
+      requiredApprovalTypes: ["release_approval", "production_promotion"],
     }),
   },
 ];

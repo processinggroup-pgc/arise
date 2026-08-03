@@ -78,6 +78,8 @@ describe("repository foundation layout", () => {
       "packages/domain",
       "packages/application",
       "packages/integration-github",
+      "packages/integration-vercel",
+      "packages/integration-supabase",
       "packages/integration-sandbox",
       "packages/test-support",
       "supabase/migrations",
