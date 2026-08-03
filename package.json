@@ -1,0 +1,36 @@
+{
+  "name": "arise",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "typecheck": "pnpm -r typecheck",
+    "test:unit": "vitest run --project unit",
+    "test:architecture": "vitest run --project architecture",
+    "test:integration": "vitest run --project integration",
+    "test:e2e": "playwright test",
+    "test:db": "node scripts/test-db-connections.mjs",
+    "db:migrate": "node scripts/apply-migrations.mjs",
+    "build": "pnpm -r build",
+    "quality": "pnpm format:check && pnpm --filter @arise/domain build && pnpm --filter @arise/integration-github build && pnpm --filter @arise/integration-sandbox build && pnpm --filter @arise/application build && pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:architecture && pnpm build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "@playwright/test": "^1.50.1",
+    "@types/node": "^22.13.1",
+    "@types/pg": "^8.11.11",
+    "eslint": "^9.19.0",
+    "globals": "^15.14.0",
+    "pg": "^8.13.1",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.22.0",
+    "vitest": "^3.0.5"
+  }
+}

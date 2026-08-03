@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Architecture Agent Output",
+  "type": "object",
+  "required": [
+    "schema_ref",
+    "work_item_id",
+    "agent_run_id",
+    "discovery_run_id",
+    "options",
+    "preferred_option_id",
+    "decision_record",
+    "generated_at"
+  ],
+  "properties": {
+    "schema_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "work_item_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent_run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "discovery_run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "options": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "summary", "tradeoffs", "affected_paths", "risk_level"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "tradeoffs": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "affected_paths": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "risk_level": {
+            "enum": ["low", "medium", "high", "critical"]
+          }
+        }
+      }
+    },
+    "preferred_option_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decision_record": {
+      "type": "object",
+      "required": ["title", "context", "decision", "status", "consequences", "open_questions"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "context": { "type": "string", "minLength": 1 },
+        "decision": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["draft"] },
+        "consequences": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "open_questions": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "generated_at": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

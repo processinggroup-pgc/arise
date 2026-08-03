@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Discovery Agent Output",
+  "type": "object",
+  "required": [
+    "schema_ref",
+    "work_item_id",
+    "agent_run_id",
+    "repository_map",
+    "assessment_evidence",
+    "generated_at"
+  ],
+  "properties": {
+    "schema_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "work_item_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent_run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repository_map": {
+      "type": "object",
+      "required": [
+        "repository_id",
+        "file_count",
+        "symbol_count",
+        "dependency_count",
+        "test_map_count",
+        "files",
+        "symbols",
+        "dependencies",
+        "test_maps"
+      ],
+      "properties": {
+        "repository_id": { "type": "string" },
+        "file_count": { "type": "integer", "minimum": 0 },
+        "symbol_count": { "type": "integer", "minimum": 0 },
+        "dependency_count": { "type": "integer", "minimum": 0 },
+        "test_map_count": { "type": "integer", "minimum": 0 },
+        "files": { "type": "array" },
+        "symbols": { "type": "array" },
+        "dependencies": { "type": "array" },
+        "test_maps": { "type": "array" }
+      }
+    },
+    "assessment_evidence": {
+      "type": "object",
+      "required": [
+        "summary",
+        "observed_risks",
+        "context_item_count",
+        "contains_prompt_injection",
+        "seed_file_paths"
+      ],
+      "properties": {
+        "summary": { "type": "string", "minLength": 1 },
+        "observed_risks": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "context_item_count": { "type": "integer", "minimum": 0 },
+        "contains_prompt_injection": { "type": "boolean" },
+        "seed_file_paths": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "generated_at": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

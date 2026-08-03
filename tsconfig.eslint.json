@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "noEmit": true,
+    "paths": {
+      "@/*": ["apps/web/src/*"],
+      "@arise/application": ["packages/application/src/index.ts"],
+      "@arise/domain": ["packages/domain/src/index.ts"],
+      "@arise/integration-github": ["packages/integration-github/src/index.ts"]
+    }
+  },
+  "include": [
+    "apps/**/*.ts",
+    "apps/**/*.tsx",
+    "packages/**/*.ts",
+    "tests/**/*.ts",
+    "vitest.config.ts",
+    "playwright.config.ts"
+  ],
+  "exclude": ["**/dist/**", "**/.next/**", "node_modules"]
+}

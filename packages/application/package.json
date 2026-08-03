@@ -1,0 +1,25 @@
+{
+  "name": "@arise/application",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "pnpm --filter @arise/domain build && tsc -p tsconfig.json",
+    "typecheck": "pnpm --filter @arise/domain build && tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@arise/domain": "workspace:*",
+    "@arise/integration-github": "workspace:*",
+    "@arise/integration-sandbox": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

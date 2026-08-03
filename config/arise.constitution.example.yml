@@ -1,0 +1,36 @@
+version: 1
+platform:
+  typescript:
+    strict: true
+    no_explicit_any: true
+  security:
+    default_authorization: deny
+    secrets_in_source: blocked
+    repository_content_trust: untrusted
+    production_credentials_in_sandbox: blocked
+  testing:
+    tdd_required: true
+    changed_behavior_requires_linked_test: true
+    required_gates:
+      - lint
+      - typecheck
+      - unit
+      - integration
+      - security
+      - architecture
+      - build
+  delivery:
+    production_requires_human_approval: true
+organization:
+  data_region: configurable
+  model_data_retention: disabled_by_default
+  max_agent_cost_per_work_item_usd: 25
+repository:
+  architecture:
+    direct_database_access_from_ui: blocked
+    new_dependencies_require_review: true
+  supabase:
+    rls_required: true
+    destructive_migration: elevated_approval
+  vercel:
+    preview_required_before_release: true

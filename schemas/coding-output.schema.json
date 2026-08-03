@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Coding Agent Output",
+  "type": "object",
+  "required": [
+    "schema_ref",
+    "work_item_id",
+    "agent_run_id",
+    "architecture_run_id",
+    "execution_session_id",
+    "task",
+    "execution_evidence",
+    "generated_at"
+  ],
+  "properties": {
+    "schema_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "work_item_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent_run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "architecture_run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "execution_session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task": {
+      "type": "object",
+      "required": ["id", "title", "description", "target_paths", "branch_name"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "target_paths": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "branch_name": { "type": "string", "minLength": 1 }
+      }
+    },
+    "execution_evidence": {
+      "type": "object",
+      "required": [
+        "branch_name",
+        "commit_id",
+        "changed_paths",
+        "tool_call_evidence_refs",
+        "diffs"
+      ],
+      "properties": {
+        "branch_name": { "type": "string", "minLength": 1 },
+        "commit_id": { "type": "string", "minLength": 1 },
+        "changed_paths": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "tool_call_evidence_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "diffs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "before", "after"],
+            "properties": {
+              "path": { "type": "string" },
+              "before": { "type": "string" },
+              "after": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "generated_at": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

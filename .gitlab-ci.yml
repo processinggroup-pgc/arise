@@ -1,0 +1,17 @@
+stages:
+  - quality
+
+default:
+  image: node:20-bookworm
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@9.15.4 --activate
+    - pnpm install --frozen-lockfile
+
+quality:
+  stage: quality
+  script:
+    - pnpm quality
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
