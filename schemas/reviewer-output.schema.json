@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Reviewer Agent Output",
+  "type": "object",
+  "required": [
+    "schema_ref",
+    "work_item_id",
+    "agent_run_id",
+    "coding_run_id",
+    "execution_evidence_id",
+    "architecture_run_id",
+    "verdict",
+    "summary",
+    "requirement_coverage",
+    "findings",
+    "raised_finding_ids",
+    "generated_at"
+  ],
+  "properties": {
+    "schema_ref": { "type": "string", "minLength": 1 },
+    "work_item_id": { "type": "string", "minLength": 1 },
+    "agent_run_id": { "type": "string", "minLength": 1 },
+    "coding_run_id": { "type": "string", "minLength": 1 },
+    "execution_evidence_id": { "type": "string", "minLength": 1 },
+    "architecture_run_id": { "type": "string", "minLength": 1 },
+    "verdict": { "enum": ["approved", "changes_requested"] },
+    "summary": { "type": "string", "minLength": 1 },
+    "requirement_coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["criterion_index", "given", "when", "then", "status", "evidence"],
+        "properties": {
+          "criterion_index": { "type": "integer", "minimum": 0 },
+          "given": { "type": "string" },
+          "when": { "type": "string" },
+          "then": { "type": "string" },
+          "status": { "enum": ["covered", "partial", "missing"] },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "category", "severity", "title", "evidence", "remediation", "blocking"],
+        "properties": {
+          "id": { "type": "string" },
+          "category": { "enum": ["requirement", "constitution", "quality"] },
+          "severity": { "enum": ["low", "medium", "high", "critical"] },
+          "title": { "type": "string" },
+          "evidence": { "type": "string" },
+          "remediation": { "type": "string" },
+          "blocking": { "type": "boolean" }
+        }
+      }
+    },
+    "raised_finding_ids": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "generated_at": { "type": "string", "minLength": 1 }
+  }
+}

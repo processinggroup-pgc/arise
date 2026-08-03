@@ -156,6 +156,16 @@ export {
   type RunQaAgentCommand,
   type RunQaAgentResult,
 } from "./agent-runtime/run-qa-agent.js";
+export {
+  runSecurityAgent,
+  type RunSecurityAgentCommand,
+  type RunSecurityAgentResult,
+} from "./agent-runtime/run-security-agent.js";
+export {
+  runReviewerAgent,
+  type RunReviewerAgentCommand,
+  type RunReviewerAgentResult,
+} from "./agent-runtime/run-reviewer-agent.js";
 export type { ToolCallStore } from "./agent-runtime/tool-call-store.js";
 export { InMemoryToolCallStore } from "./agent-runtime/in-memory-tool-call-store.js";
 export {
@@ -231,3 +241,10 @@ export {
   FindingScopeError,
   type ManageFindingCommand,
 } from "./verification/manage-finding-lifecycle.js";
+export type { ReleaseEvidenceStore } from "./verification/release-evidence-store.js";
+export { InMemoryReleaseEvidenceStore } from "./verification/in-memory-release-evidence-store.js";
+export {
+  generateReleaseEvidence,
+  type GenerateReleaseEvidenceCommand,
+  type GenerateReleaseEvidenceResult,
+} from "./verification/generate-release-evidence.js";

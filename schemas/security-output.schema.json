@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Security Agent Output",
+  "type": "object",
+  "required": [
+    "schema_ref",
+    "work_item_id",
+    "agent_run_id",
+    "discovery_run_id",
+    "execution_evidence_id",
+    "threat_model",
+    "review_findings",
+    "raised_finding_ids",
+    "generated_at"
+  ],
+  "properties": {
+    "schema_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "work_item_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent_run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "discovery_run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "execution_evidence_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "threat_model": {
+      "type": "object",
+      "required": ["summary", "threats"],
+      "properties": {
+        "summary": { "type": "string", "minLength": 1 },
+        "threats": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "title", "scenario", "affected_assets", "severity"],
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "scenario": { "type": "string" },
+              "affected_assets": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "severity": {
+                "enum": ["low", "medium", "high", "critical"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "review_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "severity", "evidence", "remediation", "waivable"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "severity": {
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "evidence": { "type": "string" },
+          "remediation": { "type": "string" },
+          "waivable": { "const": false }
+        }
+      }
+    },
+    "raised_finding_ids": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "generated_at": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

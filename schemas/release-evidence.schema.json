@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Release Evidence",
+  "type": "object",
+  "required": [
+    "schema_ref",
+    "work_item_id",
+    "work_item_version",
+    "status",
+    "complete",
+    "requirement_coverage",
+    "tests",
+    "policies",
+    "findings",
+    "approvals",
+    "blockers",
+    "generated_at"
+  ],
+  "properties": {
+    "schema_ref": { "type": "string", "minLength": 1 },
+    "work_item_id": { "type": "string", "minLength": 1 },
+    "work_item_version": { "type": "integer", "minimum": 1 },
+    "status": { "enum": ["draft", "complete", "blocked", "approved"] },
+    "complete": { "type": "boolean" },
+    "requirement_coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["criterion_index", "given", "when", "then", "status", "evidence"],
+        "properties": {
+          "criterion_index": { "type": "integer", "minimum": 0 },
+          "given": { "type": "string" },
+          "when": { "type": "string" },
+          "then": { "type": "string" },
+          "status": { "enum": ["covered", "partial", "missing"] },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "tests": { "type": "array" },
+    "policies": { "type": "array" },
+    "findings": { "type": "array" },
+    "approvals": { "type": "array" },
+    "blockers": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "generated_at": { "type": "string", "minLength": 1 }
+  }
+}
