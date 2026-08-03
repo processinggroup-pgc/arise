@@ -64,10 +64,11 @@ textarea {
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   padding: 1.5rem 1rem;
   border-right: 1px solid var(--border-subtle);
   background: linear-gradient(180deg, #0d1219 0%, #0b0f14 100%);
+  overflow-y: auto;
 }
 
 .brand {
@@ -95,6 +96,99 @@ textarea {
   margin: 0;
   font-size: 0.82rem;
   color: var(--text-muted);
+}
+
+.sidebar-section-title {
+  margin: 0 0 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+
+.sidebar-setup,
+.sidebar-workflow,
+.sidebar-initiatives {
+  padding: 0 0.35rem;
+}
+
+.sidebar-setup-list,
+.sidebar-workflow-list,
+.sidebar-initiative-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sidebar-setup-list {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.sidebar-setup-link {
+  display: block;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(61, 214, 198, 0.25);
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.sidebar-setup-link:hover {
+  background: rgba(61, 214, 198, 0.2);
+}
+
+.sidebar-workflow-list {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.sidebar-workflow-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.sidebar-workflow-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 999px;
+  background: var(--bg-muted);
+  color: var(--text-subtle);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.sidebar-initiative-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.sidebar-initiative-link {
+  display: block;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.sidebar-initiative-link:hover {
+  color: var(--accent);
+}
+
+.sidebar-initiative-state {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  color: var(--text-subtle);
+  text-transform: capitalize;
 }
 
 .nav-list {

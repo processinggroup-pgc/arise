@@ -13,7 +13,7 @@ export default async function NewInitiativePage(): Promise<React.JSX.Element> {
   }
 
   return (
-    <AppShell activePath="/initiatives/new" organizationName={dashboard.organization.name}>
+    <AppShell activePath="/initiatives/new">
       <header className="page-header">
         <div>
           <h1 className="page-title">Start with the problem</h1>

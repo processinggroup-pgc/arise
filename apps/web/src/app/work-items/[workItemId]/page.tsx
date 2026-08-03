@@ -23,7 +23,7 @@ export default async function WorkItemDetailPage({
   const { organization, project, workItem } = result;
 
   return (
-    <AppShell activePath="/work-items" organizationName={organization.name}>
+    <AppShell activePath="/work-items">
       <header className="page-header">
         <div>
           <Link className="button-link" href="/work-items">

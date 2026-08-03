@@ -39,7 +39,7 @@ export default async function InitiativePage({
   const wizardStep = resolveWizardStep(detail.initiative.state);
 
   return (
-    <AppShell activePath="/initiatives/new" organizationName={dashboard.organization.name}>
+    <AppShell activePath="/initiatives/new">
       <header className="page-header">
         <div>
           <Link className="button-link" href="/initiatives/new">

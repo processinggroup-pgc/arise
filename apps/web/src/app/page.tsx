@@ -10,7 +10,7 @@ export default async function HomePage(): Promise<React.JSX.Element> {
 
   if (dashboard === null) {
     return (
-      <AppShell activePath="/" organizationName="No organization selected">
+      <AppShell activePath="/">
         <header className="page-header">
           <div>
             <h1 className="page-title">ARISE Studio</h1>
@@ -35,7 +35,7 @@ export default async function HomePage(): Promise<React.JSX.Element> {
   const { organization, project, workItems, stats } = dashboard;
 
   return (
-    <AppShell activePath="/" organizationName={organization.name}>
+    <AppShell activePath="/">
       <header className="page-header">
         <div>
           <h1 className="page-title">ARISE Studio</h1>

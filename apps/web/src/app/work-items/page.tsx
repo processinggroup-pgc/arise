@@ -9,7 +9,7 @@ export default async function WorkItemsPage(): Promise<React.JSX.Element> {
 
   if (dashboard === null) {
     return (
-      <AppShell activePath="/work-items" organizationName="No organization selected">
+      <AppShell activePath="/work-items">
         <header className="page-header">
           <div>
             <h1 className="page-title">Work Items</h1>
@@ -21,6 +21,10 @@ export default async function WorkItemsPage(): Promise<React.JSX.Element> {
             Create organization
           </Link>
         </header>
+
+        <section className="panel detail-section empty-state">
+          <p>Follow the sidebar setup steps: create an organization, then start a new initiative with your problem statement.</p>
+        </section>
       </AppShell>
     );
   }
@@ -28,7 +32,7 @@ export default async function WorkItemsPage(): Promise<React.JSX.Element> {
   const { organization, project, workItems } = dashboard;
 
   return (
-    <AppShell activePath="/work-items" organizationName={organization.name}>
+    <AppShell activePath="/work-items">
       <header className="page-header">
         <div>
           <h1 className="page-title">Work Items</h1>

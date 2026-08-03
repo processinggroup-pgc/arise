@@ -9,7 +9,7 @@ export default async function CreateOrganizationPage(): Promise<React.JSX.Elemen
   const session = await getWorkspaceSession();
 
   return (
-    <AppShell activePath="/organizations/new" organizationName="New workspace">
+    <AppShell activePath="/organizations/new">
       <header className="page-header">
         <div>
           <h1 className="page-title">Create organization</h1>
