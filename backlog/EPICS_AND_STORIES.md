@@ -95,7 +95,7 @@ Maps ARISE Studio initiative flow to cohort weeks 1–3. User posts each week's 
 | --- | --- | --- |
 | One-sentence problem (pre-work) | Problem brief `rawProblemDescription` | Built |
 | Rough audience / ICP draft | Problem brief + rich ICP fields | Built |
-| Prompt 1 — idea refinement (ChatGPT + Claude) | Market research + dual-AI comparison | Built |
+| Prompt 1 — idea refinement (ChatGPT + Claude) | Claude dossier + ChatGPT dual-AI comparison | Built |
 | Prompt 2 — aggressive stress test | Stress test artifact | Built |
 | Prompt 3 — finalize concept (problem, customer, solution, why now, risks) | Finalize concept form + business concept | Built |
 | Session notes (pain, ICP, AI insights, risks) | Session notes Week 1 | Built |

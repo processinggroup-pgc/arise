@@ -399,7 +399,11 @@ export { RuleBasedMarketResearchGenerator } from "./product-discovery/rule-based
 export {
   ClaudeMarketResearchGenerator,
   createClaudeMarketResearchGenerator,
+  ResilientMarketResearchGenerator,
 } from "./product-discovery/claude-market-research-generator.js";
+export {
+  OpenAiMarketResearchGenerator,
+} from "./product-discovery/openai-market-research-generator.js";
 export {
   alignProblemFramingForInitiative,
   type AlignProblemFramingCommand,

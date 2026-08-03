@@ -18,6 +18,7 @@ import { createTenantContext, type TenantContext } from "@arise/domain";
 import { revalidatePath } from "next/cache";
 
 import { getCohortGenerator } from "@/lib/cohort-generator";
+import { getDualAiSecondaryGenerator } from "@/lib/dual-ai-generator";
 import { hasDatabaseUrl } from "@/lib/database";
 import {
   getCohortDiscoveryStore,
@@ -92,6 +93,7 @@ export async function saveDualAiComparisonAction(initiativeId: string): Promise<
         stores.marketResearchStore,
         stores.cohortDiscoveryStore,
         operationContext(),
+        getDualAiSecondaryGenerator(),
       ),
     );
     revalidatePath(`/initiatives/${initiativeId}`);

@@ -2,7 +2,6 @@ import {
   advanceInitiativeState,
   createProblemAlignment,
   findFramingOption,
-  generateMarketResearchDossier,
   mergeCohortDiscoveryBundle,
   type BusinessConcept,
   type CohortDiscoveryBundle,
@@ -74,6 +73,7 @@ export async function saveDualAiComparisonForInitiative(
   marketResearchStore: MarketResearchStore,
   cohortStore: CohortDiscoveryStore,
   operationContext: IdentityOperationContext,
+  secondaryGenerator: import("./market-research-generator.js").MarketResearchGenerator,
 ): Promise<CohortDiscoveryBundle> {
   const initiative = await loadInitiativeContext(command, initiativeStore, "research_complete");
   const problemBrief = await problemBriefStore.findProblemBriefByInitiativeId(command.initiativeId);
@@ -82,22 +82,22 @@ export async function saveDualAiComparisonForInitiative(
     throw new InitiativeWorkflowError("Problem brief and research dossier are required");
   }
 
-  const ruleBased = generateMarketResearchDossier(
-    {
-      initiativeId: initiative.id,
-      organizationId: initiative.organizationId,
-      rawProblemDescription: problemBrief.rawProblemDescription,
-      targetAudience: problemBrief.targetAudience,
-      painPoints: problemBrief.painPoints,
-      businessContext: problemBrief.businessContext,
-      desiredOutcome: problemBrief.desiredOutcome,
-    },
-    {
-      id: operationContext.createId(),
-      generatedAt: operationContext.now(),
-      createFramingId: (index) => operationContext.createId() + `_compare_${String(index + 1)}`,
-    },
-  );
+  const researchInput = {
+    initiativeId: initiative.id,
+    organizationId: initiative.organizationId,
+    rawProblemDescription: problemBrief.rawProblemDescription,
+    targetAudience: problemBrief.targetAudience,
+    painPoints: problemBrief.painPoints,
+    businessContext: problemBrief.businessContext,
+    desiredOutcome: problemBrief.desiredOutcome,
+  };
+  const researchMetadata = {
+    id: operationContext.createId(),
+    generatedAt: operationContext.now(),
+    createFramingId: (index: number) => operationContext.createId() + `_compare_${String(index + 1)}`,
+  };
+
+  const secondaryDossier = await secondaryGenerator.generate(researchInput, researchMetadata);
 
   const bundle = await getOrCreateCohortDiscoveryBundle(
     cohortStore,
@@ -112,12 +112,12 @@ export async function saveDualAiComparisonForInitiative(
     {
       dualAiComparison: {
         claudeSummary: dossier.summary,
-        ruleBasedSummary: ruleBased.summary,
+        openAiSummary: secondaryDossier.summary,
         keyDifferences: [
           `Claude trends: ${dossier.marketTrends.slice(0, 2).join("; ")}`,
-          `Rule-based trends: ${ruleBased.marketTrends.slice(0, 2).join("; ")}`,
+          `ChatGPT trends: ${secondaryDossier.marketTrends.slice(0, 2).join("; ")}`,
           `Claude top framing: ${dossier.framingOptions[0]?.title ?? "n/a"}`,
-          `Rule-based top framing: ${ruleBased.framingOptions[0]?.title ?? "n/a"}`,
+          `ChatGPT top framing: ${secondaryDossier.framingOptions[0]?.title ?? "n/a"}`,
         ],
       },
     },

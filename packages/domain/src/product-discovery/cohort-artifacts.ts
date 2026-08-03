@@ -103,7 +103,7 @@ export interface BrdDocument {
 
 export interface DualAiComparison {
   claudeSummary: string;
-  ruleBasedSummary: string;
+  openAiSummary: string;
   keyDifferences: string[];
 }
 

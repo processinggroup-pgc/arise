@@ -117,9 +117,9 @@ export function InitiativeWorkflow({
         </div>
 
         <div className="form-panel">
-          <h3>Dual-AI comparison</h3>
+          <h3>Dual-AI comparison (Claude + ChatGPT)</h3>
           <p className="page-description">
-            Compare Claude research with ARISE rule-based research side by side.
+            Compare Claude research with the same prompt run through ChatGPT.
           </p>
           {bundle?.dualAiComparison !== undefined ? (
             <div className="detail-grid">
@@ -128,14 +128,20 @@ export function InitiativeWorkflow({
                 <p>{bundle.dualAiComparison.claudeSummary}</p>
               </article>
               <article className="criteria-card">
-                <strong>Rule-based</strong>
-                <p>{bundle.dualAiComparison.ruleBasedSummary}</p>
+                <strong>ChatGPT</strong>
+                <p>
+                  {bundle.dualAiComparison.openAiSummary ??
+                    (
+                      bundle.dualAiComparison as { ruleBasedSummary?: string }
+                    ).ruleBasedSummary ??
+                    ""}
+                </p>
               </article>
             </div>
           ) : (
             <ActionButton
               disabled={isPending}
-              label="Generate dual-AI comparison"
+              label="Run dual-AI comparison"
               pendingLabel="Comparing..."
               onClick={() => run(() => saveDualAiComparisonAction(initiativeId))}
             />
