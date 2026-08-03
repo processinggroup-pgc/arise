@@ -1,17 +1,16 @@
-import { validateEnvironment } from "@arise/domain";
+import { hasDatabaseUrl } from "@/lib/database";
 
 export function EnvironmentStatus(): React.JSX.Element {
-  const validation = validateEnvironment({
-    NODE_ENV: process.env["NODE_ENV"],
-  });
+  const databaseConnected = hasDatabaseUrl();
+  const persistenceLabel = databaseConnected ? "PostgreSQL" : "In-memory";
 
   return (
     <div
-      className={`environment-pill ${validation.valid ? "valid" : "invalid"}`}
+      className={`environment-pill ${databaseConnected ? "valid" : "invalid"}`}
       data-testid="environment-status"
     >
       <span className="environment-dot" aria-hidden="true" />
-      {validation.valid ? "Environment valid" : validation.errors.join(", ")}
+      Environment valid · {persistenceLabel}
     </div>
   );
 }

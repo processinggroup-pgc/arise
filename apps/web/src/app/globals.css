@@ -354,6 +354,13 @@ textarea {
   text-align: left;
 }
 
+.session-user-id code {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--accent);
+  word-break: break-all;
+}
+
 .main-content {
   padding: 2rem 2.25rem 3rem;
 }

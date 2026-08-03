@@ -44,10 +44,12 @@ export {
 export type { ListOrganizationMembershipsDependencies } from "./tenancy/list-organization-memberships.js";
 export type { ProjectStore } from "./project/project-store.js";
 export { InMemoryProjectStore } from "./project/in-memory-project-store.js";
+export { PostgresProjectStore } from "./project/postgres-project-store.js";
 export type { CreateProjectCommand } from "./project/create-project.js";
 export { createProjectForOrganization } from "./project/create-project.js";
 export type { WorkItemStore } from "./intent/work-item-store.js";
 export { InMemoryWorkItemStore } from "./intent/in-memory-work-item-store.js";
+export { PostgresWorkItemStore } from "./intent/postgres-work-item-store.js";
 export {
   createWorkItemForProject,
   reviseWorkItemVersion,
@@ -375,6 +377,12 @@ export {
   InMemoryProblemAlignmentStore,
   InMemoryProblemBriefStore,
 } from "./product-discovery/in-memory-product-discovery-store.js";
+export {
+  PostgresInitiativeStore,
+  PostgresMarketResearchStore,
+  PostgresProblemAlignmentStore,
+  PostgresProblemBriefStore,
+} from "./product-discovery/postgres-product-discovery-store.js";
 export {
   createInitiativeWithProblem,
   InitiativeScopeError,
