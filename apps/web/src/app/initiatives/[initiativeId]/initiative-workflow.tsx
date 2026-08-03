@@ -3,8 +3,24 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
-import type { CohortDiscoveryBundle, MarketResearchDossier, TechnicalDesignBundle } from "@arise/domain";
+import type {
+  BuildBundle,
+  CohortDiscoveryBundle,
+  MarketResearchDossier,
+  TechnicalDesignBundle,
+} from "@arise/domain";
+import type { DetectedPlatformEnv } from "@arise/application";
+import { formatDetectedSupabaseSummary, formatDetectedVercelSummary } from "@arise/application";
 
+import {
+  applyEnhancementsAction,
+  beginPlatformSetupAction,
+  connectPlatformsFromEnvAction,
+  connectPlatformsManualAction,
+  connectPlatformsVercelManagedAction,
+  runUatAction,
+  startMvpBuildAction,
+} from "./build-actions";
 import {
   approveTechnicalDesignAction,
   generateArchitectureAction,
@@ -33,7 +49,25 @@ interface InitiativeWorkflowProps {
   dossier?: MarketResearchDossier | undefined;
   bundle?: CohortDiscoveryBundle | undefined;
   technicalBundle?: TechnicalDesignBundle | undefined;
+  buildBundle?: BuildBundle | undefined;
+  detectedPlatforms?: DetectedPlatformEnv | undefined;
   selectedFramingTitle?: string | undefined;
+}
+
+function formatVercelConnectionSummary(
+  vercel: NonNullable<BuildBundle["platformConnections"]>["vercel"],
+): string {
+  if (vercel.projectId.length > 0) {
+    return vercel.projectId.startsWith("pending-")
+      ? `New project ${vercel.projectId} (assigned at build)`
+      : vercel.projectId;
+  }
+
+  if (vercel.teamId.length > 0) {
+    return `Team ${vercel.teamId} — new project per initiative`;
+  }
+
+  return "Vercel connected";
 }
 
 function ActionButton({
@@ -73,6 +107,8 @@ export function InitiativeWorkflow({
   dossier,
   bundle,
   technicalBundle,
+  buildBundle,
+  detectedPlatforms,
   selectedFramingTitle,
 }: InitiativeWorkflowProps): React.JSX.Element {
   const router = useRouter();
@@ -584,13 +620,322 @@ export function InitiativeWorkflow({
   if (state === "technical_design_approved") {
     return (
       <section className="panel detail-section">
-        <h2>Step 4 complete — ready to build</h2>
+        <h2>Step 5 — Connect platforms &amp; build MVP</h2>
         <p className="page-description">
-          Architecture, stack, data model, and gap analysis are approved. Export your Step 4 homework
-          bundle below, then proceed to Step 5 when wired.
+          Step 4 is complete. Connect Supabase, Vercel, and Resend, then ARISE will ingest your BRD
+          and technical design to scaffold the MVP.
         </p>
         {technicalBundle?.systemValidation !== undefined ? (
           <p>{technicalBundle.systemValidation.userFlowAlignment}</p>
+        ) : null}
+        {error ? <p className="form-error">{error}</p> : null}
+        <ActionButton
+          disabled={isPending}
+          label="Begin platform setup"
+          pendingLabel="Starting..."
+          onClick={() => run(() => beginPlatformSetupAction(initiativeId))}
+        />
+      </section>
+    );
+  }
+
+  if (state === "platform_setup") {
+    const envReady =
+      detectedPlatforms !== undefined &&
+      detectedPlatforms.supabase.available &&
+      detectedPlatforms.vercel.available &&
+      detectedPlatforms.resend.available;
+    const vercelManagedReady =
+      detectedPlatforms !== undefined && detectedPlatforms.vercelManagedStackReady;
+
+    return (
+      <section className="panel detail-section">
+        <h2>Step 5 — Connect Supabase, Vercel &amp; Resend</h2>
+        <p className="page-description">
+          {envReady
+            ? "Your environment already has the required credentials. Connect in one click, or walk through manual setup below."
+            : vercelManagedReady
+              ? "Use the Vercel-managed stack to link GitHub and Supabase through Vercel (recommended)."
+              : "Add credentials to .env for seamless setup, or enter secret references manually (never paste raw keys in the browser)."}
+        </p>
+
+        {detectedPlatforms !== undefined ? (
+          <div className="detail-grid">
+            <article className="criteria-card">
+              <strong>Supabase</strong>
+              <p>{formatDetectedSupabaseSummary(detectedPlatforms.supabase)}</p>
+            </article>
+            <article className="criteria-card">
+              <strong>Vercel</strong>
+              <p>
+                {detectedPlatforms.vercel.available
+                  ? formatDetectedVercelSummary(detectedPlatforms.vercel)
+                  : "Missing VERCEL_TOKEN and VERCEL_TEAM_ID (or VERCEL_PROJECT_ID)"}
+              </p>
+            </article>
+            <article className="criteria-card">
+              <strong>Resend</strong>
+              <p>
+                {detectedPlatforms.resend.available
+                  ? `From ${detectedPlatforms.resend.fromEmail}`
+                  : "Missing RESEND_API_KEY or RESEND_FROM_EMAIL"}
+              </p>
+            </article>
+          </div>
+        ) : null}
+
+        {vercelManagedReady ? (
+          <article className="criteria-card form-panel">
+            <h3>Recommended: Vercel-managed stack</h3>
+            <p className="page-description">
+              Vercel connects GitHub and Supabase separately, but the Supabase marketplace integration
+              syncs database env vars into each Vercel project automatically. Starting the MVP build
+              creates a new Vercel project via the API.
+            </p>
+            <ol className="detail-list">
+              <li>Create or open the Vercel project for this initiative.</li>
+              <li>
+                Connect GitHub: Project → <strong>Settings → Git</strong> → connect your repo.
+              </li>
+              <li>
+                Add Supabase: Project → <strong>Settings → Integrations</strong> → install{" "}
+                <strong>Supabase</strong> and link/create a database.
+              </li>
+              <li>
+                Pull synced vars locally:{" "}
+                <code>npx vercel env pull .env.local</code>
+              </li>
+            </ol>
+            {error ? <p className="form-error">{error}</p> : null}
+            <ActionButton
+              disabled={isPending}
+              label="Connect via Vercel-managed stack"
+              pendingLabel="Connecting..."
+              onClick={() => run(() => connectPlatformsVercelManagedAction(initiativeId))}
+            />
+          </article>
+        ) : null}
+
+        {error && !vercelManagedReady ? <p className="form-error">{error}</p> : null}
+
+        {envReady ? (
+          <ActionButton
+            disabled={isPending}
+            label="Connect all from environment"
+            pendingLabel="Connecting..."
+            onClick={() => run(() => connectPlatformsFromEnvAction(initiativeId))}
+          />
+        ) : null}
+
+        <form
+          className="form-panel"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            run(() => connectPlatformsManualAction(initiativeId, formData));
+          }}
+        >
+          <h3>Manual setup (secret references)</h3>
+          <p className="page-description">
+            Use values like <code>env:DATABASE_URL</code> or your vault secret ref — not raw API keys.
+          </p>
+          <div className="detail-grid">
+            <label className="form-field">
+              <span className="form-label">Supabase project ref</span>
+              <input className="form-input" name="supabaseProjectRef" placeholder="your-project-ref" />
+            </label>
+            <label className="form-field">
+              <span className="form-label">Database URL ref</span>
+              <input className="form-input" name="supabaseDatabaseUrlRef" placeholder="env:DATABASE_URL" />
+            </label>
+            <label className="form-field">
+              <span className="form-label">Anon key ref</span>
+              <input
+                className="form-input"
+                name="supabaseAnonKeyRef"
+                placeholder="env:NEXT_PUBLIC_SUPABASE_ANON_KEY"
+              />
+            </label>
+            <label className="form-field">
+              <span className="form-label">Vercel team ID</span>
+              <input
+                className="form-input"
+                name="vercelTeamId"
+                placeholder="team_... (required for per-initiative projects)"
+              />
+            </label>
+            <label className="form-field">
+              <span className="form-label">Vercel token ref</span>
+              <input className="form-input" name="vercelTokenRef" placeholder="env:VERCEL_TOKEN" />
+            </label>
+            <label className="form-field">
+              <span className="form-label">Vercel project ID (optional)</span>
+              <input
+                className="form-input"
+                name="vercelProjectId"
+                placeholder="Leave blank to create a project per initiative"
+              />
+            </label>
+            <label className="form-field">
+              <span className="form-label">Resend API key ref</span>
+              <input className="form-input" name="resendApiKeyRef" placeholder="env:RESEND_API_KEY" />
+            </label>
+            <label className="form-field">
+              <span className="form-label">Resend from email</span>
+              <input className="form-input" name="resendFromEmail" placeholder="hello@yourdomain.com" />
+            </label>
+          </div>
+          <button className="button-primary" disabled={isPending} type="submit">
+            {isPending ? "Connecting..." : "Save manual platform connections"}
+          </button>
+        </form>
+      </section>
+    );
+  }
+
+  if (state === "platforms_connected") {
+    return (
+      <section className="panel detail-section">
+        <h2>Step 5 — Build MVP from documentation</h2>
+        <p className="page-description">
+          Platforms are connected. ARISE will create a project and work items from your BRD story map
+          MVP tasks, aligned with your Step 4 architecture.
+        </p>
+        {buildBundle?.platformConnections !== undefined ? (
+          <ul className="detail-list">
+            <li>
+              Stack:{" "}
+              {buildBundle.platformConnections.stackMode === "vercel_managed"
+                ? "Vercel-managed (GitHub + Supabase integration)"
+                : "Manual env refs"}
+            </li>
+            <li>Supabase: {buildBundle.platformConnections.supabase.projectRef}</li>
+            <li>Vercel: {formatVercelConnectionSummary(buildBundle.platformConnections.vercel)}</li>
+            {buildBundle.platformConnections.github !== undefined ? (
+              <li>GitHub: linked via Vercel Git settings</li>
+            ) : null}
+            <li>Resend: {buildBundle.platformConnections.resend.fromEmail}</li>
+          </ul>
+        ) : null}
+        {error ? <p className="form-error">{error}</p> : null}
+        <ActionButton
+          disabled={isPending}
+          label="Start MVP build"
+          pendingLabel="Building..."
+          onClick={() => run(() => startMvpBuildAction(initiativeId))}
+        />
+      </section>
+    );
+  }
+
+  if ((state === "build_in_progress" || state === "building") && buildBundle?.buildPlan !== undefined) {
+    return (
+      <section className="panel detail-section">
+        <h2>Step 5 — MVP build {state === "building" ? "complete" : "in progress"}</h2>
+        <p>{buildBundle.buildPlan.summary}</p>
+        {buildBundle.buildPlan.vercelProjectUrl !== undefined ? (
+          <p className="page-description">
+            <a className="button-link" href={buildBundle.buildPlan.vercelProjectUrl}>
+              Open Vercel project
+            </a>
+          </p>
+        ) : null}
+        {buildBundle.projectId !== undefined ? (
+          <p className="page-description">Project ID: {buildBundle.projectId}</p>
+        ) : null}
+        <ul className="detail-list">
+          {buildBundle.buildPlan.tasks.map((task) => (
+            <li key={task.title}>
+              {task.title} — {task.status.replaceAll("_", " ")}
+            </li>
+          ))}
+        </ul>
+        {state === "building" ? (
+          <>
+            {error ? <p className="form-error">{error}</p> : null}
+            <ActionButton
+              disabled={isPending}
+              label="Proceed to Step 6 — UAT"
+              pendingLabel="Starting UAT..."
+              onClick={() => run(() => runUatAction(initiativeId))}
+            />
+          </>
+        ) : null}
+      </section>
+    );
+  }
+
+  if (state === "uat" && buildBundle?.uatReport !== undefined) {
+    return (
+      <section className="panel detail-section">
+        <h2>Step 6 — UAT &amp; enhancements backlog</h2>
+        <p>{buildBundle.uatReport.summary}</p>
+        <ul className="detail-list">
+          {buildBundle.uatReport.checklist.map((item) => (
+            <li key={item.id}>
+              {item.passed ? "✓" : "✗"} {item.description}
+            </li>
+          ))}
+        </ul>
+
+        {buildBundle.enhancementsBacklog.length > 0 ? (
+          <form
+            className="form-panel"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const formData = new FormData(event.currentTarget);
+              run(() => applyEnhancementsAction(initiativeId, formData));
+            }}
+          >
+            <h3>Enhancements backlog</h3>
+            <p className="page-description">
+              Select deferred features from MVP scope and gap analysis to queue for post-MVP work.
+            </p>
+            {buildBundle.enhancementsBacklog.map((item) => (
+              <label key={item.id} className="framing-option">
+                <input defaultChecked={item.applied} name="enhancementId" type="checkbox" value={item.id} />
+                <span className="framing-option-body">
+                  <strong>{item.title}</strong>
+                  <span className="page-description">Source: {item.source.replaceAll("_", " ")}</span>
+                </span>
+              </label>
+            ))}
+            {error ? <p className="form-error">{error}</p> : null}
+            <button className="button-primary" disabled={isPending} type="submit">
+              {isPending ? "Applying..." : "Apply selected enhancements — complete Step 6"}
+            </button>
+          </form>
+        ) : (
+          <>
+            {error ? <p className="form-error">{error}</p> : null}
+            <ActionButton
+              disabled={isPending}
+              label="Complete Step 6 — no enhancements selected"
+              pendingLabel="Completing..."
+              onClick={() =>
+                run(() => applyEnhancementsAction(initiativeId, new FormData()))
+              }
+            />
+          </>
+        )}
+      </section>
+    );
+  }
+
+  if (state === "production" || state === "ops_handoff") {
+    const applied = buildBundle?.enhancementsBacklog.filter((item) => item.applied) ?? [];
+    return (
+      <section className="panel detail-section">
+        <h2>Step 6 complete — MVP in production</h2>
+        <p className="page-description">
+          Your MVP is built, UAT passed, and {applied.length} enhancement(s) queued for follow-up work.
+        </p>
+        {applied.length > 0 ? (
+          <ul className="detail-list">
+            {applied.map((item) => (
+              <li key={item.id}>{item.title}</li>
+            ))}
+          </ul>
         ) : null}
       </section>
     );

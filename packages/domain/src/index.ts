@@ -835,6 +835,23 @@ export {
   type TechnicalDesignBundle,
 } from "./product-discovery/technical-design-artifacts.js";
 export {
+  createBuildBundle,
+  mergeBuildBundle,
+  type BuildBundle,
+  type BuildTask,
+  type EnhancementBacklogItem,
+  type GitHubConnection,
+  type MvpBuildPlan,
+  type PlatformConnectionStatus,
+  type PlatformConnections,
+  type PlatformStackMode,
+  type ResendConnection,
+  type SupabaseConnection,
+  type UatChecklistItem,
+  type UatReport,
+  type VercelConnection,
+} from "./product-discovery/build-artifacts.js";
+export {
   createProblemAlignment,
   findFramingOption,
   generateMarketResearchDossier,

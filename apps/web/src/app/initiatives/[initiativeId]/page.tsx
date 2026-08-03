@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { detectPlatformEnvFromProcessEnv } from "@arise/application";
+
 import { AppShell } from "@/components/app-shell";
 import { InitiativeWizardTrack } from "@/components/initiative-wizard-track";
 import { type InitiativeWizardStepId } from "@/lib/initiative-defaults";
@@ -45,11 +47,19 @@ function resolveWizardStep(state: string): InitiativeWizardStepId {
     case "gap_analysis_complete":
       return "system-validation";
     case "technical_design_approved":
+      return "platform-connect";
+    case "platform_setup":
+      return "platform-connect";
+    case "platforms_connected":
+      return "mvp-build";
+    case "build_in_progress":
     case "building":
+      return "mvp-build";
     case "uat":
+      return "uat-test";
     case "production":
     case "ops_handoff":
-      return "system-validation";
+      return "enhancements";
     default:
       return "problem";
   }
@@ -67,6 +77,7 @@ export default async function InitiativePage({
   }
 
   const wizardStep = resolveWizardStep(detail.initiative.state);
+  const detectedPlatforms = detectPlatformEnvFromProcessEnv();
 
   return (
     <AppShell activePath="/initiatives/new">
@@ -104,6 +115,8 @@ export default async function InitiativePage({
         dossier={detail.dossier}
         bundle={detail.bundle}
         technicalBundle={detail.technicalBundle}
+        buildBundle={detail.buildBundle}
+        detectedPlatforms={detectedPlatforms}
         selectedFramingTitle={detail.selectedFramingTitle}
       />
 

@@ -1,16 +1,19 @@
 import {
+  InMemoryBuildStore,
   InMemoryCohortDiscoveryStore,
   InMemoryTechnicalDesignStore,
   InMemoryInitiativeStore,
   InMemoryMarketResearchStore,
   InMemoryProblemAlignmentStore,
   InMemoryProblemBriefStore,
+  PostgresBuildStore,
   PostgresCohortDiscoveryStore,
   PostgresTechnicalDesignStore,
   PostgresInitiativeStore,
   PostgresMarketResearchStore,
   PostgresProblemAlignmentStore,
   PostgresProblemBriefStore,
+  type BuildStore,
   type CohortDiscoveryStore,
   type InitiativeStore,
   type MarketResearchStore,
@@ -27,6 +30,7 @@ let marketResearchStore: MarketResearchStore | undefined;
 let problemAlignmentStore: ProblemAlignmentStore | undefined;
 let cohortDiscoveryStore: CohortDiscoveryStore | undefined;
 let technicalDesignStore: TechnicalDesignStore | undefined;
+let buildStore: BuildStore | undefined;
 
 export function getInitiativeStore(): InitiativeStore {
   initiativeStore ??= hasDatabaseUrl()
@@ -74,4 +78,12 @@ export function getTechnicalDesignStore(): TechnicalDesignStore {
     : new InMemoryTechnicalDesignStore();
 
   return technicalDesignStore;
+}
+
+export function getBuildStore(): BuildStore {
+  buildStore ??= hasDatabaseUrl()
+    ? new PostgresBuildStore(getDatabasePool())
+    : new InMemoryBuildStore();
+
+  return buildStore;
 }

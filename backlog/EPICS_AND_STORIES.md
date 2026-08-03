@@ -234,3 +234,60 @@ Maps ARISE Studio initiative flow to cohort weeks 1–3. User posts each week's 
 | 2 | Business case + MVP | Business case → MVP scoping → MVP finalize | `business_case_complete` → `solution_selected` → `mvp_finalized` |
 | 3 | Experience design + BRD | Persona → User flow → Story map → BRD build | `persona_complete` → … → `design_approved` |
 | 4 | Technical design + gaps | Architecture → Tech stack → Data model → Gap analysis → System validation | `architecture_complete` → `stack_selected` → `data_model_complete` → `gap_analysis_complete` → `technical_design_approved` |
+
+### Step 5 — Platform connect and MVP build
+
+**Cohort outcomes:** Supabase, Vercel, and Resend connected; MVP scaffolded from BRD + technical design documentation.
+
+| Cohort deliverable | ARISE coverage | Status |
+| --- | --- | --- |
+| Connect Supabase (database + auth) | Env auto-detect or manual secret refs | Built |
+| Connect Vercel (hosting/deploy) | Env auto-detect or manual secret refs | Built |
+| Connect Resend (transactional email) | Env auto-detect or manual secret refs | Built |
+| Ingest BRD + technical design | Create project + MVP work items from story map | Built |
+| Build progress tracking | Build plan tasks on initiative | Built |
+
+**Maps to initiative wizard:** Connect platforms → MVP build (states: `platform_setup` → `platforms_connected` → `build_in_progress` → `building`).
+
+**Depends on:** Step 4 `technical_design_approved`.
+
+**Stories**
+
+- E11-W5-S1 Platform connection bundle (Supabase, Vercel, Resend status + secret refs).
+- E11-W5-S2 Seamless env-based connect (one-click when `VERCEL_TOKEN` + `VERCEL_TEAM_ID` are in `.env`; `VERCEL_PROJECT_ID` optional).
+- E11-W5-S3 Guided manual connect (secret reference form when env incomplete).
+- E11-W5-S4 MVP build from documentation (project + work items from BRD MVP tasks).
+- E11-W5-S5 Build plan artifact (task list linked to work items).
+
+### Step 6 — UAT and enhancements backlog
+
+**Cohort outcomes:** MVP tested against acceptance criteria; deferred features queued from NOT-build list and gap analysis.
+
+| Cohort deliverable | ARISE coverage | Status |
+| --- | --- | --- |
+| UAT checklist from story map + BRD | Auto-generated checklist + pass summary | Built |
+| Test Step 5 build | UAT report on initiative | Built |
+| Enhancements backlog | NOT-build + gap analysis items | Built |
+| Apply selected enhancements | Queue post-MVP work; advance to production | Built |
+
+**Maps to initiative wizard:** UAT → Enhancements (states: `uat` → `production`).
+
+**Depends on:** Step 5 `building`.
+
+**Stories**
+
+- E11-W6-S1 UAT checklist generator (MVP tasks + core features).
+- E11-W6-S2 UAT report artifact.
+- E11-W6-S3 Enhancements backlog from MVP scope and gap analysis.
+- E11-W6-S4 Apply enhancements and complete cohort flow.
+
+### Cohort Steps 1–6 → build sequence
+
+| Step | Theme | Wizard steps | Target initiative states |
+| --- | --- | --- | --- |
+| 1 | Problem clarity + ICP | Problem & ICP → AI refinement → Finalize concept | `problem_captured` → `research_complete` → `problem_aligned` |
+| 2 | Business case + MVP | Business case → MVP scoping → MVP finalize | `business_case_complete` → `solution_selected` → `mvp_finalized` |
+| 3 | Experience design + BRD | Persona → User flow → Story map → BRD build | `persona_complete` → … → `design_approved` |
+| 4 | Technical design + gaps | Architecture → Tech stack → Data model → Gap analysis → System validation | … → `technical_design_approved` |
+| 5 | Platform connect + build | Connect platforms → MVP build | `platform_setup` → `platforms_connected` → `building` |
+| 6 | UAT + enhancements | UAT → Enhancements | `uat` → `production` |

@@ -1,4 +1,5 @@
 import {
+  PostgresBuildStore,
   PostgresCohortDiscoveryStore,
   PostgresInitiativeStore,
   PostgresMarketResearchStore,
@@ -8,6 +9,7 @@ import {
   PostgresProjectStore,
   PostgresWorkItemStore,
   withPostgresTenantSession,
+  type BuildStore,
   type CohortDiscoveryStore,
   type InitiativeStore,
   type MarketResearchStore,
@@ -30,6 +32,7 @@ export interface TenantScopedStores {
   problemAlignmentStore: ProblemAlignmentStore;
   cohortDiscoveryStore: CohortDiscoveryStore;
   technicalDesignStore: TechnicalDesignStore;
+  buildStore: BuildStore;
 }
 
 export async function runWithTenantScopedStores<T>(
@@ -53,6 +56,7 @@ export async function runWithTenantScopedStores<T>(
       problemAlignmentStore: new PostgresProblemAlignmentStore(client),
       cohortDiscoveryStore: new PostgresCohortDiscoveryStore(client),
       technicalDesignStore: new PostgresTechnicalDesignStore(client),
+      buildStore: new PostgresBuildStore(client),
     };
 
     return await withPostgresTenantSession(client, tenantContext, async () => operation(stores));

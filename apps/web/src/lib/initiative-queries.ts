@@ -6,6 +6,7 @@ import {
   type ProblemAlignment,
   type ProblemBrief,
   type TechnicalDesignBundle,
+  type BuildBundle,
 } from "@arise/domain";
 
 import { hasDatabaseUrl } from "./database";
@@ -16,6 +17,7 @@ import {
   getProblemAlignmentStore,
   getProblemBriefStore,
   getTechnicalDesignStore,
+  getBuildStore,
 } from "./product-discovery-stores";
 import { createWorkspaceTenantContext, runWithTenantScopedStores } from "./postgres-tenant";
 import { runSafely } from "./postgres-support";
@@ -30,6 +32,7 @@ export interface InitiativeDetail {
   selectedFramingTitle?: string;
   bundle?: CohortDiscoveryBundle;
   technicalBundle?: TechnicalDesignBundle;
+  buildBundle?: BuildBundle;
 }
 
 export async function getInitiativeDetail(initiativeId: string): Promise<InitiativeDetail | null> {
@@ -53,6 +56,7 @@ export async function getInitiativeDetail(initiativeId: string): Promise<Initiat
         problemAlignmentStore: ReturnType<typeof getProblemAlignmentStore>;
         cohortDiscoveryStore: ReturnType<typeof getCohortDiscoveryStore>;
         technicalDesignStore: ReturnType<typeof getTechnicalDesignStore>;
+        buildStore: ReturnType<typeof getBuildStore>;
       }) => {
         const initiative = await stores.initiativeStore.findInitiativeById(initiativeId);
         if (initiative === undefined || initiative.organizationId !== workspace.organizationId) {
@@ -69,6 +73,7 @@ export async function getInitiativeDetail(initiativeId: string): Promise<Initiat
         const bundle = await stores.cohortDiscoveryStore.findCohortDiscoveryByInitiativeId(initiativeId);
         const technicalBundle =
           await stores.technicalDesignStore.findTechnicalDesignByInitiativeId(initiativeId);
+        const buildBundle = await stores.buildStore.findBuildBundleByInitiativeId(initiativeId);
         const selectedFramingTitle =
           dossier !== undefined && alignment !== undefined
             ? findFramingOption(dossier, alignment.selectedFramingId)?.title
@@ -82,6 +87,7 @@ export async function getInitiativeDetail(initiativeId: string): Promise<Initiat
           ...(selectedFramingTitle !== undefined ? { selectedFramingTitle } : {}),
           ...(bundle !== undefined ? { bundle } : {}),
           ...(technicalBundle !== undefined ? { technicalBundle } : {}),
+          ...(buildBundle !== undefined ? { buildBundle } : {}),
         };
       };
 
@@ -96,6 +102,7 @@ export async function getInitiativeDetail(initiativeId: string): Promise<Initiat
         problemAlignmentStore: getProblemAlignmentStore(),
         cohortDiscoveryStore: getCohortDiscoveryStore(),
         technicalDesignStore: getTechnicalDesignStore(),
+        buildStore: getBuildStore(),
       });
     },
     null,

@@ -461,3 +461,36 @@ export {
   generateTechStackForInitiative,
   type TechnicalDesignCommand,
 } from "./product-discovery/technical-design-workflow.js";
+export type { BuildStore } from "./product-discovery/build-store.js";
+export {
+  InMemoryBuildStore,
+  getOrCreateBuildBundle,
+} from "./product-discovery/in-memory-build-store.js";
+export { PostgresBuildStore } from "./product-discovery/postgres-build-store.js";
+export {
+  detectPlatformEnvFromProcessEnv,
+  formatDetectedVercelSummary,
+  formatDetectedSupabaseSummary,
+  type DetectedPlatformEnv,
+} from "./product-discovery/platform-env-detector.js";
+export {
+  applyEnhancementsForInitiative,
+  beginPlatformSetupForInitiative,
+  connectPlatformsForInitiative,
+  runUatForInitiative,
+  startMvpBuildForInitiative,
+  type BuildCommand,
+  type ManualPlatformInput,
+} from "./product-discovery/build-workflow.js";
+export {
+  buildSupabaseIntegrationUrl,
+  provisionVercelProjectForInitiative,
+  type ProvisionVercelProjectInput,
+  type ProvisionVercelProjectResult,
+} from "./product-discovery/provision-vercel-project-for-initiative.js";
+export { readProcessEnv, resolveEnvRef } from "./product-discovery/resolve-env-ref.js";
+export {
+  FakeVercelProjectAdapter,
+  HttpVercelProjectAdapter,
+  type VercelProjectPort,
+} from "@arise/integration-vercel";
