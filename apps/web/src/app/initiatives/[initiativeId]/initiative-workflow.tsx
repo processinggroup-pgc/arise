@@ -9,8 +9,8 @@ import type {
   MarketResearchDossier,
   TechnicalDesignBundle,
 } from "@arise/domain";
-import type { DetectedPlatformEnv } from "@arise/application";
-import { formatDetectedSupabaseSummary, formatDetectedVercelSummary } from "@arise/application";
+import type { DetectedPlatformEnv } from "@/lib/platform-env-format";
+import { formatDetectedSupabaseSummary, formatDetectedVercelSummary } from "@/lib/platform-env-format";
 
 import {
   applyEnhancementsAction,

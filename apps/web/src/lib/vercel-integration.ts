@@ -26,10 +26,11 @@ export function getVercelProjectPort(): VercelProjectPort {
   const token = readEnv(["VERCEL_TOKEN", "VERCEL_ACCESS_TOKEN"]);
 
   if (!useFake && token !== undefined) {
-    vercelProjectPort = new HttpVercelProjectAdapter({
-      token,
-      ...(readEnv(["VERCEL_TEAM_ID"]) !== undefined ? { teamId: readEnv(["VERCEL_TEAM_ID"]) } : {}),
-    });
+    const teamId = readEnv(["VERCEL_TEAM_ID"]);
+    vercelProjectPort =
+      teamId !== undefined
+        ? new HttpVercelProjectAdapter({ token, teamId })
+        : new HttpVercelProjectAdapter({ token });
     return vercelProjectPort;
   }
 
