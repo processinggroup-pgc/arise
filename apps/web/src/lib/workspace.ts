@@ -3,7 +3,7 @@ import { createTenantContext } from "@arise/domain";
 
 import { ensureDemoData, DEMO_ORG_ID, DEMO_PROJECT_ID } from "./demo-data";
 import { getIdentityStore, usesPersistentIdentityStore } from "./identity-store";
-import { clearOrganizationSession, getWorkspaceSession, setWorkspaceSession } from "./session";
+import { getWorkspaceSession } from "./session";
 import { getProjectStore } from "./stores";
 
 export interface WorkspaceContext {
@@ -58,15 +58,12 @@ async function resolveOrganizationId(
     if (organization !== undefined && membership !== undefined && membership.status === "active") {
       return organizationId;
     }
-
-    await clearOrganizationSession();
   }
 
   const organizations = await listOrganizationsForUser(userId, identityStore);
   if (organizations.length === 1) {
     const onlyOrganization = organizations[0];
     if (onlyOrganization !== undefined) {
-      await setWorkspaceSession({ userId, organizationId: onlyOrganization.id });
       return onlyOrganization.id;
     }
   }

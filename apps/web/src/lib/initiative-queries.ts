@@ -12,7 +12,7 @@ import {
   getProblemAlignmentStore,
   getProblemBriefStore,
 } from "./product-discovery-stores";
-import { getWorkspaceSession } from "./session";
+import { resolveWorkspaceContext } from "./workspace";
 
 export interface InitiativeDetail {
   initiative: Initiative;
@@ -23,13 +23,13 @@ export interface InitiativeDetail {
 }
 
 export async function getInitiativeDetail(initiativeId: string): Promise<InitiativeDetail | null> {
-  const session = await getWorkspaceSession();
-  if (session.organizationId === undefined) {
+  const workspace = await resolveWorkspaceContext();
+  if (workspace === null) {
     return null;
   }
 
   const initiative = await getInitiativeStore().findInitiativeById(initiativeId);
-  if (initiative === undefined || initiative.organizationId !== session.organizationId) {
+  if (initiative === undefined || initiative.organizationId !== workspace.organizationId) {
     return null;
   }
 
@@ -39,7 +39,8 @@ export async function getInitiativeDetail(initiativeId: string): Promise<Initiat
   }
 
   const dossier = await getMarketResearchStore().findMarketResearchByInitiativeId(initiativeId);
-  const alignment = await getProblemAlignmentStore().findProblemAlignmentByInitiativeId(initiativeId);
+  const alignment =
+    await getProblemAlignmentStore().findProblemAlignmentByInitiativeId(initiativeId);
   const selectedFramingTitle =
     dossier !== undefined && alignment !== undefined
       ? findFramingOption(dossier, alignment.selectedFramingId)?.title
@@ -55,10 +56,10 @@ export async function getInitiativeDetail(initiativeId: string): Promise<Initiat
 }
 
 export async function listInitiativesForWorkspace(): Promise<Initiative[]> {
-  const session = await getWorkspaceSession();
-  if (session.organizationId === undefined) {
+  const workspace = await resolveWorkspaceContext();
+  if (workspace === null) {
     return [];
   }
 
-  return getInitiativeStore().listInitiativesForOrganization(session.organizationId);
+  return getInitiativeStore().listInitiativesForOrganization(workspace.organizationId);
 }

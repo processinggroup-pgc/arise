@@ -1,39 +1,17 @@
 import { cookies } from "next/headers";
 
-export const SESSION_COOKIES = {
-  userId: "arise-user-id",
-  organizationId: "arise-organization-id",
-} as const;
+import { SESSION_COOKIES, sessionCookieOptions } from "./session-constants";
+
+export { SESSION_COOKIES } from "./session-constants";
 
 export interface WorkspaceSession {
   userId: string;
   organizationId?: string;
 }
 
-function sessionCookieOptions(): {
-  httpOnly: boolean;
-  sameSite: "lax";
-  path: string;
-  secure?: boolean;
-} {
-  return {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    ...(process.env["NODE_ENV"] === "production" ? { secure: true } : {}),
-  };
-}
-
 export async function getWorkspaceSession(): Promise<WorkspaceSession> {
   const cookieStore = await cookies();
-  const cookieOptions = sessionCookieOptions();
-  let userId = cookieStore.get(SESSION_COOKIES.userId)?.value;
-
-  if (userId === undefined) {
-    userId = crypto.randomUUID();
-    cookieStore.set(SESSION_COOKIES.userId, userId, cookieOptions);
-  }
-
+  const userId = cookieStore.get(SESSION_COOKIES.userId)?.value ?? crypto.randomUUID();
   const organizationId = cookieStore.get(SESSION_COOKIES.organizationId)?.value;
 
   if (organizationId === undefined) {

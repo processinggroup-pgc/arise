@@ -2,12 +2,12 @@ import Link from "next/link";
 
 import { switchOrganizationAction } from "@/app/organizations/actions";
 import { AppShell } from "@/components/app-shell";
-import { getWorkspaceSession } from "@/lib/session";
-import { listWorkspaceOrganizations } from "@/lib/workspace";
+import { listWorkspaceOrganizations, resolveWorkspaceContext } from "@/lib/workspace";
 
 export default async function OrganizationsPage(): Promise<React.JSX.Element> {
-  const session = await getWorkspaceSession();
+  const workspace = await resolveWorkspaceContext();
   const organizations = await listWorkspaceOrganizations();
+  const activeOrganizationId = workspace?.organizationId;
 
   return (
     <AppShell activePath="/organizations">
@@ -38,7 +38,7 @@ export default async function OrganizationsPage(): Promise<React.JSX.Element> {
           </div>
           <ul className="organization-list">
             {organizations.map((organization) => {
-              const isActive = session.organizationId === organization.id;
+              const isActive = activeOrganizationId === organization.id;
 
               return (
                 <li className="organization-list-item" key={organization.id}>
