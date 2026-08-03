@@ -301,3 +301,49 @@ export {
   type EnforceProductionPromotionBoundaryCommand,
   type EnforceProductionPromotionBoundaryResult,
 } from "./delivery/enforce-production-promotion-boundary.js";
+export type { CostAttributionStore } from "./operations/cost-attribution-store.js";
+export { InMemoryCostAttributionStore } from "./operations/in-memory-cost-attribution-store.js";
+export {
+  attributeWorkItemCost,
+  type AttributeWorkItemCostCommand,
+  type AttributeWorkItemCostResult,
+} from "./operations/attribute-work-item-cost.js";
+export type { BudgetPauseStore } from "./operations/budget-pause-store.js";
+export { InMemoryBudgetPauseStore } from "./operations/in-memory-budget-pause-store.js";
+export {
+  enforceBudgetThresholdBeforeAction,
+  BudgetThresholdPausedError,
+  type EnforceBudgetThresholdBeforeActionCommand,
+  type EnforceBudgetThresholdBeforeActionResult,
+} from "./operations/enforce-budget-threshold-before-action.js";
+export type { IncidentStore } from "./operations/incident-store.js";
+export { InMemoryIncidentStore } from "./operations/in-memory-incident-store.js";
+export {
+  declareIncident,
+  type DeclareIncidentCommand,
+  type DeclareIncidentResult,
+} from "./operations/declare-incident.js";
+export {
+  beginIncidentContainmentForOrganization,
+  IncidentContainmentError,
+  type BeginIncidentContainmentCommand,
+  type BeginIncidentContainmentResult,
+} from "./operations/begin-incident-containment.js";
+export type { TechnicalDebtStore } from "./operations/technical-debt-store.js";
+export { InMemoryTechnicalDebtStore } from "./operations/in-memory-technical-debt-store.js";
+export {
+  recordTechnicalDebtForWorkItem,
+  assignTechnicalDebtSupportOwnerForItem,
+  type RecordTechnicalDebtForWorkItemCommand,
+  type RecordTechnicalDebtForWorkItemResult,
+  type AssignTechnicalDebtSupportOwnerCommand,
+  type AssignTechnicalDebtSupportOwnerResult,
+} from "./operations/record-technical-debt-for-work-item.js";
+export type { WorkItemOutcomeStore } from "./operations/work-item-outcome-store.js";
+export { InMemoryWorkItemOutcomeStore } from "./operations/in-memory-work-item-outcome-store.js";
+export {
+  evaluateWorkItemOutcome,
+  WorkItemOutcomeNotReadyError,
+  type EvaluateWorkItemOutcomeCommand,
+  type EvaluateWorkItemOutcomeResult,
+} from "./operations/evaluate-work-item-outcome.js";

@@ -6,6 +6,7 @@ export const APPROVAL_TYPES = [
   "release_approval",
   "security_approval",
   "production_promotion",
+  "budget_approval",
 ] as const;
 
 export type ApprovalType = (typeof APPROVAL_TYPES)[number];
