@@ -3,7 +3,7 @@ import type { Configuration as WebpackConfiguration } from "webpack";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  transpilePackages: ["@arise/domain"],
+  transpilePackages: ["@arise/domain", "@arise/application"],
   webpack: (config: WebpackConfiguration): WebpackConfiguration => {
     config.resolve ??= {};
     config.resolve.extensionAlias = {
