@@ -285,7 +285,7 @@ export class PostgresMarketResearchStore implements MarketResearchStore {
         framing_options,
         generated_at
       )
-      values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      values ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb, $8::jsonb, $9)
       on conflict (initiative_id) do update
       set
         organization_id = excluded.organization_id,
@@ -302,9 +302,9 @@ export class PostgresMarketResearchStore implements MarketResearchStore {
         dossier.organizationId,
         dossier.summary,
         dossier.marketTrends,
-        dossier.comparableApproaches,
-        dossier.citations,
-        dossier.framingOptions,
+        JSON.stringify(dossier.comparableApproaches),
+        JSON.stringify(dossier.citations),
+        JSON.stringify(dossier.framingOptions),
         dossier.generatedAt,
       ],
     );
