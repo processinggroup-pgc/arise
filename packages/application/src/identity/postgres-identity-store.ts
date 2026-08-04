@@ -12,7 +12,11 @@ import {
 } from "../project/bootstrap-default-project.js";
 import type { PostgresQueryable } from "../persistence/postgres-tenant-session.js";
 import { OWNER_EMAIL_IN_USE_MESSAGE } from "./identity-errors.js";
-import type { IdentityStore } from "./identity-store.js";
+import type { IdentityOperationContext, IdentityStore } from "./identity-store.js";
+import type {
+  RegisterOrganizationCommand,
+  RegisterOrganizationResult,
+} from "./register-organization.js";
 
 interface OrganizationRow {
   id: string;
@@ -54,6 +58,11 @@ function mapMembership(row: MembershipRow): OrganizationMembership {
   };
 }
 
+interface RegisterOrganizationRow {
+  organization: Organization;
+  membership: OrganizationMembership;
+}
+
 function isUserProfileEmailConflict(error: unknown): boolean {
   if (typeof error !== "object" || error === null) {
     return false;
@@ -65,6 +74,28 @@ function isUserProfileEmailConflict(error: unknown): boolean {
     (pgError.constraint === "user_profiles_email_key" ||
       pgError.message === OWNER_EMAIL_IN_USE_MESSAGE)
   );
+}
+
+function parseRegisterOrganizationResult(payload: unknown): RegisterOrganizationResult {
+  if (typeof payload !== "object" || payload === null) {
+    throw new Error("Organization registration failed");
+  }
+
+  const row = payload as RegisterOrganizationRow;
+  if (row.organization === undefined || row.membership === undefined) {
+    throw new Error("Organization registration failed");
+  }
+
+  return {
+    organization: {
+      ...row.organization,
+      createdAt: new Date(row.organization.createdAt),
+    },
+    membership: {
+      ...row.membership,
+      createdAt: new Date(row.membership.createdAt),
+    },
+  };
 }
 
 export class PostgresIdentityStore implements IdentityStore {
@@ -146,6 +177,53 @@ export class PostgresIdentityStore implements IdentityStore {
         email,
         "Workspace owner",
       ]);
+    } catch (error) {
+      if (isUserProfileEmailConflict(error)) {
+        throw new Error(OWNER_EMAIL_IN_USE_MESSAGE);
+      }
+
+      throw error;
+    }
+  }
+
+  async registerOrganizationAtomic(
+    command: RegisterOrganizationCommand,
+    context: IdentityOperationContext,
+  ): Promise<RegisterOrganizationResult> {
+    const organizationId = context.createId();
+    const membershipId = context.createId();
+    const createdAt = context.now();
+
+    try {
+      const result = (await this.client.query(
+        `
+        select public.arise_register_organization(
+          $1,
+          $2,
+          $3,
+          $4,
+          $5,
+          $6,
+          $7,
+          $8,
+          $9
+        ) as payload
+        `,
+        [
+          command.ownerUserId,
+          organizationId,
+          command.name,
+          command.slug,
+          command.plan,
+          command.dataRegion,
+          createdAt,
+          membershipId,
+          command.ownerEmail ?? null,
+        ],
+      )) as { rows: Array<{ payload: unknown }> };
+
+      const payload = result.rows[0]?.payload;
+      return parseRegisterOrganizationResult(payload);
     } catch (error) {
       if (isUserProfileEmailConflict(error)) {
         throw new Error(OWNER_EMAIL_IN_USE_MESSAGE);

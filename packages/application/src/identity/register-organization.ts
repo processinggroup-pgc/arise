@@ -13,6 +13,7 @@ export interface RegisterOrganizationCommand {
   plan: string;
   dataRegion: string;
   ownerUserId: string;
+  ownerEmail?: string;
 }
 
 export interface RegisterOrganizationResult {

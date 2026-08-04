@@ -2,6 +2,7 @@ import type { Organization, OrganizationMembership } from "@arise/domain";
 
 import type { IdentityOperationContext, IdentityStore } from "../identity/identity-store.js";
 import { OWNER_EMAIL_IN_USE_MESSAGE } from "../identity/identity-errors.js";
+import type { RegisterOrganizationCommand } from "../identity/register-organization.js";
 import { registerOrganization } from "../identity/register-organization.js";
 import { TENANT_HEADERS } from "./tenant-context-error.js";
 
@@ -78,6 +79,20 @@ function isOrganizationOwnerPreparer(
   );
 }
 
+function supportsAtomicRegistration(
+  store: IdentityStore,
+): store is IdentityStore & {
+  registerOrganizationAtomic(
+    command: RegisterOrganizationCommand,
+    context: IdentityOperationContext,
+  ): Promise<RegisterOrganizationResult>;
+} {
+  return (
+    "registerOrganizationAtomic" in store &&
+    typeof store.registerOrganizationAtomic === "function"
+  );
+}
+
 export async function registerOrganizationForApi(
   headers: Headers,
   input: RegisterOrganizationApiInput,
@@ -86,6 +101,20 @@ export async function registerOrganizationForApi(
   const ownerUserId = readOwnerUserId(headers);
 
   try {
+    if (supportsAtomicRegistration(dependencies.identityStore)) {
+      return await dependencies.identityStore.registerOrganizationAtomic(
+        {
+          name: input.name,
+          slug: input.slug,
+          plan: input.plan,
+          dataRegion: input.dataRegion,
+          ownerUserId,
+          ...(input.ownerEmail !== undefined ? { ownerEmail: input.ownerEmail } : {}),
+        },
+        dependencies,
+      );
+    }
+
     if (isOrganizationOwnerPreparer(dependencies.identityStore)) {
       await dependencies.identityStore.prepareOrganizationOwner(ownerUserId, input.ownerEmail);
     }
