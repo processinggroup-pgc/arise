@@ -111,6 +111,7 @@ export async function AppShell({
 
         <div className="sidebar-footer">
           <OrganizationSwitcher
+            selectId="sidebar-organizationId"
             {...(hasOrganization ? { activeOrganizationId: dashboard.organization.id } : {})}
           />
           <div className="sidebar-meta">

@@ -55,6 +55,33 @@ export async function listWorkspaceOrganizations() {
   );
 }
 
+const DEFAULT_PROJECT_NAME = "Default Project";
+const DEFAULT_PROJECT_DESCRIPTION = "Primary delivery workspace for governed agent runs.";
+
+async function createDefaultProjectInTenantScope(
+  organizationId: string,
+  userId: string,
+): Promise<string> {
+  const tenantContext = createWorkspaceTenantContext({ organizationId, userId });
+
+  return runWithTenantScopedStores(tenantContext, async (stores) => {
+    const project = await createProjectForOrganization(
+      {
+        tenantContext,
+        name: DEFAULT_PROJECT_NAME,
+        description: DEFAULT_PROJECT_DESCRIPTION,
+      },
+      stores.projectStore,
+      {
+        createId: () => crypto.randomUUID(),
+        now: () => new Date(),
+      },
+    );
+
+    return project.id;
+  });
+}
+
 async function ensureDefaultProject(organizationId: string, userId: string): Promise<string> {
   if (hasDatabaseUrl()) {
     const tenantContext = createWorkspaceTenantContext({ organizationId, userId });
@@ -68,21 +95,27 @@ async function ensureDefaultProject(organizationId: string, userId: string): Pro
       return existingProjectId;
     }
 
-    const project = await runWithIdentityStore(userId, async (identityStore) => {
-      if (!supportsBootstrapDefaultProject(identityStore)) {
-        throw new Error("Default project bootstrap is unavailable");
-      }
+    try {
+      const project = await runWithIdentityStore(userId, async (identityStore) => {
+        if (!supportsBootstrapDefaultProject(identityStore)) {
+          throw new Error("Default project bootstrap is unavailable");
+        }
 
-      return identityStore.bootstrapDefaultProject({
-        organizationId,
-        projectId: crypto.randomUUID(),
-        name: "Default Project",
-        description: "Primary delivery workspace for governed agent runs.",
-        createdAt: new Date(),
+        return identityStore.bootstrapDefaultProject({
+          organizationId,
+          projectId: crypto.randomUUID(),
+          name: DEFAULT_PROJECT_NAME,
+          description: DEFAULT_PROJECT_DESCRIPTION,
+          createdAt: new Date(),
+        });
       });
-    });
 
-    return project.id;
+      return project.id;
+    } catch (error) {
+      console.error("[arise-web] bootstrapDefaultProject", error);
+    }
+
+    return createDefaultProjectInTenantScope(organizationId, userId);
   }
 
   const projects = await getProjectStore().listProjectsForOrganization(organizationId);
@@ -95,8 +128,8 @@ async function ensureDefaultProject(organizationId: string, userId: string): Pro
   const project = await createProjectForOrganization(
     {
       tenantContext,
-      name: "Default Project",
-      description: "Primary delivery workspace for governed agent runs.",
+      name: DEFAULT_PROJECT_NAME,
+      description: DEFAULT_PROJECT_DESCRIPTION,
     },
     getProjectStore(),
     {

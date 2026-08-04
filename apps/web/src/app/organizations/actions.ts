@@ -4,12 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { runWithIdentityStore } from "@/lib/identity-bootstrap";
+import { normalizeSessionId } from "@/lib/postgres-support";
 import { getWorkspaceSession, setWorkspaceSession } from "@/lib/session";
 
 export async function switchOrganizationAction(formData: FormData): Promise<void> {
-  const organizationId = String(formData.get("organizationId") ?? "").trim();
-  if (organizationId.length === 0) {
-    return;
+  const organizationId = normalizeSessionId(String(formData.get("organizationId") ?? "").trim());
+  if (organizationId === undefined) {
+    redirect("/?workspaceError=invalid_organization");
   }
 
   const session = await getWorkspaceSession();
@@ -18,7 +19,7 @@ export async function switchOrganizationAction(formData: FormData): Promise<void
   );
 
   if (membership === undefined || membership.status !== "active") {
-    return;
+    redirect("/?workspaceError=membership_required");
   }
 
   await setWorkspaceSession({
@@ -27,5 +28,6 @@ export async function switchOrganizationAction(formData: FormData): Promise<void
   });
 
   revalidatePath("/", "layout");
+  revalidatePath("/organizations");
   redirect("/");
 }

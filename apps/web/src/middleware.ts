@@ -18,15 +18,19 @@ function normalizeSessionUserId(value: string | undefined): string | undefined {
 }
 
 export function middleware(request: NextRequest): NextResponse {
-  const response = NextResponse.next();
   const cookieUserId = normalizeSessionUserId(request.cookies.get(SESSION_COOKIES.userId)?.value);
   const userId = cookieUserId ?? crypto.randomUUID();
 
-  if (cookieUserId !== userId) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(SESSION_HEADERS.userId, userId);
+
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+
+  if (cookieUserId === undefined) {
     response.cookies.set(SESSION_COOKIES.userId, userId, sessionCookieOptions());
   }
-
-  response.headers.set(SESSION_HEADERS.userId, userId);
 
   return response;
 }

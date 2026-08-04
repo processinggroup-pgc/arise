@@ -4,10 +4,12 @@ import { listWorkspaceOrganizations } from "@/lib/workspace";
 
 interface OrganizationSwitcherProps {
   activeOrganizationId?: string | undefined;
+  selectId?: string;
 }
 
 export async function OrganizationSwitcher({
   activeOrganizationId,
+  selectId = "organizationId",
 }: OrganizationSwitcherProps): Promise<React.JSX.Element | null> {
   const session = await getWorkspaceSession();
   const organizations = await listWorkspaceOrganizations();
@@ -16,18 +18,20 @@ export async function OrganizationSwitcher({
     return null;
   }
 
-  const selectedOrganizationId = activeOrganizationId ?? session.organizationId ?? "";
+  const onlyOrganizationId = organizations.length === 1 ? organizations[0]?.id : undefined;
+  const selectedOrganizationId =
+    activeOrganizationId ?? session.organizationId ?? onlyOrganizationId ?? "";
 
   return (
     <form action={switchOrganizationAction} className="org-switcher">
-      <label className="org-switcher-label" htmlFor="organizationId">
+      <label className="org-switcher-label" htmlFor={selectId}>
         Workspace
       </label>
       <div className="org-switcher-controls">
         <select
           className="org-switcher-select"
           defaultValue={selectedOrganizationId}
-          id="organizationId"
+          id={selectId}
           name="organizationId"
           required
         >

@@ -41,7 +41,7 @@ export default async function HomePage(): Promise<React.JSX.Element> {
                 in this browser session.
               </p>
               <p>Select one below or open the full list on the Organizations page.</p>
-              <OrganizationSwitcher />
+              <OrganizationSwitcher selectId="dashboard-organizationId" />
             </>
           ) : (
             <>
