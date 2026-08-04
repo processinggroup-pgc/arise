@@ -1,5 +1,6 @@
 import {
   createCohortDiscoveryBundle,
+  normalizeCohortDiscoveryBundle,
   type CohortDiscoveryBundle,
 } from "@arise/domain";
 
@@ -14,7 +15,8 @@ export class InMemoryCohortDiscoveryStore implements CohortDiscoveryStore {
   }
 
   findCohortDiscoveryByInitiativeId(initiativeId: string): Promise<CohortDiscoveryBundle | undefined> {
-    return Promise.resolve(this.bundles.get(initiativeId));
+    const bundle = this.bundles.get(initiativeId);
+    return Promise.resolve(bundle === undefined ? undefined : normalizeCohortDiscoveryBundle(bundle));
   }
 }
 

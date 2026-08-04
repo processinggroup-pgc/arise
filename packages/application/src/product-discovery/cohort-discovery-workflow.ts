@@ -88,7 +88,7 @@ function isBusinessConceptComplete(concept: BusinessConcept | undefined): concep
     concept.customer.trim().length > 0 &&
     concept.solution.trim().length > 0 &&
     concept.whyNow.trim().length > 0 &&
-    concept.topRisks.some((risk) => risk.trim().length > 0)
+    (concept.topRisks?.some((risk) => risk.trim().length > 0) ?? false)
   );
 }
 

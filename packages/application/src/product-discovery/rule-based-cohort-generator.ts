@@ -209,7 +209,7 @@ export class ClaudeCohortGenerator implements CohortGenerator {
       system: 'Return only valid JSON with key "features" — array of exactly 5 concise MVP feature ideas.',
       prompt: `Suggest 5 MVP feature wish-list items grounded in this business plan:\n${context}`,
     });
-    return result.features.slice(0, 5);
+    return Array.isArray(result.features) ? result.features.slice(0, 5) : [];
   }
 
   generateRevenueHypothesisSuggestions(context: string): Promise<{

@@ -93,11 +93,12 @@ function ActionButton({
 }
 
 function ArtifactList({ title, items }: { title: string; items: string[] }): React.JSX.Element {
+  const safeItems = items ?? [];
   return (
     <article className="criteria-card">
       <strong>{title}</strong>
       <ul className="detail-list">
-        {items.map((item) => (
+        {safeItems.map((item) => (
           <li key={item}>{item}</li>
         ))}
       </ul>
@@ -122,7 +123,7 @@ function isBusinessConceptSuggested(
     suggestions.customer.trim().length > 0 &&
     suggestions.solution.trim().length > 0 &&
     suggestions.whyNow.trim().length > 0 &&
-    suggestions.topRisks.some((risk) => risk.trim().length > 0)
+    (suggestions.topRisks?.some((risk) => risk.trim().length > 0) ?? false)
   );
 }
 
@@ -160,7 +161,7 @@ function FinalizeConceptForm({
   const [customer, setCustomer] = useState(() => suggestions?.customer ?? "");
   const [solution, setSolution] = useState(() => suggestions?.solution ?? "");
   const [whyNow, setWhyNow] = useState(() => suggestions?.whyNow ?? "");
-  const [topRisks, setTopRisks] = useState(() => suggestions?.topRisks.join("\n") ?? "");
+  const [topRisks, setTopRisks] = useState(() => suggestions?.topRisks?.join("\n") ?? "");
 
   useEffect(() => {
     if (isBusinessConceptSuggested(suggestions)) {
@@ -169,7 +170,7 @@ function FinalizeConceptForm({
       setSolution((current) => mergeSuggestionField(current, suggestions?.solution));
       setWhyNow((current) => mergeSuggestionField(current, suggestions?.whyNow));
       setTopRisks((current) =>
-        current.trim().length > 0 ? current : (suggestions?.topRisks.join("\n") ?? ""),
+        current.trim().length > 0 ? current : (suggestions?.topRisks?.join("\n") ?? ""),
       );
       return;
     }
@@ -185,11 +186,11 @@ function FinalizeConceptForm({
 
   const suggestPending = isPending || isSuggesting;
   const defaultFramingId =
-    dossier.framingOptions.find(
+    dossier.framingOptions?.find(
       (option) =>
         option.alignmentScore ===
-        Math.max(...dossier.framingOptions.map((item) => item.alignmentScore)),
-    )?.id ?? dossier.framingOptions[0]?.id;
+        Math.max(...(dossier.framingOptions?.map((item) => item.alignmentScore) ?? [0])),
+    )?.id ?? dossier.framingOptions?.[0]?.id;
 
   return (
     <form
@@ -210,7 +211,7 @@ function FinalizeConceptForm({
         Concept fields are suggested from your research dossier. Edit any field before finalizing.
       </p>
       <div className="framing-options">
-        {dossier.framingOptions.map((option) => (
+        {(dossier.framingOptions ?? []).map((option) => (
           <label key={option.id} className="framing-option">
             <input
               defaultChecked={option.id === defaultFramingId}
@@ -422,8 +423,8 @@ function MvpFinalizeForm({
   const suggestions = bundle?.revenueHypothesisSuggestions;
   const autoSuggestStarted = useRef(false);
   const [isSuggesting, startSuggest] = useTransition();
-  const modelFallback = bundle?.businessCase?.revenueModelOptions[0] ?? "";
-  const assumptionFallback = bundle?.businessConcept?.topRisks[0] ?? "";
+  const modelFallback = bundle?.businessCase?.revenueModelOptions?.[0] ?? "";
+  const assumptionFallback = bundle?.businessConcept?.topRisks?.[0] ?? "";
   const [chosenModel, setChosenModel] = useState(
     () => suggestions?.chosenModel ?? modelFallback,
   );
@@ -577,10 +578,10 @@ export function InitiativeWorkflow({
         <p>{dossier.summary}</p>
 
         <div className="detail-grid">
-          <ArtifactList title="Market trends" items={dossier.marketTrends} />
+          <ArtifactList title="Market trends" items={dossier.marketTrends ?? []} />
           <ArtifactList
             title="Comparable approaches"
-            items={dossier.comparableApproaches.map((a) => `${a.name}: ${a.approachSummary}`)}
+            items={(dossier.comparableApproaches ?? []).map((a) => `${a.name}: ${a.approachSummary}`)}
           />
         </div>
 

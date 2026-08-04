@@ -806,6 +806,7 @@ export {
 export {
   createCohortDiscoveryBundle,
   mergeCohortDiscoveryBundle,
+  normalizeCohortDiscoveryBundle,
   type BrdDocument,
   type BusinessCase,
   type BusinessConcept,

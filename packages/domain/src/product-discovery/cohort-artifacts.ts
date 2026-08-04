@@ -183,3 +183,87 @@ export function mergeCohortDiscoveryBundle(
     updatedAt,
   };
 }
+
+function normalizeStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((item): item is string => typeof item === "string");
+}
+
+function normalizeBusinessConcept(concept: BusinessConcept): BusinessConcept {
+  return {
+    problem: typeof concept.problem === "string" ? concept.problem : "",
+    customer: typeof concept.customer === "string" ? concept.customer : "",
+    solution: typeof concept.solution === "string" ? concept.solution : "",
+    whyNow: typeof concept.whyNow === "string" ? concept.whyNow : "",
+    topRisks: normalizeStringArray(concept.topRisks),
+  };
+}
+
+function normalizeBusinessCase(businessCase: BusinessCase): BusinessCase {
+  return {
+    icp: typeof businessCase.icp === "string" ? businessCase.icp : "",
+    problem: typeof businessCase.problem === "string" ? businessCase.problem : "",
+    valueProposition:
+      typeof businessCase.valueProposition === "string" ? businessCase.valueProposition : "",
+    revenueModelOptions: normalizeStringArray(businessCase.revenueModelOptions),
+    acquisitionStrategy:
+      typeof businessCase.acquisitionStrategy === "string" ? businessCase.acquisitionStrategy : "",
+    risks: normalizeStringArray(businessCase.risks),
+  };
+}
+
+function normalizeRevenueHypothesis(hypothesis: RevenueHypothesis): RevenueHypothesis {
+  return {
+    chosenModel: typeof hypothesis.chosenModel === "string" ? hypothesis.chosenModel : "",
+    pricingStartingPoint:
+      typeof hypothesis.pricingStartingPoint === "string" ? hypothesis.pricingStartingPoint : "",
+    killerAssumption:
+      typeof hypothesis.killerAssumption === "string" ? hypothesis.killerAssumption : "",
+  };
+}
+
+function normalizeStressTest(stressTest: StressTestResult): StressTestResult {
+  return {
+    failureModes: normalizeStringArray(stressTest.failureModes),
+    nonUsers: normalizeStringArray(stressTest.nonUsers),
+    wrongAssumptions: normalizeStringArray(stressTest.wrongAssumptions),
+    generatedAt:
+      stressTest.generatedAt instanceof Date
+        ? stressTest.generatedAt
+        : new Date(stressTest.generatedAt),
+  };
+}
+
+/** Ensures jsonb-loaded bundles have safe defaults for optional suggestion fields. */
+export function normalizeCohortDiscoveryBundle(bundle: CohortDiscoveryBundle): CohortDiscoveryBundle {
+  const normalized: CohortDiscoveryBundle = { ...bundle };
+
+  if (bundle.businessConceptSuggestions !== undefined) {
+    normalized.businessConceptSuggestions = normalizeBusinessConcept(bundle.businessConceptSuggestions);
+  }
+  if (bundle.businessConcept !== undefined) {
+    normalized.businessConcept = normalizeBusinessConcept(bundle.businessConcept);
+  }
+  if (bundle.businessCase !== undefined) {
+    normalized.businessCase = normalizeBusinessCase(bundle.businessCase);
+  }
+  if (bundle.featureWishListSuggestions !== undefined) {
+    normalized.featureWishListSuggestions = normalizeStringArray(bundle.featureWishListSuggestions);
+  }
+  if (bundle.revenueHypothesisSuggestions !== undefined) {
+    normalized.revenueHypothesisSuggestions = normalizeRevenueHypothesis(
+      bundle.revenueHypothesisSuggestions,
+    );
+  }
+  if (bundle.revenueHypothesis !== undefined) {
+    normalized.revenueHypothesis = normalizeRevenueHypothesis(bundle.revenueHypothesis);
+  }
+  if (bundle.stressTest !== undefined) {
+    normalized.stressTest = normalizeStressTest(bundle.stressTest);
+  }
+
+  return normalized;
+}

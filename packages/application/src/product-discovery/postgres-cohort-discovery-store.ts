@@ -1,4 +1,4 @@
-import type { CohortDiscoveryBundle } from "@arise/domain";
+import { normalizeCohortDiscoveryBundle, type CohortDiscoveryBundle } from "@arise/domain";
 
 import type { PostgresQueryable } from "../persistence/postgres-tenant-session.js";
 import type { CohortDiscoveryStore } from "./cohort-discovery-store.js";
@@ -13,16 +13,13 @@ interface CohortDiscoveryRow {
 
 function mapCohortDiscovery(row: CohortDiscoveryRow): CohortDiscoveryBundle {
   const bundle = row.bundle as CohortDiscoveryBundle;
-  return {
+  return normalizeCohortDiscoveryBundle({
     ...bundle,
     id: row.id,
     initiativeId: row.initiative_id,
     organizationId: row.organization_id,
     updatedAt: new Date(row.updated_at),
-    ...(bundle.stressTest !== undefined
-      ? { stressTest: { ...bundle.stressTest, generatedAt: new Date(bundle.stressTest.generatedAt) } }
-      : {}),
-  };
+  });
 }
 
 export class PostgresCohortDiscoveryStore implements CohortDiscoveryStore {
