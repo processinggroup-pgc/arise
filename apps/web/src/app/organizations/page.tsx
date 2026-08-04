@@ -42,10 +42,17 @@ export default async function OrganizationsPage({
         <section className="panel detail-section empty-state">
           <p>No organizations are linked to this browser session yet.</p>
           {databaseConnected ? (
-            <p>
-              Database-backed mode is active. Organizations only appear here when your browser
-              session user ID has an active membership row in <code>organization_memberships</code>.
-            </p>
+            <>
+              <p>
+                Database-backed mode is active. Organizations only appear here when your browser
+                session user ID has an active membership row in{" "}
+                <code>organization_memberships</code>.
+              </p>
+              <p>
+                If Supabase shows organizations that are missing here, their membership rows likely
+                reference a different <code>user_id</code> than this session—not a display bug.
+              </p>
+            </>
           ) : (
             <p>
               The app is running in in-memory mode because <code>DATABASE_URL</code> is not
