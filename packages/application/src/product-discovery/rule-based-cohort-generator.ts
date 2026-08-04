@@ -1,6 +1,7 @@
 import type {
   BrdDocument,
   BusinessCase,
+  BusinessConcept,
   MvpScope,
   Persona,
   StoryMap,
@@ -11,6 +12,7 @@ import type { ClaudeJsonGenerator } from "./claude-json-generator.js";
 
 export interface CohortGenerator {
   generateBusinessCase(context: string): Promise<BusinessCase>;
+  generateBusinessConceptSuggestions(context: string): Promise<BusinessConcept>;
   generateFeatureWishListSuggestions(context: string): Promise<string[]>;
   generateRevenueHypothesisSuggestions(context: string): Promise<{
     chosenModel: string;
@@ -49,6 +51,20 @@ export class RuleBasedCohortGenerator implements CohortGenerator {
       revenueModelOptions: ["Tiered tuition", "Income-share agreement", "Employer sponsorship"],
       acquisitionStrategy: "Community partnerships and outcome-focused content marketing",
       risks: ["Prolonged hiring downturn", "Price sensitivity", "Completion rate pressure"],
+    };
+  }
+
+  async generateBusinessConceptSuggestions(_context: string): Promise<BusinessConcept> {
+    return {
+      problem: "Career changers cannot afford upfront cohort tuition during income instability",
+      customer: "Underemployed professionals considering paid upskilling programs",
+      solution: "Flexible-payment cohort enrollment with clear ROI and job-outcome messaging",
+      whyNow: "A soft job market increases price sensitivity while reskilling demand stays high",
+      topRisks: [
+        "Prolonged hiring downturn reduces enrollment urgency",
+        "Financial stress lowers cohort completion rates",
+        "Free alternatives capture price-sensitive learners",
+      ],
     };
   }
 
@@ -180,6 +196,14 @@ export class ClaudeCohortGenerator implements CohortGenerator {
     });
   }
 
+  generateBusinessConceptSuggestions(context: string): Promise<BusinessConcept> {
+    return this.claude.generate({
+      system:
+        "Return only valid JSON with keys problem, customer, solution, whyNow, topRisks (array of exactly 3 strings).",
+      prompt: `Suggest a concise business concept JSON grounded in this research:\n${context}`,
+    });
+  }
+
   async generateFeatureWishListSuggestions(context: string): Promise<string[]> {
     const result = await this.claude.generate<{ features: string[] }>({
       system: 'Return only valid JSON with key "features" — array of exactly 5 concise MVP feature ideas.',
@@ -287,6 +311,13 @@ export class ResilientCohortGenerator implements CohortGenerator {
     return this.withFallback(
       () => this.primary.generateBusinessCase(context),
       () => this.fallback.generateBusinessCase(context),
+    );
+  }
+
+  generateBusinessConceptSuggestions(context: string): Promise<BusinessConcept> {
+    return this.withFallback(
+      () => this.primary.generateBusinessConceptSuggestions(context),
+      () => this.fallback.generateBusinessConceptSuggestions(context),
     );
   }
 

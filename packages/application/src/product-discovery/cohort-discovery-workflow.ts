@@ -8,6 +8,7 @@ import {
   type InitiativeState,
   type MarketResearchDossier,
   type ProblemBrief,
+  type RevenueHypothesis,
   type StoryMap,
   type TenantContext,
 } from "@arise/domain";
@@ -78,6 +79,28 @@ function buildBusinessPlanContext(problemBrief: ProblemBrief, bundle: CohortDisc
     parts.push("MVP scope:", JSON.stringify(bundle.mvpScope));
   }
   return parts.join("\n\n");
+}
+
+function isBusinessConceptComplete(concept: BusinessConcept | undefined): concept is BusinessConcept {
+  return (
+    concept !== undefined &&
+    concept.problem.trim().length > 0 &&
+    concept.customer.trim().length > 0 &&
+    concept.solution.trim().length > 0 &&
+    concept.whyNow.trim().length > 0 &&
+    concept.topRisks.some((risk) => risk.trim().length > 0)
+  );
+}
+
+function isRevenueHypothesisComplete(
+  hypothesis: RevenueHypothesis | undefined,
+): hypothesis is RevenueHypothesis {
+  return (
+    hypothesis !== undefined &&
+    hypothesis.chosenModel.trim().length > 0 &&
+    hypothesis.pricingStartingPoint.trim().length > 0 &&
+    hypothesis.killerAssumption.trim().length > 0
+  );
 }
 
 export interface DualAiSecondaryResult {
@@ -188,6 +211,50 @@ export async function runStressTestForInitiative(
   );
   await cohortStore.saveCohortDiscoveryBundle(updated);
   return updated;
+}
+
+export interface SuggestBusinessConceptCommand extends CohortWorkflowCommand {
+  force?: boolean;
+}
+
+export async function suggestBusinessConceptForInitiative(
+  command: SuggestBusinessConceptCommand,
+  initiativeStore: InitiativeStore,
+  problemBriefStore: ProblemBriefStore,
+  marketResearchStore: MarketResearchStore,
+  cohortStore: CohortDiscoveryStore,
+  operationContext: IdentityOperationContext,
+  generator: CohortGenerator,
+): Promise<CohortDiscoveryBundle> {
+  const initiative = await loadInitiativeContext(command, initiativeStore, "research_complete");
+  const problemBrief = await problemBriefStore.findProblemBriefByInitiativeId(command.initiativeId);
+  const dossier = await marketResearchStore.findMarketResearchByInitiativeId(command.initiativeId);
+  if (problemBrief === undefined || dossier === undefined) {
+    throw new InitiativeWorkflowError("Problem brief and research dossier are required");
+  }
+
+  const bundle = await getOrCreateCohortDiscoveryBundle(
+    cohortStore,
+    initiative.id,
+    initiative.organizationId,
+    operationContext.createId,
+    operationContext.now,
+  );
+
+  if (command.force !== true && isBusinessConceptComplete(bundle.businessConceptSuggestions)) {
+    return bundle;
+  }
+
+  const businessConceptSuggestions = await generator.generateBusinessConceptSuggestions(
+    buildContextBlock(problemBrief, dossier),
+  );
+  const updatedBundle = mergeCohortDiscoveryBundle(
+    bundle,
+    { businessConceptSuggestions },
+    operationContext.now(),
+  );
+  await cohortStore.saveCohortDiscoveryBundle(updatedBundle);
+  return updatedBundle;
 }
 
 export interface FinalizeConceptCommand extends CohortWorkflowCommand {
@@ -387,6 +454,41 @@ export async function generateMvpScopeForInitiative(
   await cohortStore.saveCohortDiscoveryBundle(updatedBundle);
   await initiativeStore.saveInitiative(updatedInitiative);
   return { initiative: updatedInitiative, bundle: updatedBundle };
+}
+
+export interface SuggestRevenueHypothesisCommand extends CohortWorkflowCommand {
+  force?: boolean;
+}
+
+export async function suggestRevenueHypothesisForInitiative(
+  command: SuggestRevenueHypothesisCommand,
+  initiativeStore: InitiativeStore,
+  problemBriefStore: ProblemBriefStore,
+  cohortStore: CohortDiscoveryStore,
+  operationContext: IdentityOperationContext,
+  generator: CohortGenerator,
+): Promise<CohortDiscoveryBundle> {
+  const initiative = await loadInitiativeContext(command, initiativeStore, "solution_selected");
+  const problemBrief = await problemBriefStore.findProblemBriefByInitiativeId(command.initiativeId);
+  const bundle = await cohortStore.findCohortDiscoveryByInitiativeId(command.initiativeId);
+  if (problemBrief === undefined || bundle?.mvpScope === undefined) {
+    throw new InitiativeWorkflowError("MVP scope must be completed first");
+  }
+
+  if (command.force !== true && isRevenueHypothesisComplete(bundle.revenueHypothesisSuggestions)) {
+    return bundle;
+  }
+
+  const revenueHypothesisSuggestions = await generator.generateRevenueHypothesisSuggestions(
+    buildBusinessPlanContext(problemBrief, bundle),
+  );
+  const updatedBundle = mergeCohortDiscoveryBundle(
+    bundle,
+    { revenueHypothesisSuggestions },
+    operationContext.now(),
+  );
+  await cohortStore.saveCohortDiscoveryBundle(updatedBundle);
+  return updatedBundle;
 }
 
 export interface FinalizeMvpCommand extends CohortWorkflowCommand {

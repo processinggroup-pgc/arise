@@ -120,6 +120,8 @@ export interface CohortDiscoveryBundle {
   richIcp?: RichIcp;
   dualAiComparison?: DualAiComparison;
   stressTest?: StressTestResult;
+  /** AI-suggested business concept for finalize step (wizard alignment). User may edit before submitting. */
+  businessConceptSuggestions?: BusinessConcept;
   businessConcept?: BusinessConcept;
   sessionNotesWeek1?: SessionNotes;
   businessCase?: BusinessCase;

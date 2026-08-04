@@ -40,7 +40,9 @@ import {
   generateUserFlowAction,
   runStressTestAction,
   saveDualAiComparisonAction,
+  suggestBusinessConceptAction,
   suggestFeatureWishListAction,
+  suggestRevenueHypothesisAction,
 } from "./cohort-actions";
 import { runMarketResearchAction } from "./actions";
 
@@ -105,6 +107,203 @@ function ArtifactList({ title, items }: { title: string; items: string[] }): Rea
 
 function mergeSuggestionsIntoFields(current: string[], suggestions: string[]): string[] {
   return current.map((value, index) => (value.trim().length > 0 ? value : (suggestions[index] ?? "")));
+}
+
+function mergeSuggestionField(current: string, suggestion: string | undefined): string {
+  return current.trim().length > 0 ? current : (suggestion ?? "");
+}
+
+function isBusinessConceptSuggested(
+  suggestions: CohortDiscoveryBundle["businessConceptSuggestions"],
+): boolean {
+  return (
+    suggestions !== undefined &&
+    suggestions.problem.trim().length > 0 &&
+    suggestions.customer.trim().length > 0 &&
+    suggestions.solution.trim().length > 0 &&
+    suggestions.whyNow.trim().length > 0 &&
+    suggestions.topRisks.some((risk) => risk.trim().length > 0)
+  );
+}
+
+function isRevenueHypothesisSuggested(
+  suggestions: CohortDiscoveryBundle["revenueHypothesisSuggestions"],
+): boolean {
+  return (
+    suggestions !== undefined &&
+    suggestions.chosenModel.trim().length > 0 &&
+    suggestions.pricingStartingPoint.trim().length > 0 &&
+    suggestions.killerAssumption.trim().length > 0
+  );
+}
+
+function FinalizeConceptForm({
+  initiativeId,
+  dossier,
+  bundle,
+  error,
+  isPending,
+  onSubmit,
+}: {
+  initiativeId: string;
+  dossier: MarketResearchDossier;
+  bundle?: CohortDiscoveryBundle | undefined;
+  error?: string | undefined;
+  isPending: boolean;
+  onSubmit: (formData: FormData) => void;
+}): React.JSX.Element {
+  const router = useRouter();
+  const suggestions = bundle?.businessConceptSuggestions;
+  const autoSuggestStarted = useRef(false);
+  const [isSuggesting, startSuggest] = useTransition();
+  const [problem, setProblem] = useState(() => suggestions?.problem ?? "");
+  const [customer, setCustomer] = useState(() => suggestions?.customer ?? "");
+  const [solution, setSolution] = useState(() => suggestions?.solution ?? "");
+  const [whyNow, setWhyNow] = useState(() => suggestions?.whyNow ?? "");
+  const [topRisks, setTopRisks] = useState(() => suggestions?.topRisks.join("\n") ?? "");
+
+  useEffect(() => {
+    if (isBusinessConceptSuggested(suggestions)) {
+      setProblem((current) => mergeSuggestionField(current, suggestions?.problem));
+      setCustomer((current) => mergeSuggestionField(current, suggestions?.customer));
+      setSolution((current) => mergeSuggestionField(current, suggestions?.solution));
+      setWhyNow((current) => mergeSuggestionField(current, suggestions?.whyNow));
+      setTopRisks((current) =>
+        current.trim().length > 0 ? current : (suggestions?.topRisks.join("\n") ?? ""),
+      );
+      return;
+    }
+    if (autoSuggestStarted.current) {
+      return;
+    }
+    autoSuggestStarted.current = true;
+    startSuggest(async () => {
+      await suggestBusinessConceptAction(initiativeId);
+      router.refresh();
+    });
+  }, [initiativeId, router, suggestions]);
+
+  const suggestPending = isPending || isSuggesting;
+  const defaultFramingId =
+    dossier.framingOptions.find(
+      (option) =>
+        option.alignmentScore ===
+        Math.max(...dossier.framingOptions.map((item) => item.alignmentScore)),
+    )?.id ?? dossier.framingOptions[0]?.id;
+
+  return (
+    <form
+      className="form-panel"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        formData.set("problem", problem);
+        formData.set("customer", customer);
+        formData.set("solution", solution);
+        formData.set("whyNow", whyNow);
+        formData.set("topRisks", topRisks);
+        onSubmit(formData);
+      }}
+    >
+      <h3>Finalize business concept</h3>
+      <p className="page-description">
+        Concept fields are suggested from your research dossier. Edit any field before finalizing.
+      </p>
+      <div className="framing-options">
+        {dossier.framingOptions.map((option) => (
+          <label key={option.id} className="framing-option">
+            <input
+              defaultChecked={option.id === defaultFramingId}
+              name="selectedFramingId"
+              required
+              type="radio"
+              value={option.id}
+            />
+            <span className="framing-option-body">
+              <strong>{option.title}</strong>
+              <span>{option.description}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+
+      <label className="form-field form-field-wide">
+        <span className="form-label">Problem (one sentence)</span>
+        <input
+          className="form-input"
+          name="problem"
+          required
+          value={problem}
+          onChange={(event) => setProblem(event.target.value)}
+        />
+      </label>
+      <label className="form-field form-field-wide">
+        <span className="form-label">Customer</span>
+        <input
+          className="form-input"
+          name="customer"
+          required
+          value={customer}
+          onChange={(event) => setCustomer(event.target.value)}
+        />
+      </label>
+      <label className="form-field form-field-wide">
+        <span className="form-label">Solution</span>
+        <input
+          className="form-input"
+          name="solution"
+          required
+          value={solution}
+          onChange={(event) => setSolution(event.target.value)}
+        />
+      </label>
+      <label className="form-field form-field-wide">
+        <span className="form-label">Why now</span>
+        <input
+          className="form-input"
+          name="whyNow"
+          required
+          value={whyNow}
+          onChange={(event) => setWhyNow(event.target.value)}
+        />
+      </label>
+      <label className="form-field form-field-wide">
+        <span className="form-label">Top 3 risks (one per line)</span>
+        <textarea
+          className="form-input form-textarea"
+          name="topRisks"
+          required
+          rows={3}
+          value={topRisks}
+          onChange={(event) => setTopRisks(event.target.value)}
+        />
+      </label>
+      <ActionButton
+        disabled={suggestPending}
+        label="Suggest concept"
+        pendingLabel="Suggesting..."
+        onClick={() => {
+          startSuggest(async () => {
+            await suggestBusinessConceptAction(initiativeId, { force: true });
+            router.refresh();
+          });
+        }}
+      />
+      <label className="form-field form-field-wide">
+        <span className="form-label">Session notes</span>
+        <textarea className="form-input form-textarea" name="sessionNotesWeek1" rows={3} />
+      </label>
+      <label className="form-field form-field-wide">
+        <span className="form-label">Elaborate framing (optional)</span>
+        <textarea className="form-input form-textarea" name="userElaboration" rows={2} />
+      </label>
+
+      {error ? <p className="form-error">{error}</p> : null}
+      <button className="button-primary" disabled={suggestPending} type="submit">
+        {suggestPending ? "Saving..." : "Finalize concept"}
+      </button>
+    </form>
+  );
 }
 
 function MvpScopingForm({
@@ -207,29 +406,65 @@ function MvpScopingForm({
 }
 
 function MvpFinalizeForm({
+  initiativeId,
   bundle,
   error,
   isPending,
   onSubmit,
 }: {
+  initiativeId: string;
   bundle?: CohortDiscoveryBundle | undefined;
   error?: string | undefined;
   isPending: boolean;
   onSubmit: (formData: FormData) => void;
 }): React.JSX.Element {
+  const router = useRouter();
   const suggestions = bundle?.revenueHypothesisSuggestions;
-  const modelDefault =
-    suggestions?.chosenModel ?? bundle?.businessCase?.revenueModelOptions[0] ?? "";
-  const pricingDefault = suggestions?.pricingStartingPoint ?? "";
-  const assumptionDefault =
-    suggestions?.killerAssumption ?? bundle?.businessConcept?.topRisks[0] ?? "";
+  const autoSuggestStarted = useRef(false);
+  const [isSuggesting, startSuggest] = useTransition();
+  const modelFallback = bundle?.businessCase?.revenueModelOptions[0] ?? "";
+  const assumptionFallback = bundle?.businessConcept?.topRisks[0] ?? "";
+  const [chosenModel, setChosenModel] = useState(
+    () => suggestions?.chosenModel ?? modelFallback,
+  );
+  const [pricingStartingPoint, setPricingStartingPoint] = useState(
+    () => suggestions?.pricingStartingPoint ?? "",
+  );
+  const [killerAssumption, setKillerAssumption] = useState(
+    () => suggestions?.killerAssumption ?? assumptionFallback,
+  );
+
+  useEffect(() => {
+    if (isRevenueHypothesisSuggested(suggestions)) {
+      setChosenModel((current) => mergeSuggestionField(current, suggestions?.chosenModel));
+      setPricingStartingPoint((current) =>
+        mergeSuggestionField(current, suggestions?.pricingStartingPoint),
+      );
+      setKillerAssumption((current) => mergeSuggestionField(current, suggestions?.killerAssumption));
+      return;
+    }
+    if (autoSuggestStarted.current) {
+      return;
+    }
+    autoSuggestStarted.current = true;
+    startSuggest(async () => {
+      await suggestRevenueHypothesisAction(initiativeId);
+      router.refresh();
+    });
+  }, [initiativeId, router, suggestions]);
+
+  const suggestPending = isPending || isSuggesting;
 
   return (
     <form
       className="form-panel"
       onSubmit={(event) => {
         event.preventDefault();
-        onSubmit(new FormData(event.currentTarget));
+        const formData = new FormData();
+        formData.set("chosenModel", chosenModel);
+        formData.set("pricingStartingPoint", pricingStartingPoint);
+        formData.set("killerAssumption", killerAssumption);
+        onSubmit(formData);
       }}
     >
       <p className="page-description">
@@ -237,24 +472,48 @@ function MvpFinalizeForm({
       </p>
       <label className="form-field form-field-wide">
         <span className="form-label">Chosen revenue model</span>
-        <input className="form-input" defaultValue={modelDefault} name="chosenModel" required />
+        <input
+          className="form-input"
+          name="chosenModel"
+          required
+          value={chosenModel}
+          onChange={(event) => setChosenModel(event.target.value)}
+        />
       </label>
       <label className="form-field form-field-wide">
         <span className="form-label">Pricing starting point</span>
         <input
           className="form-input"
-          defaultValue={pricingDefault}
           name="pricingStartingPoint"
           required
+          value={pricingStartingPoint}
+          onChange={(event) => setPricingStartingPoint(event.target.value)}
         />
       </label>
       <label className="form-field form-field-wide">
         <span className="form-label">Killer assumption</span>
-        <input className="form-input" defaultValue={assumptionDefault} name="killerAssumption" required />
+        <input
+          className="form-input"
+          name="killerAssumption"
+          required
+          value={killerAssumption}
+          onChange={(event) => setKillerAssumption(event.target.value)}
+        />
       </label>
+      <ActionButton
+        disabled={suggestPending}
+        label="Suggest revenue hypothesis"
+        pendingLabel="Suggesting..."
+        onClick={() => {
+          startSuggest(async () => {
+            await suggestRevenueHypothesisAction(initiativeId, { force: true });
+            router.refresh();
+          });
+        }}
+      />
       {error ? <p className="form-error">{error}</p> : null}
-      <button className="button-primary" disabled={isPending} type="submit">
-        {isPending ? "Finalizing..." : "Run MVP stress test & finalize"}
+      <button className="button-primary" disabled={suggestPending} type="submit">
+        {suggestPending ? "Finalizing..." : "Run MVP stress test & finalize"}
       </button>
     </form>
   );
@@ -384,70 +643,14 @@ export function InitiativeWorkflow({
           )}
         </div>
 
-        <form
-          className="form-panel"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            run(() => finalizeConceptAction(initiativeId, formData));
-          }}
-        >
-          <h3>Finalize business concept</h3>
-          <div className="framing-options">
-            {dossier.framingOptions.map((option) => (
-              <label key={option.id} className="framing-option">
-                <input
-                  defaultChecked={
-                    option.alignmentScore ===
-                    Math.max(...dossier.framingOptions.map((item) => item.alignmentScore))
-                  }
-                  name="selectedFramingId"
-                  required
-                  type="radio"
-                  value={option.id}
-                />
-                <span className="framing-option-body">
-                  <strong>{option.title}</strong>
-                  <span>{option.description}</span>
-                </span>
-              </label>
-            ))}
-          </div>
-
-          <label className="form-field form-field-wide">
-            <span className="form-label">Problem (one sentence)</span>
-            <input className="form-input" name="problem" required />
-          </label>
-          <label className="form-field form-field-wide">
-            <span className="form-label">Customer</span>
-            <input className="form-input" name="customer" required />
-          </label>
-          <label className="form-field form-field-wide">
-            <span className="form-label">Solution</span>
-            <input className="form-input" name="solution" required />
-          </label>
-          <label className="form-field form-field-wide">
-            <span className="form-label">Why now</span>
-            <input className="form-input" name="whyNow" required />
-          </label>
-          <label className="form-field form-field-wide">
-            <span className="form-label">Top 3 risks (one per line)</span>
-            <textarea className="form-input form-textarea" name="topRisks" required rows={3} />
-          </label>
-          <label className="form-field form-field-wide">
-            <span className="form-label">Session notes</span>
-            <textarea className="form-input form-textarea" name="sessionNotesWeek1" rows={3} />
-          </label>
-          <label className="form-field form-field-wide">
-            <span className="form-label">Elaborate framing (optional)</span>
-            <textarea className="form-input form-textarea" name="userElaboration" rows={2} />
-          </label>
-
-          {error ? <p className="form-error">{error}</p> : null}
-          <button className="button-primary" disabled={isPending} type="submit">
-            {isPending ? "Saving..." : "Finalize concept"}
-          </button>
-        </form>
+        <FinalizeConceptForm
+          bundle={bundle}
+          dossier={dossier}
+          error={error}
+          initiativeId={initiativeId}
+          isPending={isPending}
+          onSubmit={(formData) => run(() => finalizeConceptAction(initiativeId, formData))}
+        />
       </section>
     );
   }
@@ -511,6 +714,7 @@ export function InitiativeWorkflow({
         <MvpFinalizeForm
           bundle={bundle}
           error={error}
+          initiativeId={initiativeId}
           isPending={isPending}
           onSubmit={(formData) => run(() => finalizeMvpAction(initiativeId, formData))}
         />

@@ -13,7 +13,9 @@ import {
   runStressTestForInitiative,
   saveDualAiComparisonForInitiative,
   saveSessionNotesForInitiative,
+  suggestBusinessConceptForInitiative,
   suggestFeatureWishListForInitiative,
+  suggestRevenueHypothesisForInitiative,
 } from "@arise/application";
 import { createTenantContext, type TenantContext } from "@arise/domain";
 import { revalidatePath } from "next/cache";
@@ -126,6 +128,57 @@ export async function runStressTestAction(initiativeId: string): Promise<{ error
     return {};
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Unable to run stress test" };
+  }
+}
+
+export async function suggestBusinessConceptAction(
+  initiativeId: string,
+  options?: { force?: boolean },
+): Promise<{ error?: string }> {
+  const workspace = await getActiveWorkspaceForAction();
+  if (workspace === null) return { error: "Choose an organization before continuing." };
+
+  try {
+    await withCohortStores(workspace, (stores) =>
+      suggestBusinessConceptForInitiative(
+        { ...createCommand(workspace, initiativeId), ...(options?.force === true ? { force: true } : {}) },
+        stores.initiativeStore,
+        stores.problemBriefStore,
+        stores.marketResearchStore,
+        stores.cohortDiscoveryStore,
+        operationContext(),
+        getCohortGenerator(),
+      ),
+    );
+    revalidatePath(`/initiatives/${initiativeId}`);
+    return {};
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Unable to suggest business concept" };
+  }
+}
+
+export async function suggestRevenueHypothesisAction(
+  initiativeId: string,
+  options?: { force?: boolean },
+): Promise<{ error?: string }> {
+  const workspace = await getActiveWorkspaceForAction();
+  if (workspace === null) return { error: "Choose an organization before continuing." };
+
+  try {
+    await withCohortStores(workspace, (stores) =>
+      suggestRevenueHypothesisForInitiative(
+        { ...createCommand(workspace, initiativeId), ...(options?.force === true ? { force: true } : {}) },
+        stores.initiativeStore,
+        stores.problemBriefStore,
+        stores.cohortDiscoveryStore,
+        operationContext(),
+        getCohortGenerator(),
+      ),
+    );
+    revalidatePath(`/initiatives/${initiativeId}`);
+    return {};
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Unable to suggest revenue hypothesis" };
   }
 }
 
