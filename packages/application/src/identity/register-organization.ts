@@ -52,6 +52,33 @@ export async function registerOrganization(
       };
     }
 
+    const orgMemberships = await store.listMembershipsForOrganization(existingOrganization.id);
+    const hasActiveMembership = orgMemberships.some(
+      (membership) => membership.status === "active",
+    );
+
+    if (!hasActiveMembership) {
+      const repairedMembership = createOrganizationMembership(
+        {
+          organizationId: existingOrganization.id,
+          userId: command.ownerUserId,
+          role: "owner",
+          status: "active",
+        },
+        {
+          id: context.createId(),
+          createdAt: context.now(),
+        },
+      );
+
+      await store.saveMembership(repairedMembership);
+
+      return {
+        organization: existingOrganization,
+        membership: repairedMembership,
+      };
+    }
+
     throw new Error("Organization slug is already in use");
   }
 

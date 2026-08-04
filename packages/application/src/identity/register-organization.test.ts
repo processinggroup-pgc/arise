@@ -107,4 +107,42 @@ describe("registerOrganization", () => {
       ),
     ).rejects.toThrow("Organization slug is already in use");
   });
+
+  it("repairs an orphaned organization slug by creating owner membership", async () => {
+    const store = new InMemoryIdentityStore();
+    const createdAt = new Date("2026-08-03T00:00:00.000Z");
+
+    await store.saveOrganization({
+      id: "org_orphan",
+      name: "Processing Group",
+      slug: "processing-group",
+      plan: "starter",
+      dataRegion: "us-east-1",
+      createdAt,
+    });
+
+    const result = await registerOrganization(
+      {
+        name: "Processing Group",
+        slug: "processing-group",
+        plan: "starter",
+        dataRegion: "us-east-1",
+        ownerUserId: "user_123",
+      },
+      store,
+      {
+        createId: () => "membership_repair",
+        now: () => createdAt,
+      },
+    );
+
+    expect(result.organization.id).toBe("org_orphan");
+    expect(result.membership).toMatchObject({
+      id: "membership_repair",
+      organizationId: "org_orphan",
+      userId: "user_123",
+      role: "owner",
+      status: "active",
+    });
+  });
 });

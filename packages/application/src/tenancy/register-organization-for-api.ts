@@ -1,7 +1,7 @@
 import type { Organization, OrganizationMembership } from "@arise/domain";
 
 import type { IdentityOperationContext, IdentityStore } from "../identity/identity-store.js";
-import { OWNER_EMAIL_IN_USE_MESSAGE } from "../identity/postgres-identity-store.js";
+import { OWNER_EMAIL_IN_USE_MESSAGE } from "../identity/identity-errors.js";
 import { registerOrganization } from "../identity/register-organization.js";
 import { TENANT_HEADERS } from "./tenant-context-error.js";
 

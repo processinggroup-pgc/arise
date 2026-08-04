@@ -11,6 +11,7 @@ import {
   type BootstrapDefaultProjectInput,
 } from "../project/bootstrap-default-project.js";
 import type { PostgresQueryable } from "../persistence/postgres-tenant-session.js";
+import { OWNER_EMAIL_IN_USE_MESSAGE } from "./identity-errors.js";
 import type { IdentityStore } from "./identity-store.js";
 
 interface OrganizationRow {
@@ -52,9 +53,6 @@ function mapMembership(row: MembershipRow): OrganizationMembership {
     createdAt: row.created_at,
   };
 }
-
-export const OWNER_EMAIL_IN_USE_MESSAGE =
-  "This email is already associated with another account";
 
 function isUserProfileEmailConflict(error: unknown): boolean {
   if (typeof error !== "object" || error === null) {
