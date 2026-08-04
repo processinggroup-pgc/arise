@@ -4,20 +4,21 @@ import {
   OrganizationRegistrationError,
   createProjectForOrganization,
   registerOrganizationForApi,
+  supportsBootstrapDefaultProject,
 } from "@arise/application";
-import { createTenantContext } from "@arise/domain";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { hasDatabaseUrl } from "@/lib/database";
 import { runWithIdentityStore } from "@/lib/identity-bootstrap";
-import { createWorkspaceTenantContext, runWithTenantScopedStores } from "@/lib/postgres-tenant";
 import { getProjectStore } from "@/lib/stores";
 import { getWorkspaceSession, setWorkspaceSession } from "@/lib/session";
 
 export interface CreateOrganizationFormState {
   error?: string;
 }
+
+const DEFAULT_PROJECT_NAME = "Default Project";
+const DEFAULT_PROJECT_DESCRIPTION = "Primary delivery workspace for governed agent runs.";
 
 function normalizeSlug(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, "-");
@@ -37,8 +38,10 @@ export async function createOrganizationAction(
   const session = await getWorkspaceSession();
 
   try {
-    const result = await runWithIdentityStore(session.userId, (identityStore) =>
-      registerOrganizationForApi(
+    let createdDefaultProject = false;
+
+    const result = await runWithIdentityStore(session.userId, async (identityStore) => {
+      const registration = await registerOrganizationForApi(
         new Headers({
           "x-user-id": session.userId,
         }),
@@ -54,36 +57,32 @@ export async function createOrganizationAction(
           createId: () => crypto.randomUUID(),
           now: () => new Date(),
         },
-      ),
-    );
+      );
 
-    const tenantContext = createTenantContext({
-      organizationId: result.organization.id,
-      userId: session.userId,
-      correlationId: crypto.randomUUID(),
+      if (supportsBootstrapDefaultProject(identityStore)) {
+        await identityStore.bootstrapDefaultProject({
+          organizationId: registration.organization.id,
+          projectId: crypto.randomUUID(),
+          name: DEFAULT_PROJECT_NAME,
+          description: DEFAULT_PROJECT_DESCRIPTION,
+          createdAt: new Date(),
+        });
+        createdDefaultProject = true;
+      }
+
+      return registration;
     });
 
-    if (hasDatabaseUrl()) {
-      await runWithTenantScopedStores(tenantContext, async (stores) =>
-        createProjectForOrganization(
-          {
-            tenantContext,
-            name: "Default Project",
-            description: "Primary delivery workspace for governed agent runs.",
-          },
-          stores.projectStore,
-          {
-            createId: () => crypto.randomUUID(),
-            now: () => new Date(),
-          },
-        ),
-      );
-    } else {
+    if (!createdDefaultProject) {
       await createProjectForOrganization(
         {
-          tenantContext,
-          name: "Default Project",
-          description: "Primary delivery workspace for governed agent runs.",
+          tenantContext: {
+            organizationId: result.organization.id,
+            userId: session.userId,
+            correlationId: crypto.randomUUID(),
+          },
+          name: DEFAULT_PROJECT_NAME,
+          description: DEFAULT_PROJECT_DESCRIPTION,
         },
         getProjectStore(),
         {

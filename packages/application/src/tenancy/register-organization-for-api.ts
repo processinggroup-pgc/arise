@@ -1,6 +1,7 @@
 import type { Organization, OrganizationMembership } from "@arise/domain";
 
 import type { IdentityOperationContext, IdentityStore } from "../identity/identity-store.js";
+import { OWNER_EMAIL_IN_USE_MESSAGE } from "../identity/postgres-identity-store.js";
 import { registerOrganization } from "../identity/register-organization.js";
 import { TENANT_HEADERS } from "./tenant-context-error.js";
 
@@ -54,6 +55,10 @@ function mapRegistrationError(error: unknown): OrganizationRegistrationError {
   if (error instanceof Error) {
     if (error.message === "Organization slug is already in use") {
       return new OrganizationRegistrationError(error.message, 409, "organization_slug_in_use");
+    }
+
+    if (error.message === OWNER_EMAIL_IN_USE_MESSAGE) {
+      return new OrganizationRegistrationError(error.message, 409, "owner_email_in_use");
     }
 
     return new OrganizationRegistrationError(error.message, 400, "invalid_registration");

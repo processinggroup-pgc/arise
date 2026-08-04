@@ -51,6 +51,12 @@ export { InMemoryProjectStore } from "./project/in-memory-project-store.js";
 export { PostgresProjectStore } from "./project/postgres-project-store.js";
 export type { CreateProjectCommand } from "./project/create-project.js";
 export { createProjectForOrganization } from "./project/create-project.js";
+export {
+  bootstrapDefaultProject,
+  supportsBootstrapDefaultProject,
+  type BootstrapDefaultProjectInput,
+  type BootstrapDefaultProjectStore,
+} from "./project/bootstrap-default-project.js";
 export type { WorkItemStore } from "./intent/work-item-store.js";
 export { InMemoryWorkItemStore } from "./intent/in-memory-work-item-store.js";
 export { PostgresWorkItemStore } from "./intent/postgres-work-item-store.js";

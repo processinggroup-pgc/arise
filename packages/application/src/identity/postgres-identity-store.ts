@@ -6,6 +6,10 @@ import type {
   OrganizationPlan,
 } from "@arise/domain";
 
+import {
+  bootstrapDefaultProject,
+  type BootstrapDefaultProjectInput,
+} from "../project/bootstrap-default-project.js";
 import type { PostgresQueryable } from "../persistence/postgres-tenant-session.js";
 import type { IdentityStore } from "./identity-store.js";
 
@@ -47,6 +51,22 @@ function mapMembership(row: MembershipRow): OrganizationMembership {
     status: row.status,
     createdAt: row.created_at,
   };
+}
+
+export const OWNER_EMAIL_IN_USE_MESSAGE =
+  "This email is already associated with another account";
+
+function isUserProfileEmailConflict(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) {
+    return false;
+  }
+
+  const pgError = error as { code?: string; constraint?: string; message?: string };
+  return (
+    pgError.code === "23505" &&
+    (pgError.constraint === "user_profiles_email_key" ||
+      pgError.message === OWNER_EMAIL_IN_USE_MESSAGE)
+  );
 }
 
 export class PostgresIdentityStore implements IdentityStore {
@@ -120,14 +140,21 @@ export class PostgresIdentityStore implements IdentityStore {
   }
 
   async prepareOrganizationOwner(userId: string, ownerEmail?: string): Promise<void> {
-    await this.client.query(
-      `
-      insert into public.user_profiles (id, email, display_name)
-      values ($1, $2, $3)
-      on conflict (id) do nothing
-      `,
-      [userId, ownerEmail ?? `${userId}@users.arise.studio`, "Workspace owner"],
-    );
+    const email = ownerEmail ?? `${userId}@users.arise.studio`;
+
+    try {
+      await this.client.query(`select public.arise_prepare_user_profile($1, $2, $3)`, [
+        userId,
+        email,
+        "Workspace owner",
+      ]);
+    } catch (error) {
+      if (isUserProfileEmailConflict(error)) {
+        throw new Error(OWNER_EMAIL_IN_USE_MESSAGE);
+      }
+
+      throw error;
+    }
   }
 
   async saveMembership(membership: OrganizationMembership): Promise<void> {
@@ -184,5 +211,9 @@ export class PostgresIdentityStore implements IdentityStore {
     )) as { rows: MembershipRow[] };
 
     return result.rows.map(mapMembership);
+  }
+
+  async bootstrapDefaultProject(input: BootstrapDefaultProjectInput) {
+    return bootstrapDefaultProject(this.client, input);
   }
 }

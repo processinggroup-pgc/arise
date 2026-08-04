@@ -1,7 +1,23 @@
-import { createRegisterOrganizationHandler } from "@arise/application";
+import { createRegisterOrganizationHandler, TENANT_HEADERS } from "@arise/application";
 
-import { getIdentityStore } from "@/lib/identity-store";
+import { runWithIdentityStore } from "@/lib/identity-bootstrap";
 
-export const POST = createRegisterOrganizationHandler({
-  identityStore: getIdentityStore(),
-});
+export async function POST(request: Request): Promise<Response> {
+  const userId = request.headers.get(TENANT_HEADERS.userId)?.trim();
+
+  if (userId === undefined || userId.length === 0) {
+    return Response.json(
+      {
+        error: {
+          code: "missing_owner_user",
+          message: "Owner user id header is required",
+        },
+      },
+      { status: 400 },
+    );
+  }
+
+  return runWithIdentityStore(userId, (identityStore) =>
+    createRegisterOrganizationHandler({ identityStore })(request),
+  );
+}

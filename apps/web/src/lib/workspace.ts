@@ -1,4 +1,4 @@
-import { createProjectForOrganization, listOrganizationsForUser } from "@arise/application";
+import { createProjectForOrganization, listOrganizationsForUser, supportsBootstrapDefaultProject } from "@arise/application";
 
 import { hasDatabaseUrl } from "./database";
 import { ensureDemoData, DEMO_ORG_ID, DEMO_PROJECT_ID } from "./demo-data";
@@ -59,28 +59,30 @@ async function ensureDefaultProject(organizationId: string, userId: string): Pro
   if (hasDatabaseUrl()) {
     const tenantContext = createWorkspaceTenantContext({ organizationId, userId });
 
-    return runWithTenantScopedStores(tenantContext, async (stores) => {
+    const existingProjectId = await runWithTenantScopedStores(tenantContext, async (stores) => {
       const projects = await stores.projectStore.listProjectsForOrganization(organizationId);
-      const existingProject = projects[0];
-      if (existingProject !== undefined) {
-        return existingProject.id;
+      return projects[0]?.id;
+    });
+
+    if (existingProjectId !== undefined) {
+      return existingProjectId;
+    }
+
+    const project = await runWithIdentityStore(userId, async (identityStore) => {
+      if (!supportsBootstrapDefaultProject(identityStore)) {
+        throw new Error("Default project bootstrap is unavailable");
       }
 
-      const project = await createProjectForOrganization(
-        {
-          tenantContext,
-          name: "Default Project",
-          description: "Primary delivery workspace for governed agent runs.",
-        },
-        stores.projectStore,
-        {
-          createId: () => crypto.randomUUID(),
-          now: () => new Date(),
-        },
-      );
-
-      return project.id;
+      return identityStore.bootstrapDefaultProject({
+        organizationId,
+        projectId: crypto.randomUUID(),
+        name: "Default Project",
+        description: "Primary delivery workspace for governed agent runs.",
+        createdAt: new Date(),
+      });
     });
+
+    return project.id;
   }
 
   const projects = await getProjectStore().listProjectsForOrganization(organizationId);
