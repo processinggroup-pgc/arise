@@ -451,10 +451,12 @@ export {
   runStressTestForInitiative,
   saveDualAiComparisonForInitiative,
   saveSessionNotesForInitiative,
+  suggestFeatureWishListForInitiative,
   type DualAiSecondaryResult,
   type FinalizeConceptCommand,
   type FinalizeMvpCommand,
   type SaveMvpScopeCommand,
+  type SuggestFeatureWishListCommand,
 } from "./product-discovery/cohort-discovery-workflow.js";
 export type { TechnicalDesignStore } from "./product-discovery/technical-design-store.js";
 export {

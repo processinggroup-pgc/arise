@@ -13,6 +13,7 @@ import {
   runStressTestForInitiative,
   saveDualAiComparisonForInitiative,
   saveSessionNotesForInitiative,
+  suggestFeatureWishListForInitiative,
 } from "@arise/application";
 import { createTenantContext, type TenantContext } from "@arise/domain";
 import { revalidatePath } from "next/cache";
@@ -194,6 +195,31 @@ export async function generateBusinessCaseAction(initiativeId: string): Promise<
     return {};
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Unable to generate business case" };
+  }
+}
+
+export async function suggestFeatureWishListAction(
+  initiativeId: string,
+  options?: { force?: boolean },
+): Promise<{ error?: string }> {
+  const workspace = await getActiveWorkspaceForAction();
+  if (workspace === null) return { error: "Choose an organization before continuing." };
+
+  try {
+    await withCohortStores(workspace, (stores) =>
+      suggestFeatureWishListForInitiative(
+        { ...createCommand(workspace, initiativeId), ...(options?.force === true ? { force: true } : {}) },
+        stores.initiativeStore,
+        stores.problemBriefStore,
+        stores.cohortDiscoveryStore,
+        operationContext(),
+        getCohortGenerator(),
+      ),
+    );
+    revalidatePath(`/initiatives/${initiativeId}`);
+    return {};
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Unable to suggest features" };
   }
 }
 

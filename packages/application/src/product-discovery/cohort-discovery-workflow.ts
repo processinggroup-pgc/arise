@@ -66,6 +66,20 @@ function buildContextBlock(problemBrief: ProblemBrief, dossier?: MarketResearchD
   ].join("\n");
 }
 
+function buildBusinessPlanContext(problemBrief: ProblemBrief, bundle: CohortDiscoveryBundle): string {
+  const parts = [buildContextBlock(problemBrief)];
+  if (bundle.businessConcept !== undefined) {
+    parts.push("Business concept:", JSON.stringify(bundle.businessConcept));
+  }
+  if (bundle.businessCase !== undefined) {
+    parts.push("Business case:", JSON.stringify(bundle.businessCase));
+  }
+  if (bundle.mvpScope !== undefined) {
+    parts.push("MVP scope:", JSON.stringify(bundle.mvpScope));
+  }
+  return parts.join("\n\n");
+}
+
 export interface DualAiSecondaryResult {
   dossier: import("@arise/domain").MarketResearchDossier;
   source: "openai" | "rule_based";
@@ -266,9 +280,12 @@ export async function generateBusinessCaseForInitiative(
     operationContext.createId,
     operationContext.now,
   );
+  const featureWishListSuggestions = await generator.generateFeatureWishListSuggestions(
+    buildBusinessPlanContext(problemBrief, { ...bundle, businessCase }),
+  );
   const updatedBundle = mergeCohortDiscoveryBundle(
     bundle,
-    { businessCase },
+    { businessCase, featureWishListSuggestions },
     operationContext.now(),
   );
   const updatedInitiative = advanceInitiativeState(
@@ -280,6 +297,45 @@ export async function generateBusinessCaseForInitiative(
   await cohortStore.saveCohortDiscoveryBundle(updatedBundle);
   await initiativeStore.saveInitiative(updatedInitiative);
   return { initiative: updatedInitiative, bundle: updatedBundle };
+}
+
+export interface SuggestFeatureWishListCommand extends CohortWorkflowCommand {
+  force?: boolean;
+}
+
+export async function suggestFeatureWishListForInitiative(
+  command: SuggestFeatureWishListCommand,
+  initiativeStore: InitiativeStore,
+  problemBriefStore: ProblemBriefStore,
+  cohortStore: CohortDiscoveryStore,
+  operationContext: IdentityOperationContext,
+  generator: CohortGenerator,
+): Promise<CohortDiscoveryBundle> {
+  const initiative = await loadInitiativeContext(command, initiativeStore, "business_case_complete");
+  const problemBrief = await problemBriefStore.findProblemBriefByInitiativeId(command.initiativeId);
+  const bundle = await cohortStore.findCohortDiscoveryByInitiativeId(command.initiativeId);
+  if (problemBrief === undefined || bundle?.businessCase === undefined) {
+    throw new InitiativeWorkflowError("Business case must be completed first");
+  }
+
+  if (
+    command.force !== true &&
+    bundle.featureWishListSuggestions !== undefined &&
+    bundle.featureWishListSuggestions.length >= 3
+  ) {
+    return bundle;
+  }
+
+  const featureWishListSuggestions = await generator.generateFeatureWishListSuggestions(
+    buildBusinessPlanContext(problemBrief, bundle),
+  );
+  const updatedBundle = mergeCohortDiscoveryBundle(
+    bundle,
+    { featureWishListSuggestions },
+    operationContext.now(),
+  );
+  await cohortStore.saveCohortDiscoveryBundle(updatedBundle);
+  return updatedBundle;
 }
 
 export interface SaveMvpScopeCommand extends CohortWorkflowCommand {
@@ -307,10 +363,15 @@ export async function generateMvpScopeForInitiative(
     command.featureWishList,
   );
 
+  const revenueHypothesisSuggestions = await generator.generateRevenueHypothesisSuggestions(
+    buildBusinessPlanContext(problemBrief, { ...bundle, mvpScope }),
+  );
+
   const updatedBundle = mergeCohortDiscoveryBundle(
     bundle,
     {
       mvpScope: { ...mvpScope, featureWishList: command.featureWishList },
+      revenueHypothesisSuggestions,
       ...(command.sessionNotesWeek2 !== undefined
         ? { sessionNotesWeek2: { notes: command.sessionNotesWeek2, updatedAt: operationContext.now() } }
         : {}),

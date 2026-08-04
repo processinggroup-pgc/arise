@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 import type {
   BuildBundle,
@@ -40,6 +40,7 @@ import {
   generateUserFlowAction,
   runStressTestAction,
   saveDualAiComparisonAction,
+  suggestFeatureWishListAction,
 } from "./cohort-actions";
 import { runMarketResearchAction } from "./actions";
 
@@ -99,6 +100,163 @@ function ArtifactList({ title, items }: { title: string; items: string[] }): Rea
         ))}
       </ul>
     </article>
+  );
+}
+
+function mergeSuggestionsIntoFields(current: string[], suggestions: string[]): string[] {
+  return current.map((value, index) => (value.trim().length > 0 ? value : (suggestions[index] ?? "")));
+}
+
+function MvpScopingForm({
+  initiativeId,
+  bundle,
+  error,
+  isPending,
+  onSubmit,
+}: {
+  initiativeId: string;
+  bundle?: CohortDiscoveryBundle | undefined;
+  error?: string | undefined;
+  isPending: boolean;
+  onSubmit: (formData: FormData) => void;
+}): React.JSX.Element {
+  const router = useRouter();
+  const suggestions = bundle?.featureWishListSuggestions ?? [];
+  const autoSuggestStarted = useRef(false);
+  const [isSuggesting, startSuggest] = useTransition();
+  const [features, setFeatures] = useState<string[]>(() =>
+    [0, 1, 2, 3, 4].map((index) => suggestions[index] ?? ""),
+  );
+
+  useEffect(() => {
+    if (suggestions.length >= 3) {
+      setFeatures((current) => mergeSuggestionsIntoFields(current, suggestions));
+      return;
+    }
+    if (autoSuggestStarted.current) {
+      return;
+    }
+    autoSuggestStarted.current = true;
+    startSuggest(async () => {
+      await suggestFeatureWishListAction(initiativeId);
+      router.refresh();
+    });
+  }, [initiativeId, router, suggestions]);
+
+  const suggestPending = isPending || isSuggesting;
+
+  return (
+    <form
+      className="form-panel"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const formData = new FormData();
+        features.forEach((feature, index) => {
+          formData.set(`feature${String(index + 1)}`, feature);
+        });
+        const sessionNotes = event.currentTarget.querySelector<HTMLTextAreaElement>(
+          'textarea[name="sessionNotesWeek2"]',
+        );
+        if (sessionNotes !== null) {
+          formData.set("sessionNotesWeek2", sessionNotes.value);
+        }
+        onSubmit(formData);
+      }}
+    >
+      <h3>Feature wish list (pre-work: 5 features)</h3>
+      <p className="page-description">
+        Suggestions are generated from your business case. Edit any feature before scoping the MVP.
+      </p>
+      {[1, 2, 3, 4, 5].map((index) => (
+        <label key={index} className="form-field form-field-wide">
+          <span className="form-label">Feature {String(index)}</span>
+          <input
+            className="form-input"
+            name={`feature${String(index)}`}
+            required={index <= 3}
+            value={features[index - 1] ?? ""}
+            onChange={(event) => {
+              const next = [...features];
+              next[index - 1] = event.target.value;
+              setFeatures(next);
+            }}
+          />
+        </label>
+      ))}
+      <ActionButton
+        disabled={suggestPending}
+        label="Suggest features"
+        pendingLabel="Suggesting..."
+        onClick={() => {
+          startSuggest(async () => {
+            await suggestFeatureWishListAction(initiativeId, { force: true });
+            router.refresh();
+          });
+        }}
+      />
+      <label className="form-field form-field-wide">
+        <span className="form-label">Session notes</span>
+        <textarea className="form-input form-textarea" name="sessionNotesWeek2" rows={3} />
+      </label>
+      {error ? <p className="form-error">{error}</p> : null}
+      <button className="button-primary" disabled={suggestPending} type="submit">
+        {suggestPending ? "Scoping..." : "Generate MVP scope (1–2 features)"}
+      </button>
+    </form>
+  );
+}
+
+function MvpFinalizeForm({
+  bundle,
+  error,
+  isPending,
+  onSubmit,
+}: {
+  bundle?: CohortDiscoveryBundle | undefined;
+  error?: string | undefined;
+  isPending: boolean;
+  onSubmit: (formData: FormData) => void;
+}): React.JSX.Element {
+  const suggestions = bundle?.revenueHypothesisSuggestions;
+  const modelDefault =
+    suggestions?.chosenModel ?? bundle?.businessCase?.revenueModelOptions[0] ?? "";
+  const pricingDefault = suggestions?.pricingStartingPoint ?? "";
+  const assumptionDefault =
+    suggestions?.killerAssumption ?? bundle?.businessConcept?.topRisks[0] ?? "";
+
+  return (
+    <form
+      className="form-panel"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit(new FormData(event.currentTarget));
+      }}
+    >
+      <p className="page-description">
+        Revenue fields are suggested from your business case and MVP scope. Edit before finalizing.
+      </p>
+      <label className="form-field form-field-wide">
+        <span className="form-label">Chosen revenue model</span>
+        <input className="form-input" defaultValue={modelDefault} name="chosenModel" required />
+      </label>
+      <label className="form-field form-field-wide">
+        <span className="form-label">Pricing starting point</span>
+        <input
+          className="form-input"
+          defaultValue={pricingDefault}
+          name="pricingStartingPoint"
+          required
+        />
+      </label>
+      <label className="form-field form-field-wide">
+        <span className="form-label">Killer assumption</span>
+        <input className="form-input" defaultValue={assumptionDefault} name="killerAssumption" required />
+      </label>
+      {error ? <p className="form-error">{error}</p> : null}
+      <button className="button-primary" disabled={isPending} type="submit">
+        {isPending ? "Finalizing..." : "Run MVP stress test & finalize"}
+      </button>
+    </form>
   );
 }
 
@@ -329,30 +487,13 @@ export function InitiativeWorkflow({
             <li>Acquisition: {bundle.businessCase.acquisitionStrategy}</li>
           </ul>
         ) : null}
-        <form
-          className="form-panel"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            run(() => generateMvpScopeAction(initiativeId, formData));
-          }}
-        >
-          <h3>Feature wish list (pre-work: 5 features)</h3>
-          {[1, 2, 3, 4, 5].map((index) => (
-            <label key={index} className="form-field form-field-wide">
-              <span className="form-label">Feature {String(index)}</span>
-              <input className="form-input" name={`feature${String(index)}`} required={index <= 3} />
-            </label>
-          ))}
-          <label className="form-field form-field-wide">
-            <span className="form-label">Session notes</span>
-            <textarea className="form-input form-textarea" name="sessionNotesWeek2" rows={3} />
-          </label>
-          {error ? <p className="form-error">{error}</p> : null}
-          <button className="button-primary" disabled={isPending} type="submit">
-            {isPending ? "Scoping..." : "Generate MVP scope (1–2 features)"}
-          </button>
-        </form>
+        <MvpScopingForm
+          bundle={bundle}
+          error={error}
+          initiativeId={initiativeId}
+          isPending={isPending}
+          onSubmit={(formData) => run(() => generateMvpScopeAction(initiativeId, formData))}
+        />
       </section>
     );
   }
@@ -367,31 +508,12 @@ export function InitiativeWorkflow({
             <ArtifactList title="What NOT to build" items={bundle.mvpScope.notToBuild} />
           </div>
         ) : null}
-        <form
-          className="form-panel"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            run(() => finalizeMvpAction(initiativeId, formData));
-          }}
-        >
-          <label className="form-field form-field-wide">
-            <span className="form-label">Chosen revenue model</span>
-            <input className="form-input" name="chosenModel" required />
-          </label>
-          <label className="form-field form-field-wide">
-            <span className="form-label">Pricing starting point</span>
-            <input className="form-input" name="pricingStartingPoint" required />
-          </label>
-          <label className="form-field form-field-wide">
-            <span className="form-label">Killer assumption</span>
-            <input className="form-input" name="killerAssumption" required />
-          </label>
-          {error ? <p className="form-error">{error}</p> : null}
-          <button className="button-primary" disabled={isPending} type="submit">
-            {isPending ? "Finalizing..." : "Run MVP stress test & finalize"}
-          </button>
-        </form>
+        <MvpFinalizeForm
+          bundle={bundle}
+          error={error}
+          isPending={isPending}
+          onSubmit={(formData) => run(() => finalizeMvpAction(initiativeId, formData))}
+        />
       </section>
     );
   }

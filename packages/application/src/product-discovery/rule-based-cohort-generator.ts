@@ -11,6 +11,12 @@ import type { ClaudeJsonGenerator } from "./claude-json-generator.js";
 
 export interface CohortGenerator {
   generateBusinessCase(context: string): Promise<BusinessCase>;
+  generateFeatureWishListSuggestions(context: string): Promise<string[]>;
+  generateRevenueHypothesisSuggestions(context: string): Promise<{
+    chosenModel: string;
+    pricingStartingPoint: string;
+    killerAssumption: string;
+  }>;
   generateMvpScope(context: string, wishList: string[]): Promise<MvpScope>;
   generateMvpStressTest(mvpScope: MvpScope): Promise<{
     unnecessary: string[];
@@ -43,6 +49,28 @@ export class RuleBasedCohortGenerator implements CohortGenerator {
       revenueModelOptions: ["Tiered tuition", "Income-share agreement", "Employer sponsorship"],
       acquisitionStrategy: "Community partnerships and outcome-focused content marketing",
       risks: ["Prolonged hiring downturn", "Price sensitivity", "Completion rate pressure"],
+    };
+  }
+
+  async generateFeatureWishListSuggestions(_context: string): Promise<string[]> {
+    return [
+      "Problem-specific landing page with clear value proposition",
+      "Flexible payment plan selection at enrollment",
+      "Minimal qualification and application form",
+      "Enrollment confirmation with cohort access grant",
+      "Automated email reminders for incomplete applications",
+    ];
+  }
+
+  async generateRevenueHypothesisSuggestions(_context: string): Promise<{
+    chosenModel: string;
+    pricingStartingPoint: string;
+    killerAssumption: string;
+  }> {
+    return {
+      chosenModel: "Tiered tuition with deferred payment option",
+      pricingStartingPoint: "$49/month starter tier or $299 upfront cohort seat",
+      killerAssumption: "Learners will commit before income stabilizes if payment flexibility is clear",
     };
   }
 
@@ -152,6 +180,25 @@ export class ClaudeCohortGenerator implements CohortGenerator {
     });
   }
 
+  async generateFeatureWishListSuggestions(context: string): Promise<string[]> {
+    const result = await this.claude.generate<{ features: string[] }>({
+      system: 'Return only valid JSON with key "features" — array of exactly 5 concise MVP feature ideas.',
+      prompt: `Suggest 5 MVP feature wish-list items grounded in this business plan:\n${context}`,
+    });
+    return result.features.slice(0, 5);
+  }
+
+  generateRevenueHypothesisSuggestions(context: string): Promise<{
+    chosenModel: string;
+    pricingStartingPoint: string;
+    killerAssumption: string;
+  }> {
+    return this.claude.generate({
+      system: "Return only valid JSON with keys chosenModel, pricingStartingPoint, killerAssumption.",
+      prompt: `Suggest a revenue hypothesis JSON based on this business plan and MVP scope:\n${context}`,
+    });
+  }
+
   generateMvpScope(context: string, wishList: string[]): Promise<MvpScope> {
     return this.claude.generate({
       system: "Return only valid JSON. coreFeatures max 2 items.",
@@ -240,6 +287,24 @@ export class ResilientCohortGenerator implements CohortGenerator {
     return this.withFallback(
       () => this.primary.generateBusinessCase(context),
       () => this.fallback.generateBusinessCase(context),
+    );
+  }
+
+  generateFeatureWishListSuggestions(context: string): Promise<string[]> {
+    return this.withFallback(
+      () => this.primary.generateFeatureWishListSuggestions(context),
+      () => this.fallback.generateFeatureWishListSuggestions(context),
+    );
+  }
+
+  generateRevenueHypothesisSuggestions(context: string): Promise<{
+    chosenModel: string;
+    pricingStartingPoint: string;
+    killerAssumption: string;
+  }> {
+    return this.withFallback(
+      () => this.primary.generateRevenueHypothesisSuggestions(context),
+      () => this.fallback.generateRevenueHypothesisSuggestions(context),
     );
   }
 

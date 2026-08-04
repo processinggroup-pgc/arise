@@ -123,7 +123,11 @@ export interface CohortDiscoveryBundle {
   businessConcept?: BusinessConcept;
   sessionNotesWeek1?: SessionNotes;
   businessCase?: BusinessCase;
+  /** AI-suggested feature wish list for MVP scoping (Step 2). User may edit before scoping. */
+  featureWishListSuggestions?: string[];
   mvpScope?: MvpScope;
+  /** AI-suggested revenue fields for MVP finalize (Step 2). User may edit before submitting. */
+  revenueHypothesisSuggestions?: RevenueHypothesis;
   revenueHypothesis?: RevenueHypothesis;
   mvpStressTest?: MvpStressTest;
   simplicityCheck?: string;
