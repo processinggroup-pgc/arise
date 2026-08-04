@@ -451,6 +451,7 @@ export {
   runStressTestForInitiative,
   saveDualAiComparisonForInitiative,
   saveSessionNotesForInitiative,
+  type DualAiSecondaryResult,
   type FinalizeConceptCommand,
   type FinalizeMvpCommand,
   type SaveMvpScopeCommand,

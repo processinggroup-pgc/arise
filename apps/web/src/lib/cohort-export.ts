@@ -35,7 +35,10 @@ export function buildWeek1HomeworkMarkdown(input: {
       ? [
           "## Dual-AI comparison",
           `Claude: ${bundle.dualAiComparison.claudeSummary}`,
-          `ChatGPT: ${bundle.dualAiComparison.openAiSummary ?? (bundle.dualAiComparison as { ruleBasedSummary?: string }).ruleBasedSummary ?? "n/a"}`,
+          `${bundle.dualAiComparison.secondarySource === "rule_based" ? "Rule-based fallback" : "ChatGPT"}: ${bundle.dualAiComparison.openAiSummary}`,
+          ...(bundle.dualAiComparison.secondaryWarning !== undefined
+            ? [`Note: ${bundle.dualAiComparison.secondaryWarning}`]
+            : []),
           "",
         ]
       : []),

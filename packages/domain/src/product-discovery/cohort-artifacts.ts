@@ -101,10 +101,16 @@ export interface BrdDocument {
   fullDocument: string;
 }
 
+export type DualAiSecondarySource = "openai" | "rule_based";
+
 export interface DualAiComparison {
   claudeSummary: string;
   openAiSummary: string;
   keyDifferences: string[];
+  /** Which generator produced openAiSummary. Omitted on bundles saved before this field existed. */
+  secondarySource?: DualAiSecondarySource;
+  /** Set when secondarySource is rule_based (missing key or OpenAI API failure). */
+  secondaryWarning?: string;
 }
 
 export interface CohortDiscoveryBundle {

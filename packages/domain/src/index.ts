@@ -813,6 +813,7 @@ export {
   type CreateCohortDiscoveryBundleInput,
   type CreateCohortDiscoveryBundleMetadata,
   type DualAiComparison,
+  type DualAiSecondarySource,
   type MvpScope,
   type MvpStressTest,
   type Persona,

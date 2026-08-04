@@ -8,6 +8,7 @@ import { InitiativeWizardTrack } from "@/components/initiative-wizard-track";
 import { type InitiativeWizardStepId } from "@/lib/initiative-defaults";
 import { getInitiativeDetail } from "@/lib/initiative-queries";
 import { getDashboardData } from "@/lib/queries";
+import { isOpenAiConfigured } from "@/lib/dual-ai-generator";
 
 import { InitiativeWorkflow } from "./initiative-workflow";
 
@@ -118,6 +119,7 @@ export default async function InitiativePage({
         buildBundle={detail.buildBundle}
         detectedPlatforms={detectedPlatforms}
         selectedFramingTitle={detail.selectedFramingTitle}
+        openAiConfigured={isOpenAiConfigured()}
       />
 
       <section className="panel detail-section">

@@ -66,6 +66,12 @@ function buildContextBlock(problemBrief: ProblemBrief, dossier?: MarketResearchD
   ].join("\n");
 }
 
+export interface DualAiSecondaryResult {
+  dossier: import("@arise/domain").MarketResearchDossier;
+  source: "openai" | "rule_based";
+  warning?: string;
+}
+
 export async function saveDualAiComparisonForInitiative(
   command: CohortWorkflowCommand,
   initiativeStore: InitiativeStore,
@@ -73,8 +79,11 @@ export async function saveDualAiComparisonForInitiative(
   marketResearchStore: MarketResearchStore,
   cohortStore: CohortDiscoveryStore,
   operationContext: IdentityOperationContext,
-  secondaryGenerator: import("./market-research-generator.js").MarketResearchGenerator,
-): Promise<CohortDiscoveryBundle> {
+  generateSecondary: (
+    input: import("@arise/domain").GenerateMarketResearchInput,
+    metadata: import("@arise/domain").GenerateMarketResearchMetadata,
+  ) => Promise<DualAiSecondaryResult>,
+): Promise<{ bundle: CohortDiscoveryBundle; warning?: string }> {
   const initiative = await loadInitiativeContext(command, initiativeStore, "research_complete");
   const problemBrief = await problemBriefStore.findProblemBriefByInitiativeId(command.initiativeId);
   const dossier = await marketResearchStore.findMarketResearchByInitiativeId(command.initiativeId);
@@ -97,7 +106,8 @@ export async function saveDualAiComparisonForInitiative(
     createFramingId: (index: number) => operationContext.createId() + `_compare_${String(index + 1)}`,
   };
 
-  const secondaryDossier = await secondaryGenerator.generate(researchInput, researchMetadata);
+  const secondary = await generateSecondary(researchInput, researchMetadata);
+  const secondaryDossier = secondary.dossier;
 
   const bundle = await getOrCreateCohortDiscoveryBundle(
     cohortStore,
@@ -119,12 +129,17 @@ export async function saveDualAiComparisonForInitiative(
           `Claude top framing: ${dossier.framingOptions[0]?.title ?? "n/a"}`,
           `ChatGPT top framing: ${secondaryDossier.framingOptions[0]?.title ?? "n/a"}`,
         ],
+        secondarySource: secondary.source,
+        ...(secondary.warning !== undefined ? { secondaryWarning: secondary.warning } : {}),
       },
     },
     operationContext.now(),
   );
   await cohortStore.saveCohortDiscoveryBundle(updated);
-  return updated;
+  return {
+    bundle: updated,
+    ...(secondary.warning !== undefined ? { warning: secondary.warning } : {}),
+  };
 }
 
 export async function runStressTestForInitiative(

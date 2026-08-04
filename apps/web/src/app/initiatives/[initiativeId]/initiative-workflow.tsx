@@ -52,6 +52,7 @@ interface InitiativeWorkflowProps {
   buildBundle?: BuildBundle | undefined;
   detectedPlatforms?: DetectedPlatformEnv | undefined;
   selectedFramingTitle?: string | undefined;
+  openAiConfigured?: boolean;
 }
 
 function formatVercelConnectionSummary(
@@ -110,18 +111,24 @@ export function InitiativeWorkflow({
   buildBundle,
   detectedPlatforms,
   selectedFramingTitle,
+  openAiConfigured = false,
 }: InitiativeWorkflowProps): React.JSX.Element {
   const router = useRouter();
   const [error, setError] = useState<string | undefined>();
+  const [warning, setWarning] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
 
-  const run = (action: () => Promise<{ error?: string }>) => {
+  const run = (action: () => Promise<{ error?: string; warning?: string }>) => {
     startTransition(async () => {
       setError(undefined);
+      setWarning(undefined);
       const result = await action();
       if (result.error !== undefined) {
         setError(result.error);
         return;
+      }
+      if (result.warning !== undefined) {
+        setWarning(result.warning);
       }
       router.refresh();
     });
@@ -165,6 +172,13 @@ export function InitiativeWorkflow({
           <p className="page-description">
             Compare Claude research with the same prompt run through ChatGPT.
           </p>
+          {!openAiConfigured && bundle?.dualAiComparison === undefined ? (
+            <p className="form-warning">
+              OPENAI_API_KEY is not configured on the server. The comparison will use a
+              rule-based fallback instead of ChatGPT until the key is set and the app is
+              redeployed.
+            </p>
+          ) : null}
           {bundle?.dualAiComparison !== undefined ? (
             <div className="detail-grid">
               <article className="criteria-card">
@@ -172,14 +186,12 @@ export function InitiativeWorkflow({
                 <p>{bundle.dualAiComparison.claudeSummary}</p>
               </article>
               <article className="criteria-card">
-                <strong>ChatGPT</strong>
-                <p>
-                  {bundle.dualAiComparison.openAiSummary ??
-                    (
-                      bundle.dualAiComparison as { ruleBasedSummary?: string }
-                    ).ruleBasedSummary ??
-                    ""}
-                </p>
+                <strong>
+                  {bundle.dualAiComparison.secondarySource === "rule_based"
+                    ? "Rule-based fallback"
+                    : "ChatGPT"}
+                </strong>
+                <p>{bundle.dualAiComparison.openAiSummary}</p>
               </article>
             </div>
           ) : (
@@ -190,6 +202,10 @@ export function InitiativeWorkflow({
               onClick={() => run(() => saveDualAiComparisonAction(initiativeId))}
             />
           )}
+          {bundle?.dualAiComparison?.secondaryWarning !== undefined ? (
+            <p className="form-warning">{bundle.dualAiComparison.secondaryWarning}</p>
+          ) : null}
+          {warning ? <p className="form-warning">{warning}</p> : null}
         </div>
 
         <div className="form-panel">

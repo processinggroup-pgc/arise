@@ -18,7 +18,7 @@ import { createTenantContext, type TenantContext } from "@arise/domain";
 import { revalidatePath } from "next/cache";
 
 import { getCohortGenerator } from "@/lib/cohort-generator";
-import { getDualAiSecondaryGenerator } from "@/lib/dual-ai-generator";
+import { generateDualAiSecondary } from "@/lib/dual-ai-generator";
 import { hasDatabaseUrl } from "@/lib/database";
 import {
   getCohortDiscoveryStore,
@@ -80,12 +80,14 @@ async function withCohortStores<T>(
   });
 }
 
-export async function saveDualAiComparisonAction(initiativeId: string): Promise<{ error?: string }> {
+export async function saveDualAiComparisonAction(
+  initiativeId: string,
+): Promise<{ error?: string; warning?: string }> {
   const workspace = await getActiveWorkspaceForAction();
   if (workspace === null) return { error: "Choose an organization before continuing." };
 
   try {
-    await withCohortStores(workspace, (stores) =>
+    const result = await withCohortStores(workspace, (stores) =>
       saveDualAiComparisonForInitiative(
         createCommand(workspace, initiativeId),
         stores.initiativeStore,
@@ -93,11 +95,11 @@ export async function saveDualAiComparisonAction(initiativeId: string): Promise<
         stores.marketResearchStore,
         stores.cohortDiscoveryStore,
         operationContext(),
-        getDualAiSecondaryGenerator(),
+        generateDualAiSecondary,
       ),
     );
     revalidatePath(`/initiatives/${initiativeId}`);
-    return {};
+    return result.warning !== undefined ? { warning: result.warning } : {};
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Unable to save dual-AI comparison" };
   }
