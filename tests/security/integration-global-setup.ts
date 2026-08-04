@@ -32,7 +32,7 @@ export function getIntegrationDatabaseUrl(): string | undefined {
     ...process.env,
   };
 
-  return env["DATABASE_URL"];
+  return env["INTEGRATION_DATABASE_URL"] ?? env["DATABASE_URL"];
 }
 
 export async function applyIntegrationMigrations(client: pg.Client): Promise<void> {
