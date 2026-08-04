@@ -5,6 +5,8 @@ import {
   type MarketResearchDossier,
 } from "@arise/domain";
 
+import { resolveAnthropicModel } from "../anthropic-model.js";
+
 import type { MarketResearchGenerator } from "./market-research-generator.js";
 import { RuleBasedMarketResearchGenerator } from "./rule-based-market-research-generator.js";
 
@@ -84,7 +86,7 @@ export class ClaudeMarketResearchGenerator implements MarketResearchGenerator {
 
   constructor(options: ClaudeMarketResearchGeneratorOptions) {
     this.apiKey = options.apiKey;
-    this.model = options.model ?? "claude-sonnet-4-20250514";
+    this.model = resolveAnthropicModel(options.model);
     this.fetchImpl = options.fetchImpl ?? fetch;
   }
 

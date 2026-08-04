@@ -15,8 +15,14 @@ export function getCohortGenerator(): CohortGenerator {
     if (apiKey === undefined || apiKey.trim().length === 0) {
       return ruleBased;
     }
+    const model = process.env["ANTHROPIC_MODEL"]?.trim();
     return new ResilientCohortGenerator(
-      new ClaudeCohortGenerator(new ClaudeJsonGenerator({ apiKey: apiKey.trim() })),
+      new ClaudeCohortGenerator(
+        new ClaudeJsonGenerator({
+          apiKey: apiKey.trim(),
+          ...(model !== undefined && model.length > 0 ? { model } : {}),
+        }),
+      ),
     );
   })();
   return cohortGenerator;

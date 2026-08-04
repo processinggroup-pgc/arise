@@ -1,5 +1,9 @@
 export type { AddOrganizationMemberCommand } from "./identity/add-organization-member.js";
 export { addOrganizationMember } from "./identity/add-organization-member.js";
+export {
+  DEFAULT_ANTHROPIC_MODEL,
+  resolveAnthropicModel,
+} from "./anthropic-model.js";
 export type { IdentityOperationContext, IdentityStore } from "./identity/identity-store.js";
 export { InMemoryIdentityStore } from "./identity/in-memory-identity-store.js";
 export type {

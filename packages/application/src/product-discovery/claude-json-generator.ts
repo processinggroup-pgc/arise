@@ -1,3 +1,5 @@
+import { resolveAnthropicModel } from "../anthropic-model.js";
+
 export interface ClaudeJsonGeneratorOptions {
   apiKey: string;
   model?: string;
@@ -31,7 +33,7 @@ export class ClaudeJsonGenerator {
 
   constructor(options: ClaudeJsonGeneratorOptions) {
     this.apiKey = options.apiKey;
-    this.model = options.model ?? "claude-sonnet-4-20250514";
+    this.model = resolveAnthropicModel(options.model);
     this.fetchImpl = options.fetchImpl ?? fetch;
   }
 
