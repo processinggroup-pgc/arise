@@ -7,7 +7,7 @@ begin
   for r in
     select rolname
     from pg_roles
-    where rolname in ('postgres', 'service_role', 'authenticator', 'supabase_admin')
+    where rolname in ('postgres', 'service_role', 'authenticator')
   loop
     execute format('grant arise_app to %I', r.rolname);
   end loop;
