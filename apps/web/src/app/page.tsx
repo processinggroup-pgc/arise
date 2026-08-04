@@ -4,10 +4,18 @@ import { AppShell } from "@/components/app-shell";
 import { OrganizationSwitcher } from "@/components/organization-switcher";
 import { StatCard } from "@/components/stat-card";
 import { WorkItemTable } from "@/components/work-item-table";
+import { WorkspaceErrorBanner } from "@/components/workspace-error-banner";
 import { getDashboardData } from "@/lib/queries";
 import { listWorkspaceOrganizations } from "@/lib/workspace";
 
-export default async function HomePage(): Promise<React.JSX.Element> {
+interface HomePageProps {
+  searchParams: Promise<{ workspaceError?: string }>;
+}
+
+export default async function HomePage({
+  searchParams,
+}: HomePageProps): Promise<React.JSX.Element> {
+  const { workspaceError } = await searchParams;
   const dashboard = await getDashboardData();
   const organizations = await listWorkspaceOrganizations();
 
@@ -32,6 +40,8 @@ export default async function HomePage(): Promise<React.JSX.Element> {
             {hasOrganizations ? "Choose organization" : "Create organization"}
           </Link>
         </header>
+
+        <WorkspaceErrorBanner workspaceError={workspaceError} />
 
         <section className="panel detail-section empty-state">
           {hasOrganizations ? (

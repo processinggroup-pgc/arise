@@ -354,6 +354,15 @@ textarea {
   text-align: left;
 }
 
+.workspace-error-banner {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #f5c2c7;
+  border-radius: 0.5rem;
+  background: #f8d7da;
+  color: #842029;
+}
+
 .session-user-id code {
   font-family: var(--font-mono);
   font-size: 0.82rem;

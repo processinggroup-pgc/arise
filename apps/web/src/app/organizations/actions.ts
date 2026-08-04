@@ -6,11 +6,13 @@ import { redirect } from "next/navigation";
 import { runWithIdentityStore } from "@/lib/identity-bootstrap";
 import { normalizeSessionId } from "@/lib/postgres-support";
 import { getWorkspaceSession, setWorkspaceSession } from "@/lib/session";
+import { WORKSPACE_ERROR_CODES } from "@/lib/workspace-errors";
+import { resolveWorkspaceContext } from "@/lib/workspace";
 
 export async function switchOrganizationAction(formData: FormData): Promise<void> {
   const organizationId = normalizeSessionId(String(formData.get("organizationId") ?? "").trim());
   if (organizationId === undefined) {
-    redirect("/?workspaceError=invalid_organization");
+    redirect(`/?workspaceError=${WORKSPACE_ERROR_CODES.invalidOrganization}`);
   }
 
   const session = await getWorkspaceSession();
@@ -19,13 +21,18 @@ export async function switchOrganizationAction(formData: FormData): Promise<void
   );
 
   if (membership === undefined || membership.status !== "active") {
-    redirect("/?workspaceError=membership_required");
+    redirect(`/?workspaceError=${WORKSPACE_ERROR_CODES.membershipRequired}`);
   }
 
   await setWorkspaceSession({
     userId: session.userId,
     organizationId,
   });
+
+  const workspace = await resolveWorkspaceContext();
+  if (workspace === null) {
+    redirect(`/?workspaceError=${WORKSPACE_ERROR_CODES.workspaceSetupFailed}`);
+  }
 
   revalidatePath("/", "layout");
   revalidatePath("/organizations");

@@ -2,11 +2,19 @@ import Link from "next/link";
 
 import { switchOrganizationAction } from "@/app/organizations/actions";
 import { AppShell } from "@/components/app-shell";
+import { WorkspaceErrorBanner } from "@/components/workspace-error-banner";
 import { hasDatabaseUrl } from "@/lib/database";
 import { getWorkspaceSession } from "@/lib/session";
 import { listWorkspaceOrganizations, resolveWorkspaceContext } from "@/lib/workspace";
 
-export default async function OrganizationsPage(): Promise<React.JSX.Element> {
+interface OrganizationsPageProps {
+  searchParams: Promise<{ workspaceError?: string }>;
+}
+
+export default async function OrganizationsPage({
+  searchParams,
+}: OrganizationsPageProps): Promise<React.JSX.Element> {
+  const { workspaceError } = await searchParams;
   const session = await getWorkspaceSession();
   const workspace = await resolveWorkspaceContext();
   const organizations = await listWorkspaceOrganizations();
@@ -27,6 +35,8 @@ export default async function OrganizationsPage(): Promise<React.JSX.Element> {
           Create organization
         </Link>
       </header>
+
+      <WorkspaceErrorBanner workspaceError={workspaceError} />
 
       {organizations.length === 0 ? (
         <section className="panel detail-section empty-state">

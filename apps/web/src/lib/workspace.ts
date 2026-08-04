@@ -96,6 +96,12 @@ async function ensureDefaultProject(organizationId: string, userId: string): Pro
     }
 
     try {
+      return await createDefaultProjectInTenantScope(organizationId, userId);
+    } catch (tenantCreateError) {
+      console.error("[arise-web] createDefaultProjectInTenantScope", tenantCreateError);
+    }
+
+    try {
       const project = await runWithIdentityStore(userId, async (identityStore) => {
         if (!supportsBootstrapDefaultProject(identityStore)) {
           throw new Error("Default project bootstrap is unavailable");
@@ -113,9 +119,8 @@ async function ensureDefaultProject(organizationId: string, userId: string): Pro
       return project.id;
     } catch (error) {
       console.error("[arise-web] bootstrapDefaultProject", error);
+      throw new Error("Unable to provision default project for organization");
     }
-
-    return createDefaultProjectInTenantScope(organizationId, userId);
   }
 
   const projects = await getProjectStore().listProjectsForOrganization(organizationId);

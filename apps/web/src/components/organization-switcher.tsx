@@ -20,7 +20,11 @@ export async function OrganizationSwitcher({
 
   const onlyOrganizationId = organizations.length === 1 ? organizations[0]?.id : undefined;
   const selectedOrganizationId =
-    activeOrganizationId ?? session.organizationId ?? onlyOrganizationId ?? "";
+    activeOrganizationId ??
+    session.organizationId ??
+    onlyOrganizationId ??
+    organizations[0]?.id ??
+    "";
 
   return (
     <form action={switchOrganizationAction} className="org-switcher">
