@@ -1,4 +1,10 @@
-import type { Initiative, MarketResearchDossier, ProblemAlignment, ProblemBrief } from "@arise/domain";
+import {
+  normalizeMarketResearchDossier,
+  type Initiative,
+  type MarketResearchDossier,
+  type ProblemAlignment,
+  type ProblemBrief,
+} from "@arise/domain";
 
 import type {
   InitiativeStore,
@@ -50,7 +56,8 @@ export class InMemoryMarketResearchStore implements MarketResearchStore {
   }
 
   findMarketResearchByInitiativeId(initiativeId: string): Promise<MarketResearchDossier | undefined> {
-    return Promise.resolve(this.dossiers.get(initiativeId));
+    const dossier = this.dossiers.get(initiativeId);
+    return Promise.resolve(dossier === undefined ? undefined : normalizeMarketResearchDossier(dossier));
   }
 }
 

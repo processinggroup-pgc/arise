@@ -1,4 +1,4 @@
-import { createBuildBundle, type BuildBundle } from "@arise/domain";
+import { createBuildBundle, normalizeBuildBundle, type BuildBundle } from "@arise/domain";
 
 import type { BuildStore } from "./build-store.js";
 
@@ -11,7 +11,8 @@ export class InMemoryBuildStore implements BuildStore {
   }
 
   findBuildBundleByInitiativeId(initiativeId: string): Promise<BuildBundle | undefined> {
-    return Promise.resolve(this.bundles.get(initiativeId));
+    const bundle = this.bundles.get(initiativeId);
+    return Promise.resolve(bundle === undefined ? undefined : normalizeBuildBundle(bundle));
   }
 }
 

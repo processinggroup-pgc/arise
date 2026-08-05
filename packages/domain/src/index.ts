@@ -828,6 +828,7 @@ export {
 export {
   createTechnicalDesignBundle,
   mergeTechnicalDesignBundle,
+  normalizeTechnicalDesignBundle,
   type DataModel,
   type DeeperGapCheck,
   type GapAnalysisReport,
@@ -839,6 +840,7 @@ export {
 export {
   createBuildBundle,
   mergeBuildBundle,
+  normalizeBuildBundle,
   type BuildBundle,
   type BuildTask,
   type EnhancementBacklogItem,
@@ -857,6 +859,7 @@ export {
   createProblemAlignment,
   findFramingOption,
   generateMarketResearchDossier,
+  normalizeMarketResearchDossier,
   type ComparableApproach,
   type CreateProblemAlignmentInput,
   type CreateProblemAlignmentMetadata,

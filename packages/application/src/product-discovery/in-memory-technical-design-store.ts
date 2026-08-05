@@ -1,5 +1,6 @@
 import {
   createTechnicalDesignBundle,
+  normalizeTechnicalDesignBundle,
   type TechnicalDesignBundle,
 } from "@arise/domain";
 
@@ -16,7 +17,8 @@ export class InMemoryTechnicalDesignStore implements TechnicalDesignStore {
   findTechnicalDesignByInitiativeId(
     initiativeId: string,
   ): Promise<TechnicalDesignBundle | undefined> {
-    return Promise.resolve(this.bundles.get(initiativeId));
+    const bundle = this.bundles.get(initiativeId);
+    return Promise.resolve(bundle === undefined ? undefined : normalizeTechnicalDesignBundle(bundle));
   }
 }
 

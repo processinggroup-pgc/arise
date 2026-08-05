@@ -237,6 +237,87 @@ function normalizeStressTest(stressTest: StressTestResult): StressTestResult {
   };
 }
 
+function normalizeMvpScope(scope: MvpScope): MvpScope {
+  return {
+    featureWishList: normalizeStringArray(scope.featureWishList),
+    coreFeatures: normalizeStringArray(scope.coreFeatures),
+    notToBuild: normalizeStringArray(scope.notToBuild),
+    userFlowSummary: typeof scope.userFlowSummary === "string" ? scope.userFlowSummary : "",
+    fastestPathToValue: typeof scope.fastestPathToValue === "string" ? scope.fastestPathToValue : "",
+  };
+}
+
+function normalizeUserFlow(userFlow: UserFlow): UserFlow {
+  const steps = Array.isArray(userFlow.steps) ? userFlow.steps : [];
+  return {
+    steps: steps.map((step) => ({
+      stepNumber: typeof step.stepNumber === "number" ? step.stepNumber : 0,
+      userAction: typeof step.userAction === "string" ? step.userAction : "",
+      systemResponse: typeof step.systemResponse === "string" ? step.systemResponse : "",
+    })),
+    valueDelivered: typeof userFlow.valueDelivered === "string" ? userFlow.valueDelivered : "",
+  };
+}
+
+function normalizeStoryMap(storyMap: StoryMap): StoryMap {
+  const steps = Array.isArray(storyMap.steps) ? storyMap.steps : [];
+  return {
+    steps: steps.map((step) => ({
+      stepTitle: typeof step.stepTitle === "string" ? step.stepTitle : "",
+      tasks: Array.isArray(step.tasks)
+        ? step.tasks.map((task) => ({
+            title: typeof task.title === "string" ? task.title : "",
+            inMvp: task.inMvp === true,
+          }))
+        : [],
+    })),
+  };
+}
+
+function normalizeDualAiComparison(comparison: DualAiComparison): DualAiComparison {
+  return {
+    claudeSummary: typeof comparison.claudeSummary === "string" ? comparison.claudeSummary : "",
+    openAiSummary: typeof comparison.openAiSummary === "string" ? comparison.openAiSummary : "",
+    keyDifferences: normalizeStringArray(comparison.keyDifferences),
+    ...(comparison.secondarySource !== undefined ? { secondarySource: comparison.secondarySource } : {}),
+    ...(comparison.secondaryWarning !== undefined
+      ? { secondaryWarning: comparison.secondaryWarning }
+      : {}),
+  };
+}
+
+function normalizeMvpStressTest(stressTest: MvpStressTest): MvpStressTest {
+  return {
+    unnecessary: normalizeStringArray(stressTest.unnecessary),
+    removable: normalizeStringArray(stressTest.removable),
+    overbuilt: normalizeStringArray(stressTest.overbuilt),
+  };
+}
+
+function normalizePersona(persona: Persona): Persona {
+  return {
+    name: typeof persona.name === "string" ? persona.name : "",
+    role: typeof persona.role === "string" ? persona.role : "",
+    incomeLevel: typeof persona.incomeLevel === "string" ? persona.incomeLevel : "",
+    dailyWorkflow: typeof persona.dailyWorkflow === "string" ? persona.dailyWorkflow : "",
+    toolsUsed: normalizeStringArray(persona.toolsUsed),
+    frustrations: normalizeStringArray(persona.frustrations),
+    triedBefore: normalizeStringArray(persona.triedBefore),
+    payTrigger: typeof persona.payTrigger === "string" ? persona.payTrigger : "",
+  };
+}
+
+function normalizeBrdDocument(brd: BrdDocument): BrdDocument {
+  return {
+    personaSummary: typeof brd.personaSummary === "string" ? brd.personaSummary : "",
+    userFlowSummary: typeof brd.userFlowSummary === "string" ? brd.userFlowSummary : "",
+    storyMapSummary: typeof brd.storyMapSummary === "string" ? brd.storyMapSummary : "",
+    coreFeatures: normalizeStringArray(brd.coreFeatures),
+    successMetrics: normalizeStringArray(brd.successMetrics),
+    fullDocument: typeof brd.fullDocument === "string" ? brd.fullDocument : "",
+  };
+}
+
 /** Ensures jsonb-loaded bundles have safe defaults for optional suggestion fields. */
 export function normalizeCohortDiscoveryBundle(bundle: CohortDiscoveryBundle): CohortDiscoveryBundle {
   const normalized: CohortDiscoveryBundle = { ...bundle };
@@ -263,6 +344,30 @@ export function normalizeCohortDiscoveryBundle(bundle: CohortDiscoveryBundle): C
   }
   if (bundle.stressTest !== undefined) {
     normalized.stressTest = normalizeStressTest(bundle.stressTest);
+  }
+  if (bundle.dualAiComparison !== undefined) {
+    normalized.dualAiComparison = normalizeDualAiComparison(bundle.dualAiComparison);
+  }
+  if (bundle.mvpScope !== undefined) {
+    normalized.mvpScope = normalizeMvpScope(bundle.mvpScope);
+  }
+  if (bundle.mvpStressTest !== undefined) {
+    normalized.mvpStressTest = normalizeMvpStressTest(bundle.mvpStressTest);
+  }
+  if (bundle.persona !== undefined) {
+    normalized.persona = normalizePersona(bundle.persona);
+  }
+  if (bundle.userFlow !== undefined) {
+    normalized.userFlow = normalizeUserFlow(bundle.userFlow);
+  }
+  if (bundle.storyMap !== undefined) {
+    normalized.storyMap = normalizeStoryMap(bundle.storyMap);
+  }
+  if (bundle.flowAlignedFeatures !== undefined) {
+    normalized.flowAlignedFeatures = normalizeStringArray(bundle.flowAlignedFeatures);
+  }
+  if (bundle.brd !== undefined) {
+    normalized.brd = normalizeBrdDocument(bundle.brd);
   }
 
   return normalized;

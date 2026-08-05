@@ -104,7 +104,7 @@ export default async function InitiativePage({
           <li>
             <strong>Desired outcome:</strong> {detail.problemBrief.desiredOutcome}
           </li>
-          {detail.problemBrief.painPoints.map((painPoint) => (
+          {(detail.problemBrief.painPoints ?? []).map((painPoint) => (
             <li key={painPoint}>{painPoint}</li>
           ))}
         </ul>

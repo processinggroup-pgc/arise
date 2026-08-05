@@ -278,5 +278,50 @@ export function findFramingOption(
   dossier: MarketResearchDossier,
   framingId: string,
 ): ProblemFramingOption | undefined {
-  return dossier.framingOptions.find((option) => option.id === framingId);
+  return (dossier.framingOptions ?? []).find((option) => option.id === framingId);
+}
+
+function normalizeStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((item): item is string => typeof item === "string");
+}
+
+/** Ensures jsonb-loaded dossiers have safe defaults for optional array fields. */
+export function normalizeMarketResearchDossier(dossier: MarketResearchDossier): MarketResearchDossier {
+  const comparableApproaches = Array.isArray(dossier.comparableApproaches)
+    ? dossier.comparableApproaches
+    : [];
+  const citations = Array.isArray(dossier.citations) ? dossier.citations : [];
+  const framingOptions = Array.isArray(dossier.framingOptions) ? dossier.framingOptions : [];
+
+  return {
+    ...dossier,
+    summary: typeof dossier.summary === "string" ? dossier.summary : "",
+    marketTrends: normalizeStringArray(dossier.marketTrends),
+    comparableApproaches: comparableApproaches.map((approach) => ({
+      name: typeof approach.name === "string" ? approach.name : "",
+      category: typeof approach.category === "string" ? approach.category : "",
+      approachSummary: typeof approach.approachSummary === "string" ? approach.approachSummary : "",
+      relevance: typeof approach.relevance === "string" ? approach.relevance : "",
+    })),
+    citations: citations.map((citation) => ({
+      label: typeof citation.label === "string" ? citation.label : "",
+      sourceType: citation.sourceType ?? "internal_note",
+      summary: typeof citation.summary === "string" ? citation.summary : "",
+    })),
+    framingOptions: framingOptions.map((option) => ({
+      id: typeof option.id === "string" ? option.id : "",
+      title: typeof option.title === "string" ? option.title : "",
+      description: typeof option.description === "string" ? option.description : "",
+      rationale: typeof option.rationale === "string" ? option.rationale : "",
+      alignmentScore: typeof option.alignmentScore === "number" ? option.alignmentScore : 0,
+    })),
+    generatedAt:
+      dossier.generatedAt instanceof Date
+        ? dossier.generatedAt
+        : new Date(dossier.generatedAt),
+  };
 }

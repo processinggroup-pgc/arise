@@ -1,4 +1,4 @@
-import type { BuildBundle } from "@arise/domain";
+import { normalizeBuildBundle, type BuildBundle } from "@arise/domain";
 
 import type { PostgresQueryable } from "../persistence/postgres-tenant-session.js";
 import type { BuildStore } from "./build-store.js";
@@ -21,7 +21,7 @@ function mapBuildBundle(row: BuildRow): BuildBundle {
           connectedAt: new Date(bundle.platformConnections.connectedAt),
         }
       : undefined;
-  return {
+  return normalizeBuildBundle({
     ...bundle,
     id: row.id,
     initiativeId: row.initiative_id,
@@ -47,7 +47,7 @@ function mapBuildBundle(row: BuildRow): BuildBundle {
           },
         }
       : {}),
-  };
+  });
 }
 
 export class PostgresBuildStore implements BuildStore {

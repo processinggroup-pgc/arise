@@ -100,3 +100,60 @@ export function mergeTechnicalDesignBundle(
     updatedAt,
   };
 }
+
+function normalizeStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((item): item is string => typeof item === "string");
+}
+
+/** Ensures jsonb-loaded bundles have safe defaults for optional array fields. */
+export function normalizeTechnicalDesignBundle(
+  bundle: TechnicalDesignBundle,
+): TechnicalDesignBundle {
+  const normalized: TechnicalDesignBundle = { ...bundle };
+
+  if (bundle.dataModel !== undefined) {
+    const entities = Array.isArray(bundle.dataModel.entities) ? bundle.dataModel.entities : [];
+    normalized.dataModel = {
+      entities: entities.map((entity) => ({
+        name: typeof entity.name === "string" ? entity.name : "",
+        fields: normalizeStringArray(entity.fields),
+        relationships: normalizeStringArray(entity.relationships),
+      })),
+    };
+  }
+
+  if (bundle.gapAnalysis !== undefined) {
+    normalized.gapAnalysis = {
+      missingFeatures: normalizeStringArray(bundle.gapAnalysis.missingFeatures),
+      edgeCases: normalizeStringArray(bundle.gapAnalysis.edgeCases),
+      userFlowGaps: normalizeStringArray(bundle.gapAnalysis.userFlowGaps),
+      technicalRisks: normalizeStringArray(bundle.gapAnalysis.technicalRisks),
+      silentFailures: normalizeStringArray(bundle.gapAnalysis.silentFailures),
+    };
+  }
+
+  if (bundle.deeperGapCheck !== undefined) {
+    normalized.deeperGapCheck = {
+      failureModes: normalizeStringArray(bundle.deeperGapCheck.failureModes),
+      risks: normalizeStringArray(bundle.deeperGapCheck.risks),
+      weakAssumptions: normalizeStringArray(bundle.deeperGapCheck.weakAssumptions),
+    };
+  }
+
+  if (bundle.systemValidation !== undefined) {
+    normalized.systemValidation = {
+      correctnessNotes: normalizeStringArray(bundle.systemValidation.correctnessNotes),
+      completenessNotes: normalizeStringArray(bundle.systemValidation.completenessNotes),
+      userFlowAlignment:
+        typeof bundle.systemValidation.userFlowAlignment === "string"
+          ? bundle.systemValidation.userFlowAlignment
+          : "",
+    };
+  }
+
+  return normalized;
+}

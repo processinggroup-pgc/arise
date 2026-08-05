@@ -58,6 +58,10 @@ interface InitiativeWorkflowProps {
   openAiConfigured?: boolean;
 }
 
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value : [];
+}
+
 function formatVercelConnectionSummary(
   vercel: NonNullable<BuildBundle["platformConnections"]>["vercel"],
 ): string {
@@ -107,7 +111,9 @@ function ArtifactList({ title, items }: { title: string; items: string[] }): Rea
 }
 
 function mergeSuggestionsIntoFields(current: string[], suggestions: string[]): string[] {
-  return current.map((value, index) => (value.trim().length > 0 ? value : (suggestions[index] ?? "")));
+  return (current ?? []).map((value, index) =>
+    value.trim().length > 0 ? value : (asStringArray(suggestions)[index] ?? ""),
+  );
 }
 
 function mergeSuggestionField(current: string, suggestion: string | undefined): string {
@@ -321,7 +327,7 @@ function MvpScopingForm({
   onSubmit: (formData: FormData) => void;
 }): React.JSX.Element {
   const router = useRouter();
-  const suggestions = bundle?.featureWishListSuggestions ?? [];
+  const suggestions = asStringArray(bundle?.featureWishListSuggestions);
   const autoSuggestStarted = useRef(false);
   const [isSuggesting, startSuggest] = useTransition();
   const [features, setFeatures] = useState<string[]>(() =>
@@ -630,9 +636,9 @@ export function InitiativeWorkflow({
           <h3>Stress test</h3>
           {bundle?.stressTest !== undefined ? (
             <div className="detail-grid">
-              <ArtifactList title="Failure modes" items={bundle.stressTest.failureModes} />
-              <ArtifactList title="Non-users" items={bundle.stressTest.nonUsers} />
-              <ArtifactList title="Wrong assumptions" items={bundle.stressTest.wrongAssumptions} />
+              <ArtifactList title="Failure modes" items={bundle.stressTest.failureModes ?? []} />
+              <ArtifactList title="Non-users" items={bundle.stressTest.nonUsers ?? []} />
+              <ArtifactList title="Wrong assumptions" items={bundle.stressTest.wrongAssumptions ?? []} />
             </div>
           ) : (
             <ActionButton
@@ -708,8 +714,8 @@ export function InitiativeWorkflow({
         <h2>Step 2 — MVP finalize</h2>
         {bundle?.mvpScope !== undefined ? (
           <div className="detail-grid">
-            <ArtifactList title="Core features" items={bundle.mvpScope.coreFeatures} />
-            <ArtifactList title="What NOT to build" items={bundle.mvpScope.notToBuild} />
+            <ArtifactList title="Core features" items={bundle.mvpScope.coreFeatures ?? []} />
+            <ArtifactList title="What NOT to build" items={bundle.mvpScope.notToBuild ?? []} />
           </div>
         ) : null}
         <MvpFinalizeForm
@@ -765,7 +771,7 @@ export function InitiativeWorkflow({
       <section className="panel detail-section">
         <h2>Step 3 — Story map</h2>
         <ol className="detail-list">
-          {bundle.userFlow.steps.map((step) => (
+          {(bundle.userFlow.steps ?? []).map((step) => (
             <li key={step.stepNumber}>
               {step.userAction} → {step.systemResponse}
             </li>
@@ -787,11 +793,11 @@ export function InitiativeWorkflow({
     return (
       <section className="panel detail-section">
         <h2>Step 3 — BRD build</h2>
-        {bundle.storyMap.steps.map((step) => (
+        {(bundle.storyMap.steps ?? []).map((step) => (
           <article key={step.stepTitle} className="criteria-card">
             <strong>{step.stepTitle}</strong>
             <ul className="detail-list">
-              {step.tasks.map((task) => (
+              {(step.tasks ?? []).map((task) => (
                 <li key={task.title}>
                   {task.title} {task.inMvp ? "(MVP)" : ""}
                 </li>
@@ -905,11 +911,11 @@ export function InitiativeWorkflow({
     return (
       <section className="panel detail-section">
         <h2>Step 4 — Gap analysis</h2>
-        {technicalBundle.dataModel.entities.map((entity) => (
+        {(technicalBundle.dataModel.entities ?? []).map((entity) => (
           <article key={entity.name} className="criteria-card">
             <strong>{entity.name}</strong>
-            <p>Fields: {entity.fields.join(", ")}</p>
-            <p>Relationships: {entity.relationships.join("; ")}</p>
+            <p>Fields: {(entity.fields ?? []).join(", ")}</p>
+            <p>Relationships: {(entity.relationships ?? []).join("; ")}</p>
           </article>
         ))}
         {error ? <p className="form-error">{error}</p> : null}
@@ -928,15 +934,15 @@ export function InitiativeWorkflow({
       <section className="panel detail-section">
         <h2>Step 4 — System validation</h2>
         <div className="detail-grid">
-          <ArtifactList title="Missing features" items={technicalBundle.gapAnalysis.missingFeatures} />
-          <ArtifactList title="Edge cases" items={technicalBundle.gapAnalysis.edgeCases} />
-          <ArtifactList title="Technical risks" items={technicalBundle.gapAnalysis.technicalRisks} />
-          <ArtifactList title="Silent failures" items={technicalBundle.gapAnalysis.silentFailures} />
+          <ArtifactList title="Missing features" items={technicalBundle.gapAnalysis.missingFeatures ?? []} />
+          <ArtifactList title="Edge cases" items={technicalBundle.gapAnalysis.edgeCases ?? []} />
+          <ArtifactList title="Technical risks" items={technicalBundle.gapAnalysis.technicalRisks ?? []} />
+          <ArtifactList title="Silent failures" items={technicalBundle.gapAnalysis.silentFailures ?? []} />
         </div>
         {technicalBundle.deeperGapCheck !== undefined ? (
           <div className="detail-grid">
-            <ArtifactList title="Failure modes" items={technicalBundle.deeperGapCheck.failureModes} />
-            <ArtifactList title="Weak assumptions" items={technicalBundle.deeperGapCheck.weakAssumptions} />
+            <ArtifactList title="Failure modes" items={technicalBundle.deeperGapCheck.failureModes ?? []} />
+            <ArtifactList title="Weak assumptions" items={technicalBundle.deeperGapCheck.weakAssumptions ?? []} />
           </div>
         ) : null}
         <form
@@ -1187,7 +1193,7 @@ export function InitiativeWorkflow({
           <p className="page-description">Project ID: {buildBundle.projectId}</p>
         ) : null}
         <ul className="detail-list">
-          {buildBundle.buildPlan.tasks.map((task) => (
+          {(buildBundle.buildPlan.tasks ?? []).map((task) => (
             <li key={task.title}>
               {task.title} — {task.status.replaceAll("_", " ")}
             </li>
@@ -1214,14 +1220,14 @@ export function InitiativeWorkflow({
         <h2>Step 6 — UAT &amp; enhancements backlog</h2>
         <p>{buildBundle.uatReport.summary}</p>
         <ul className="detail-list">
-          {buildBundle.uatReport.checklist.map((item) => (
+          {(buildBundle.uatReport.checklist ?? []).map((item) => (
             <li key={item.id}>
               {item.passed ? "✓" : "✗"} {item.description}
             </li>
           ))}
         </ul>
 
-        {buildBundle.enhancementsBacklog.length > 0 ? (
+        {(buildBundle.enhancementsBacklog ?? []).length > 0 ? (
           <form
             className="form-panel"
             onSubmit={(event) => {
@@ -1234,7 +1240,7 @@ export function InitiativeWorkflow({
             <p className="page-description">
               Select deferred features from MVP scope and gap analysis to queue for post-MVP work.
             </p>
-            {buildBundle.enhancementsBacklog.map((item) => (
+            {(buildBundle.enhancementsBacklog ?? []).map((item) => (
               <label key={item.id} className="framing-option">
                 <input defaultChecked={item.applied} name="enhancementId" type="checkbox" value={item.id} />
                 <span className="framing-option-body">
@@ -1266,7 +1272,7 @@ export function InitiativeWorkflow({
   }
 
   if (state === "production" || state === "ops_handoff") {
-    const applied = buildBundle?.enhancementsBacklog.filter((item) => item.applied) ?? [];
+    const applied = (buildBundle?.enhancementsBacklog ?? []).filter((item) => item.applied);
     return (
       <section className="panel detail-section">
         <h2>Step 6 complete — MVP in production</h2>

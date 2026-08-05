@@ -1,9 +1,10 @@
-import type {
-  Initiative,
-  InitiativeState,
-  MarketResearchDossier,
-  ProblemAlignment,
-  ProblemBrief,
+import {
+  normalizeMarketResearchDossier,
+  type Initiative,
+  type InitiativeState,
+  type MarketResearchDossier,
+  type ProblemAlignment,
+  type ProblemBrief,
 } from "@arise/domain";
 
 import type { PostgresQueryable } from "../persistence/postgres-tenant-session.js";
@@ -82,7 +83,7 @@ function mapProblemBrief(row: ProblemBriefRow): ProblemBrief {
     organizationId: row.organization_id,
     rawProblemDescription: row.raw_problem_description,
     targetAudience: row.target_audience,
-    painPoints: row.pain_points,
+    painPoints: row.pain_points ?? [],
     businessContext: row.business_context,
     desiredOutcome: row.desired_outcome,
     icpRole: row.icp_role ?? "",
@@ -96,7 +97,7 @@ function mapProblemBrief(row: ProblemBriefRow): ProblemBrief {
 }
 
 function mapMarketResearch(row: MarketResearchRow): MarketResearchDossier {
-  return {
+  return normalizeMarketResearchDossier({
     id: row.id,
     initiativeId: row.initiative_id,
     organizationId: row.organization_id,
@@ -106,7 +107,7 @@ function mapMarketResearch(row: MarketResearchRow): MarketResearchDossier {
     citations: row.citations,
     framingOptions: row.framing_options,
     generatedAt: row.generated_at,
-  };
+  });
 }
 
 function mapProblemAlignment(row: ProblemAlignmentRow): ProblemAlignment {

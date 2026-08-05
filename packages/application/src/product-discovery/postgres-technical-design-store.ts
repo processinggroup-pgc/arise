@@ -1,4 +1,4 @@
-import type { TechnicalDesignBundle } from "@arise/domain";
+import { normalizeTechnicalDesignBundle, type TechnicalDesignBundle } from "@arise/domain";
 
 import type { PostgresQueryable } from "../persistence/postgres-tenant-session.js";
 import type { TechnicalDesignStore } from "./technical-design-store.js";
@@ -13,13 +13,13 @@ interface TechnicalDesignRow {
 
 function mapTechnicalDesign(row: TechnicalDesignRow): TechnicalDesignBundle {
   const bundle = row.bundle as TechnicalDesignBundle;
-  return {
+  return normalizeTechnicalDesignBundle({
     ...bundle,
     id: row.id,
     initiativeId: row.initiative_id,
     organizationId: row.organization_id,
     updatedAt: new Date(row.updated_at),
-  };
+  });
 }
 
 export class PostgresTechnicalDesignStore implements TechnicalDesignStore {

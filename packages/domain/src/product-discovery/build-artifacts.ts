@@ -104,3 +104,96 @@ export function mergeBuildBundle(
 ): BuildBundle {
   return { ...bundle, ...patch, updatedAt };
 }
+
+function normalizeBuildTasks(value: unknown): BuildTask[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((task) => ({
+    title: typeof task.title === "string" ? task.title : "",
+    status:
+      task.status === "pending" ||
+      task.status === "in_progress" ||
+      task.status === "complete" ||
+      task.status === "failed"
+        ? task.status
+        : "pending",
+    ...(typeof task.workItemId === "string" ? { workItemId: task.workItemId } : {}),
+  }));
+}
+
+function normalizeUatChecklist(value: unknown): UatChecklistItem[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((item) => ({
+    id: typeof item.id === "string" ? item.id : "",
+    description: typeof item.description === "string" ? item.description : "",
+    passed: item.passed === true,
+  }));
+}
+
+function normalizeEnhancementsBacklog(value: unknown): EnhancementBacklogItem[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((item) => ({
+    id: typeof item.id === "string" ? item.id : "",
+    title: typeof item.title === "string" ? item.title : "",
+    source:
+      item.source === "not_to_build" ||
+      item.source === "gap_analysis" ||
+      item.source === "deferred_feature"
+        ? item.source
+        : "deferred_feature",
+    inMvp: item.inMvp === true,
+    applied: item.applied === true,
+  }));
+}
+
+/** Ensures jsonb-loaded bundles have safe defaults for optional array fields. */
+export function normalizeBuildBundle(bundle: BuildBundle): BuildBundle {
+  const normalized: BuildBundle = {
+    ...bundle,
+    enhancementsBacklog: normalizeEnhancementsBacklog(bundle.enhancementsBacklog),
+  };
+
+  if (bundle.buildPlan !== undefined) {
+    normalized.buildPlan = {
+      ...bundle.buildPlan,
+      summary: typeof bundle.buildPlan.summary === "string" ? bundle.buildPlan.summary : "",
+      tasks: normalizeBuildTasks(bundle.buildPlan.tasks),
+      startedAt:
+        bundle.buildPlan.startedAt instanceof Date
+          ? bundle.buildPlan.startedAt
+          : new Date(bundle.buildPlan.startedAt),
+      ...(bundle.buildPlan.completedAt !== undefined
+        ? {
+            completedAt:
+              bundle.buildPlan.completedAt instanceof Date
+                ? bundle.buildPlan.completedAt
+                : new Date(bundle.buildPlan.completedAt),
+          }
+        : {}),
+      ...(typeof bundle.buildPlan.vercelProjectUrl === "string"
+        ? { vercelProjectUrl: bundle.buildPlan.vercelProjectUrl }
+        : {}),
+    };
+  }
+
+  if (bundle.uatReport !== undefined) {
+    normalized.uatReport = {
+      checklist: normalizeUatChecklist(bundle.uatReport.checklist),
+      summary: typeof bundle.uatReport.summary === "string" ? bundle.uatReport.summary : "",
+      testedAt:
+        bundle.uatReport.testedAt instanceof Date
+          ? bundle.uatReport.testedAt
+          : new Date(bundle.uatReport.testedAt),
+    };
+  }
+
+  return normalized;
+}
